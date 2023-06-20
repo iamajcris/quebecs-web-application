@@ -1,6 +1,6 @@
-# QuebecsWebApplication
+# Quebecs Web Application
 
-Quebecs ordering application
+Order web application for Quebecs
 
 ## Development server
 
@@ -8,5 +8,5 @@ Run `npm run start` for a dev server. The application will automatically open ne
 
 ## Documentation
 
-[Boostrap] (https://getbootstrap.com/docs/4.0/getting-started/introduction/)
-[Ng-Boostrap] (https://ng-bootstrap.github.io/#/components/accordion/overview)
+* <b>Bootstrap</b> - https://getbootstrap.com/docs/4.0/getting-started/introduction
+* <b>Ng-Bootstrap</b> - https://ng-bootstrap.github.io/#/components/accordion/overview
