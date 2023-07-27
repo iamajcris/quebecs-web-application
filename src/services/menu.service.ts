@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -30,6 +30,18 @@ export class MenuService {
     return this.httpClient.post(`${this.apiBase}/menu`, menu);
   }
 
+  getMenus(options: any = null): Observable<Menu[]> {
+    const params = {
+      p: 0,
+      ps: 10,
+      sd: -1,
+      s: 'createdAt',
+      ...options,
+    };
+
+    return this.httpClient.get<Menu[]>(`${this.apiBase}/menus`, { params });
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
@@ -43,4 +55,18 @@ export class MenuService {
     // Return an observable with a user-facing error message.
     return throwError(() => new Error('Something bad happened; please try again later.'));
   }
+}
+
+export interface MenuItem {
+  name: string;
+  halfPrice: number;
+  regularPrice: number;
+}
+
+export interface Menu {
+  scheduledDate: Date;
+  menuId: number;
+  menuItems: [MenuItem];
+  updatedAt: Date;
+  createdAt: Date;
 }

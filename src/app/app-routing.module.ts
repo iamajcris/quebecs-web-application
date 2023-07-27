@@ -11,7 +11,7 @@ const routes: Routes = [
     path: 'home', component: HomeComponent
   },
   {
-    path: 'turo-turo', component: OrdersComponent
+    path: 'orders', component: OrdersComponent
   },
   {
     path: 'quebecs', component: RestaurantComponent

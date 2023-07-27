@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, Input } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import * as moment from 'moment';
-import { MenuService } from 'src/services/menu.service';
+import { Menu, MenuService } from 'src/services/menu.service';
+import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-add-menu',
@@ -12,6 +12,7 @@ import { MenuService } from 'src/services/menu.service';
 export class AddMenuComponent implements OnInit {
   form: FormGroup;
   isSaving: boolean = false;
+  @Input() public menu: Menu;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -22,21 +23,21 @@ export class AddMenuComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
+
+    if (this.menu) {
+      this.patchMenu(this.menu);
+    } else {
+      this.addMenuItem();
+    }
   }
 
   initializeForm() {
-    const defaultDt: NgbDateStruct = {
-      day: moment().date(),
-      month: moment().month()+1,
-      year: moment().year(),
-    };
+    const defaultDt = this.convertToDateStruct(Date.now());
 
     this.form = this.fb.group({
       scheduledDate: [defaultDt, Validators.required],
       menuItems: this.fb.array([]),
     });
-
-    this.addMenuItem();
   }
 
   onCreateMenuItem() {
@@ -54,16 +55,42 @@ export class AddMenuComponent implements OnInit {
       scheduledDate
     } = this.form.value;
 
-    console.log(this.form.value);
     this.menuService.createMenu({
       ...this.form.value,
-      scheduledDate: moment(this.dateFormatter.format(scheduledDate)).toDate()
+      scheduledDate: moment.tz(this.dateFormatter.format(scheduledDate)).toDate()
     }).subscribe((res) => {
-      console.log(res);
       this.isSaving = false;
       this.activeModal.close('success');
     })
   }
+
+  patchMenu(menu: Menu) {
+    const {
+      scheduledDate
+    } = this.form.controls;
+
+    scheduledDate.patchValue(this.convertToDateStruct(menu.scheduledDate));
+    
+    if (menu.menuItems.length) {
+      menu.menuItems.forEach((x) => {
+        const item = this.onCreateMenuItem();
+        item.patchValue(x as any);
+        this.menuItems.push(item);
+      });
+    }
+  }
+
+  convertToDateStruct(date: any) {
+    const dt = new Date(date);
+
+    const defaultDt: NgbDateStruct = {
+      day: dt.getDate(),
+      month: dt.getMonth()+1,
+      year: dt.getFullYear(),
+    };
+
+    return defaultDt;
+  };
 
   addMenuItem() {
     this.menuItems.push(this.onCreateMenuItem());
