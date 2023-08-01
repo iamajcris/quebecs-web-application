@@ -1,0 +1,88 @@
+<div class="modal-header">
+  <h4 class="modal-title">Add Menu</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
+</div>
+<div class="modal-body">
+  <form [formGroup]="form">
+    <div class="container">
+      <div class="row">
+        <div class="col-3">
+          <label>Scheduled Date</label>
+        </div>
+        <div class="col">
+          <div class="input-group">
+            <input
+              class="form-control"
+              placeholder="yyyy-mm-dd"
+              name="dp"
+              formControlName="scheduledDate"
+              ngbDatepicker
+              #d="ngbDatepicker"
+            />
+            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid border-bottom mt-3 mb-3 px-0">
+        <h5>Menu list</h5>
+      </div>
+      <div class="row">
+        <div class="col-5">
+          Name
+        </div>
+        <div class="col-3 text-center">
+          Half
+        </div>
+        <div class="col-3 text-center">
+          Regular
+        </div>
+        <div class="col-1">
+        </div>
+      </div>
+      <span class="border-bottom"></span>
+      <ng-container formArrayName="menuItems">
+        <ng-container *ngFor="let item of menuItems.controls; index as i">
+          <div class="row" [formGroup]="item">
+            <div class="col-5">
+              <input type="text" class="form-control" formControlName="name">
+              <ng-container *ngIf="item.controls.name.invalid && (item.controls.name.dirty || item.controls.name.touched)">
+                <label class="text-danger" *ngIf="item.controls.name.errors?.['required']">
+                  Name is required.
+                </label>
+                <label class="text-danger" *ngIf="item.controls.name.errors?.['minlength']">
+                  Name must be at least 4 characters long.
+                </label>
+              </ng-container>
+            </div>
+            <div class="col-3">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">₱</span>
+                </div>
+                <input type="number" class="form-control" formControlName="halfPrice">
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">₱</span>
+                </div>
+                <input type="number" class="form-control" formControlName="regularPrice">
+              </div>
+            </div>
+            <div class="col-1">
+              <button *ngIf="i == 0" type="button" class="btn btn-primary" (click)="addMenuItem()"><i class="bi bi-plus-lg"></i></button>
+              <button *ngIf="i > 0" type="button" class="btn btn-danger" (click)="deleteItem(i)"><i class="bi bi-trash"></i></button>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="saveMenu()" [disabled]="this.isSaving">
+    Save
+    <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
+  </button>
+</div>
