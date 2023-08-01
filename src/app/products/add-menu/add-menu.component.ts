@@ -2,7 +2,6 @@ import { Component, OnInit, Input } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Menu, MenuService } from 'src/services/menu.service';
-import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-add-menu',
@@ -57,7 +56,7 @@ export class AddMenuComponent implements OnInit {
 
     this.menuService.createMenu({
       ...this.form.value,
-      scheduledDate: moment.tz(this.dateFormatter.format(scheduledDate)).toDate()
+      scheduledDate: new Date(this.dateFormatter.format(scheduledDate))
     }).subscribe((res) => {
       this.isSaving = false;
       this.activeModal.close('success');

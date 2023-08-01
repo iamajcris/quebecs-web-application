@@ -2,7 +2,6 @@ import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AddMenuComponent } from './add-menu/add-menu.component';
 import { Menu, MenuService } from 'src/services/menu.service';
-import * as moment from 'moment-timezone';
 
 @Component({
   selector: 'app-products',
@@ -21,7 +20,9 @@ export class ProductsComponent implements OnInit {
     this.menuService.getMenus()
       .subscribe((res) => {
         this.menuList = res.map((m) => {
-          m.scheduledDate = moment.tz(m.scheduledDate, 'Asia/Manila').toDate();
+          const date = new Date(m.scheduledDate);
+
+          m.scheduledDate = new Date(date.toLocaleDateString("fil-PH"));
           return m;
         });
         console.log(res)
