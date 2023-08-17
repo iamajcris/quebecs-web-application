@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 
 const httpOptions = {
@@ -39,7 +39,19 @@ export class MenuService {
       ...options,
     };
 
-    return this.httpClient.get<Menu[]>(`${this.apiBase}/menus`, { params });
+    return this.httpClient
+      .get<Menu[]>(`${this.apiBase}/menus`, { params })
+      .pipe(
+        map((m: any) => {
+          const date = new Date(m.scheduledDate);
+          m.scheduledDate = new Date(date.toLocaleDateString("fil-PH"));
+          return m;
+        },
+      ));
+  }
+
+  getMenu(id: any) {
+    return this.httpClient.get<Menu>(`${this.apiBase}/menu/${id}`);
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -59,8 +71,14 @@ export class MenuService {
 
 export interface MenuItem {
   name: string;
-  halfPrice: number;
-  regularPrice: number;
+  price: number;
+  size: string;
+  pricing: [
+    {
+      price: number,
+      size: string
+    }
+  ];
 }
 
 export interface Menu {

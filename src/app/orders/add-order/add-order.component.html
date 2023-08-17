@@ -3,7 +3,121 @@
   <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
 </div>
 <div class="modal-body">
-  <p>Hello!</p>
+  <div class="container-fluid">
+    <div class="row mb-3">
+      <div class="col">
+        <ng-container *ngFor="let type of filter">
+          <button class="btn btn-primary me-2">{{type}}</button>
+        </ng-container>
+      </div>
+      <div class="col-4">
+        <div class="form-floating">
+          <select class="form-select form-select-sm" id="menuSelect">
+            <option selected>Open this select menu</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+          </select>
+          <label for="menuSelect">Selected menu</label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <!--Menu items-->
+        <div class="row">
+          <ng-container *ngIf="menuItems$ | async as items">
+            <div class="col-4 col-xl-3 pb-3" *ngFor="let item of items; let i = index">
+              <div class="card">
+                <div class="card-body p-0">
+                  <div>
+                    <label class="card-title">{{item.name}}</label>
+                  </div>
+                  <div class="btn-group w-100">
+                    <!-- <button class="btn btn-secondary dropdown-toggle no-border-radius-top" type="button" id="defaultDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                      {{item.size}} - {{item.price}}
+                    </button> -->
+                    <button type="button" class="btn btn-secondary no-border-radius-top" [ngClass]="{'border-radius-bottom-right': item.pricing.length <= 1}">{{item.size}} - {{item.price}}</button>
+                    <button *ngIf="item.pricing.length > 1" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+                      <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
+                      <li *ngFor="let pricing of item.pricing">
+                        <a class="dropdown-item">{{pricing.size}} - {{pricing.price}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- <div class="d-flex btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-primary" (click)="addOrder(item.name, item.regularPrice, 'regular')">Reg {{item.regularPrice}}</button>
+                    <button type="button" class="btn btn-primary" (click)="addOrder(item.name, item.halfPrice, 'half')">Half {{item.halfPrice}}</button>
+                  </div> -->
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <div class="col-4 border-left">
+        <div class="accordion" id="accordionPanelsStayOpenExample">
+          <form [formGroup]="orderForm">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="panelsStayOpen-headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                  Customer Details
+                </button>
+              </h2>
+              <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingOne">
+                <div class="accordion-body">
+                    <div class="form-floating mb-3">
+                      <input type="text" class="form-control" id="customerName" formControlName="customerName" placeholder="Enter customer name">
+                      <label for="customerName">Customer Name</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <textarea class="form-control" id="address" formControlName="address" style="height: 100px" placeholder="Enter address"></textarea>
+                      <label for="address">Address</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input type="text" class="form-control" id="mobileNumber" formControlName="mobileNumber" placeholder="Enter mobile number">
+                      <label for="mobileNumber">Mobile number</label>
+                    </div>
+                    <!-- <ng-container *ngIf="orderForm.controls['customerName'].invalid && (orderForm.controls['customerName'].dirty || orderForm.controls['customerName'].touched)">
+                      <label class="text-danger" *ngIf="orderForm.controls['customerName'].errors?.['required']">
+                        Name is required.
+                      </label>
+                    </ng-container> -->
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
+                  Orders
+                </button>
+              </h2>
+              <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingTwo">
+                <div class="accordion-body">
+                  <ng-container formArrayName="items">
+                    <ul class="list-group list-group-flush" *ngFor="let item of items.controls; index as i">
+                      <li class="list-group-item" [formGroup]="item">
+                        {{item.value.quantity}}x {{item.value.id}} {{item.value.price}}
+                      </li>
+                    </ul>
+                  </ng-container>
+                  <!-- <ul class="list-group list-group-flush">
+                    <li class="list-group-item">An item</li>
+                    <li class="list-group-item">A second item</li>
+                    <li class="list-group-item">A third item</li>
+                    <li class="list-group-item">A fourth item</li>
+                    <li class="list-group-item">And a fifth one</li>
+                  </ul> -->
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>

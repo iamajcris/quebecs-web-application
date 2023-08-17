@@ -2,3 +2,12 @@
 
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
+
+.no-border-radius-top {
+  border-top-left-radius: 0px !important;
+  border-top-right-radius: 0px !important;
+}
+
+.border-radius-bottom-right {
+  border-bottom-right-radius: 5px !important;
+}
