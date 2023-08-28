@@ -73,6 +73,8 @@ export interface MenuItem {
   name: string;
   price: number;
   size: string;
+  category: string;
+  sort: number;
   pricing: [
     {
       price: number,

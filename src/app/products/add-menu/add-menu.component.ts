@@ -3,6 +3,7 @@ import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Menu, MenuService } from 'src/services/menu.service';
 import * as _ from 'lodash';
+import settings from '../../../../app.config.json';
 
 @Component({
   selector: 'app-add-menu',
@@ -13,14 +14,7 @@ export class AddMenuComponent implements OnInit {
   form: FormGroup;
   isSaving: boolean = false;
   @Input() public menu: Menu;
-  categoryList = [
-    'Pork',
-    'Beef',
-    'Chicken',
-    'Fish',
-    'Veg',
-    'Misc'
-  ];
+  categoryList = settings.categoryList;
 
   priceType = [
     'Regular',

@@ -1,0 +1,9 @@
+.items {
+  li {
+    border: none;
+  }
+
+  li:last-child {
+    border-bottom: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
+  }
+}
