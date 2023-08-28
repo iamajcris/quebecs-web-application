@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, 
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
 import { Menu, MenuService } from 'src/services/menu.service';
+import { OrderService } from 'src/services/order.service';
 
 const options = [
   'Discount',
@@ -49,6 +50,7 @@ export class AddOrderComponent implements OnInit {
   constructor(
     public activeModal: NgbActiveModal,
     private menuService: MenuService,
+    private orderService: OrderService,
     private fb: FormBuilder) {
   }
 
@@ -207,7 +209,18 @@ export class AddOrderComponent implements OnInit {
   }
 
   save() {
-    console.log(this.orderForm.value);
+    this.isSaving = true;
+
+    const order = this.orderForm.value;
+    order.items = _.map(order.items, (item: any) => {
+      return _.omit(item, ['enableNotes']);
+    });
+
+    this.orderService.createOrder(order)
+      .subscribe((res) => {
+        this.isSaving = false;
+        this.activeModal.close('success');
+      });
   }
 
   activateNotes(index: any) {
@@ -224,7 +237,7 @@ export class AddOrderComponent implements OnInit {
 
   search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) => {
 		const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
-		const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.instance.isPopupOpen()));
+		const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.instance?.isPopupOpen()));
 		const inputFocus$ = this.focus$;
 
 		return merge(debouncedText$, inputFocus$, clicksWithClosedPopup$).pipe(
