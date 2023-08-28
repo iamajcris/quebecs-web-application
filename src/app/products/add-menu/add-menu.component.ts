@@ -1,7 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Menu, MenuService } from 'src/services/menu.service';
+import * as _ from 'lodash';
+import settings from '../../../../app.config.json';
 
 @Component({
   selector: 'app-add-menu',
@@ -12,6 +14,21 @@ export class AddMenuComponent implements OnInit {
   form: FormGroup;
   isSaving: boolean = false;
   @Input() public menu: Menu;
+  categoryList = settings.categoryList;
+
+  priceType = [
+    'Regular',
+    'Half',
+    'S',
+    'M',
+    'L',
+    'XL'
+  ];
+
+  storeTypes = [
+    'Turo-turo',
+    'Quebecs',
+  ];
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -28,6 +45,7 @@ export class AddMenuComponent implements OnInit {
     } else {
       this.addMenuItem();
     }
+    console.log(this.menuItems)
   }
 
   initializeForm() {
@@ -35,6 +53,8 @@ export class AddMenuComponent implements OnInit {
 
     this.form = this.fb.group({
       scheduledDate: [defaultDt, Validators.required],
+      store: [this.storeTypes[0]],
+      isActive: [true],
       menuItems: this.fb.array([]),
     });
   }
@@ -42,8 +62,8 @@ export class AddMenuComponent implements OnInit {
   onCreateMenuItem() {
     return this.fb.group({
       name: ['', Validators.required],
-      regularPrice: ['', [Validators.required, Validators.min(1)]],
-      halfPrice: ['', [Validators.required, Validators.min(1)]],
+      category: [''],
+      pricing: this.fb.array([]),
     });
   }
 
@@ -71,8 +91,13 @@ export class AddMenuComponent implements OnInit {
     scheduledDate.patchValue(this.convertToDateStruct(menu.scheduledDate));
     
     if (menu.menuItems.length) {
-      menu.menuItems.forEach((x) => {
+      menu.menuItems.forEach((x: any) => {
         const item = this.onCreateMenuItem();
+
+        if (!_.isUndefined(x.pricing)) {
+          x.pricing.forEach((p: any) => (item.controls.pricing as FormArray).push(this.createPricing()))
+        }
+
         item.patchValue(x as any);
         this.menuItems.push(item);
       });
@@ -92,11 +117,45 @@ export class AddMenuComponent implements OnInit {
   };
 
   addMenuItem() {
-    this.menuItems.push(this.onCreateMenuItem());
+    const item = this.onCreateMenuItem();
+    // (item.get('pricing') as FormArray).push(this.createPricing());
+
+    this.menuItems.push(item);
+  }
+
+  createPricing() {
+    return this.fb.group({
+      size: [this.priceType[0]],
+      price: [''],
+    });
   }
 
   deleteItem(index: number) {
     this.menuItems.removeAt(index);
+  }
+
+  patchValue(value: any, control: any) {
+    control.patchValue(value);
+  }
+
+  onSelectChanged(event: any, formControl: FormControl) {
+    const {
+      value,
+     } = event.target;
+
+     formControl.patchValue(value);
+  }
+
+  addPricing(itemPricingIndex: any) {
+    this.itemPricing(itemPricingIndex).push(this.createPricing());
+  }
+
+  deletePricing(itemPricingIndex: any, pricingIndex: any) {
+    this.itemPricing(itemPricingIndex).removeAt(pricingIndex);
+  }
+
+  itemPricing(index: number) : any {
+    return this.menuItems.at(index).get("pricing") as FormArray
   }
 
   get menuItems() {

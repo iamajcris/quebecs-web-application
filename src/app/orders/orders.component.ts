@@ -14,6 +14,6 @@ export class OrdersComponent {
 	}
 
 	openAddOrder() {
-		this.modalService.open(AddOrderComponent);
+		this.modalService.open(AddOrderComponent, { fullscreen: true, scrollable: true });
 	}
 }

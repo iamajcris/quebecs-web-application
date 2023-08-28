@@ -19,12 +19,7 @@ export class ProductsComponent implements OnInit {
   ngOnInit(): void {
     this.menuService.getMenus()
       .subscribe((res) => {
-        this.menuList = res.map((m) => {
-          const date = new Date(m.scheduledDate);
-
-          m.scheduledDate = new Date(date.toLocaleDateString("fil-PH"));
-          return m;
-        });
+        this.menuList = res
         console.log(res)
       });
   }
@@ -32,10 +27,5 @@ export class ProductsComponent implements OnInit {
   openMenu(menu: any = null) {
     const modalRef = this.modalService.open(AddMenuComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.menu = menu;
-    // modalRef.result.then((result) => {
-    //   if (result === 'success') {
-    //     //refresh data
-    //   }
-    // }).catch((e) => console.log(e));
   }
 }

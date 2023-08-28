@@ -41,6 +41,7 @@ import { HttpClientModule } from '@angular/common/http';
     NgbDatepicker,
     ReactiveFormsModule,
     HttpClientModule,
+    NgbTypeaheadModule,
   ],
   providers: [
     DecimalPipe,
