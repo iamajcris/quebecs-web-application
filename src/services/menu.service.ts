@@ -54,6 +54,10 @@ export class MenuService {
     return this.httpClient.get<Menu>(`${this.apiBase}/menu/${id}`);
   }
 
+  updateMenu(id: any, data: any){
+    return this.httpClient.put(`${this.apiBase}/menu/${id}`, data);
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       // A client-side or network error occurred. Handle it accordingly.
@@ -86,6 +90,7 @@ export interface MenuItem {
 export interface Menu {
   scheduledDate: Date;
   menuId: number;
+  id: number;
   menuItems: [MenuItem];
   updatedAt: Date;
   createdAt: Date;

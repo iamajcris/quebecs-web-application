@@ -20,4 +20,16 @@ export class OrderService {
   createOrder(order: any) {
     return this.httpClient.post(`${this.apiBase}/order`, order);
   }
+
+  geOrders(options: any = null) {
+    const params = {
+      p: 0,
+      ps: 10,
+      sd: -1,
+      s: 'createdAt',
+      ...options,
+    };
+
+    return this.httpClient.get<any[]>(`${this.apiBase}/orders`, { params });
+  }
 }

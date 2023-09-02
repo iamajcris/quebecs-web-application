@@ -7,23 +7,48 @@
     <form [formGroup]="orderForm">
       <div class="row">
         <div class="col-3">
-          <div class="input-group input-group-sm mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-sm">Name</span>
-            <input type="text" class="form-control form-control-sm" id="customerName" formControlName="customerName" placeholder="Enter customer name">
+          <div class="input-group input-group-md mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-md">Name</span>
+            <input type="text" class="form-control form-control-md" id="customerName" formControlName="customerName" placeholder="Enter customer name">
+          </div>
+        </div>
+        <div class="col">
+          <div class="input-group input-group-md mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-md">Address</span>
+            <input class="form-control form-control-md" id="address" formControlName="address" placeholder="Enter address">
           </div>
         </div>
         <div class="col-3">
-          <div class="input-group input-group-sm mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-sm">Mobile #</span>
-            <input type="text" class="form-control form-control-sm" id="mobileNumber" formControlName="mobileNumber" placeholder="Enter mobile number">
+          <div class="input-group input-group-md mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-md">Mobile #</span>
+            <input type="text" class="form-control form-control-md" id="mobileNumber" formControlName="mobileNumber" placeholder="Enter mobile number">
           </div>
         </div>
       </div>
       <div class="row">
-        <div class="col">
-          <div class="input-group input-group-sm mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-sm">Address</span>
-            <input class="form-control form-control-sm" id="address" formControlName="address" placeholder="Enter address">
+        <div class="col-4">
+          <div class="input-group input-group-md mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-md">Order Date</span>
+            <input
+              class="form-control"
+              placeholder="yyyy-mm-dd"
+              name="dp"
+              formControlName="orderDate"
+              ngbDatepicker
+              #d="ngbDatepicker"
+            />
+            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="input-group input-group-md mb-3">
+            <span class="input-group-text" id="inputGroup-sizing-md">Time</span>
+            <select class="form-select" formControlName="orderTime">
+              <option selected>{{orderForm.controls['orderTime'].value}}</option>
+              <option *ngFor="let time of meridianTimeList">
+                {{time}}
+              </option>
+            </select>
           </div>
         </div>
       </div>
@@ -74,32 +99,6 @@
                 </div>
               </div>
             </ng-container>
-
-            <!-- <ng-container *ngIf="menuItems$ | async as items">
-              <div class="col-4 col-xl-3 pb-3" *ngFor="let item of items; let i = index">
-                <div class="card">
-                  <div class="card-body p-0 text-center">
-                    <div>
-                      <label class="card-title mt-2">{{item.name}}</label>
-                    </div>
-                    <div class="btn-group w-100">
-                      <button type="button" class="btn btn-secondary no-border-radius-top text-end pe-0"
-                        [ngClass]="{'border-radius-bottom-right': item.pricing.length <= 1, 'text-end pe-0': item.pricing.length > 1}">
-                        {{item.size}} - {{item.price}}
-                      </button>
-                      <button *ngIf="item.pricing.length > 1" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
-                        <span class="visually-hidden">Toggle Dropdown</span>
-                      </button>
-                      <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
-                        <li *ngFor="let pricing of item.pricing">
-                          <a class="dropdown-item">{{pricing.size}} - {{pricing.price}}</a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ng-container> -->
           </div>
         </div>
         <div class="col-4 border-left">
