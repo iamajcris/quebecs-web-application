@@ -62,6 +62,15 @@
     </div>
   </div>
 </div>
-<div id="print-component" style="display: none;">
-<p>test</p>
+ <!--
+   1)- Add an ID here
+ -->
+ <div id="print-section"> 
+  <p>test print only</p>
 </div>
+
+ <!--
+   2)- Add the directive name in your button (ngxPrint),
+   3)- Affect your ID to printSectionId
+ -->
+<button printSectionId="print-section" ngxPrint>print</button> 
