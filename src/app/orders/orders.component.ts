@@ -40,7 +40,7 @@ export class OrdersComponent implements OnInit {
         <style>
         }</style>
     </head>
-    <body onload="window.print();window.close()">
+    <body onload="window.print()">
       <p>testing print</p>
      </body>
     </html>`;
