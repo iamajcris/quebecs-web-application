@@ -39,6 +39,5 @@ export class OrdersComponent implements OnInit {
 		WindowPrt.document.close();
 		WindowPrt.focus();
 		WindowPrt.print();
-		WindowPrt.close();
 	}
 }
