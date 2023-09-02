@@ -11,3 +11,17 @@
 .border-radius-bottom-right {
   border-bottom-right-radius: 5px !important;
 }
+
+.alpha { color: $purple; }
+.beta {
+  color: $yellow-300;
+  background-color: $indigo-900;
+}
+
+.table-bg-cyan {
+  --bs-table-bg: #cfe2ff !important;
+}
+
+.pointer {
+  cursor: pointer;
+}

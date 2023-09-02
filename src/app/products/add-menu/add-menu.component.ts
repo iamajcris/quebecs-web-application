@@ -42,6 +42,7 @@ export class AddMenuComponent implements OnInit {
 
     if (this.menu) {
       this.patchMenu(this.menu);
+      console.log(this.menu);
     } else {
       this.addMenuItem();
     }
@@ -70,17 +71,19 @@ export class AddMenuComponent implements OnInit {
   saveMenu() {
     this.isSaving = true;
 
-    const {
-      scheduledDate
-    } = this.form.value;
-
-    this.menuService.createMenu({
-      ...this.form.value,
-      scheduledDate: new Date(this.dateFormatter.format(scheduledDate))
-    }).subscribe((res) => {
-      this.isSaving = false;
-      this.activeModal.close('success');
-    })
+    if (this.menu) {
+      this.menuService.updateMenu(this.menu.id, this.form.value)
+        .subscribe((res) => {
+          this.isSaving = false;
+          this.activeModal.close('success');
+        });
+    } else {
+      this.menuService.createMenu(this.form.value)
+        .subscribe((res) => {
+          this.isSaving = false;
+          this.activeModal.close('success');
+        })
+    }
   }
 
   patchMenu(menu: Menu) {

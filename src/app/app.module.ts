@@ -13,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddOrderComponent } from './orders/add-order/add-order.component';
 import { AddMenuComponent } from './products/add-menu/add-menu.component';
 import { HttpClientModule } from '@angular/common/http';
+import { PrintOrderComponent } from './orders/print-order/print-order.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { HttpClientModule } from '@angular/common/http';
     CustomersComponent,
     AddOrderComponent,
     AddMenuComponent,
+    PrintOrderComponent
   ],
   imports: [
     BrowserModule,

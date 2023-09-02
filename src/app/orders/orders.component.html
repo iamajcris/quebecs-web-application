@@ -1,16 +1,64 @@
 <div class="container">
-  <div class="row">
-		<div class="col">
-			<h3>Imus Online Turo-turo</h3>
-		</div>
-  </div>
 	<div class="row">
-		<div class="col">
-			<button type="button" class="btn btn-primary" (click)="openAddOrder()">Add Order</button>
+    <div class="col">
+			<div class="card">
+				<div class="card-body">		
+					<div class="row">
+						<div class="col">
+							<h3>Imus Online Turo-turo</h3>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<button type="button" class="btn btn-primary" (click)="openAddOrder()">Add Order</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 
-<div class="bg-light">
-	
+<div class="container py-3">
+  <div class="row">
+    <div class="col">
+			<div class="card">
+				<div class="card-body">
+					<div class="container-fluid pb-2">
+						<span class="fs-5 fst-normal">Orders List</span>
+					</div>
+					<div class="container-fluid">
+						<table class="table table-hover">
+							<thead>
+								<tr class="table-bg-cyan">
+									<th scope="col">Order #</th>
+									<th scope="col">Date</th>
+									<th scope="col">Time</th>
+									<th scope="col">Name</th>
+									<th scope="col">Total Price</th>
+									<th scope="col">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr *ngFor="let order of orderList">
+									<th scope="row">{{ order.orderId }}</th>
+									<td>{{ order.orderDate | date:'MM/dd/yyyy' }}</td>
+									<td>{{ order.orderDate | date:'h:mma' }}</td>
+									<td>{{ order.customerName }}</td>
+									<td>{{ order.total }}</td>
+									<td>
+										<p>
+											<a class="text-decoration-none pointer" (click)="print(order)">
+												<i class="bi bi-printer"></i>
+											</a>
+										</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+    </div>
+  </div>
 </div>

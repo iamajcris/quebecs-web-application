@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgbActiveModal, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, startWith } from 'rxjs';
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
 import { Menu, MenuService } from 'src/services/menu.service';
 import { OrderService } from 'src/services/order.service';
+import { convertToDateStruct } from 'src/helpers/util';
 
 const options = [
   'Discount',
@@ -42,6 +43,8 @@ export class AddOrderComponent implements OnInit {
   activeFilter: any = [];
   editItems = false;
   isSaving: boolean = false;
+  model: NgbDateStruct;
+  meridianTimeList: any = [];
 
   @ViewChild('instance', { static: true }) instance: NgbTypeahead;
   focus$ = new Subject<string>();
@@ -51,7 +54,8 @@ export class AddOrderComponent implements OnInit {
     public activeModal: NgbActiveModal,
     private menuService: MenuService,
     private orderService: OrderService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private dateFormatter: NgbDateParserFormatter) {
   }
 
   ngOnInit(): void {
@@ -103,6 +107,9 @@ export class AddOrderComponent implements OnInit {
       }
     });
     this.initializeForm();
+
+    this.meridianTimeList = this.createMeridianTimeArrayWithAMPMFrom6AMTo6PM();
+    console.log('meridianTimeList', this.meridianTimeList);
   }
 
   filterMenu(type: any) {
@@ -124,8 +131,10 @@ export class AddOrderComponent implements OnInit {
       subTotal: [0],
       subItems: this.fb.array([]),
       total: [0],
+      orderDate: [convertToDateStruct(Date.now())],
+      orderTime: [],
     });
-
+    
     combineLatest([
       this.orderForm.controls['items'].valueChanges,
       this.orderForm.controls['subItems'].valueChanges.pipe(startWith(null))
@@ -170,6 +179,14 @@ export class AddOrderComponent implements OnInit {
     });
 
     this.items.push(item);
+    console.log(this.orderForm.value)
+
+    const {
+      orderDate,
+      orderTime,
+    } = this.orderForm.value;
+
+    console.log(this.dateFormatter.format(orderDate))
   }
 
   addSubItem() {
@@ -216,6 +233,9 @@ export class AddOrderComponent implements OnInit {
       return _.omit(item, ['enableNotes']);
     });
 
+    const formattedDate = this.dateFormatter.format(order.orderDate);
+    order.orderDate = new Date(formattedDate.concat(' ', order.orderTime));
+    console.log(order.orderDate);
     this.orderService.createOrder(order)
       .subscribe((res) => {
         this.isSaving = false;
@@ -254,6 +274,35 @@ export class AddOrderComponent implements OnInit {
     if (ind >= 0) {
       _.assign(this.menu[categoryIndex][ind], { size, price });
     }
+  }
+  
+  createMeridianTimeArrayWithAMPMFrom6AMTo6PM() {
+    // Create an empty array to store the meridian time
+    const meridianTimeArrayWithAMPM = [];
+  
+    // Loop through all hours from 6 to 18
+    for (let hour = 6; hour < 19; hour++) {
+      // Loop through all minutes, incrementing by 30 each time
+      for (let minute = 0; minute < 60; minute += 30) {
+        // Get the 12-hour hour
+        let twelveHourHour = hour % 12;
+  
+        // Determine the AM or PM
+        let ampm = "AM";
+        if (twelveHourHour === 0) {
+          twelveHourHour = 12;
+        }
+        if (hour >= 12) {
+          ampm = "PM";
+        }
+  
+        // Add the meridian time to the array
+        meridianTimeArrayWithAMPM.push(`${twelveHourHour}:${minute === 0 ? '00' : minute} ${ampm}`);
+      }
+    }
+  
+    // Return the array of meridian time
+    return meridianTimeArrayWithAMPM;
   }
 
   get subItems() {
