@@ -40,8 +40,8 @@ export class OrdersComponent implements OnInit {
         <style>
         }</style>
     </head>
-    <body onload="window.print()">
-      <p>testing print</p>
+    <body onload="window.print();setTimeout(window.close(), 4000)">
+      <p>testing print new</p>
      </body>
     </html>`;
 		WindowPrt.document.write(main);
