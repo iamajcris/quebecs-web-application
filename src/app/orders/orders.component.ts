@@ -35,9 +35,19 @@ export class OrdersComponent implements OnInit {
 
 		const printContent: any = document.getElementById("print-component");
 		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-		WindowPrt.document.write(printContent.innerHTML);
+		const main = `<html>
+        <head>
+        <style>
+        }</style>
+    </head>
+    <body onload="window.print();window.close()">
+      <p>testing print</p>
+     </body>
+    </html>`;
+		WindowPrt.document.write(main);
 		WindowPrt.document.close();
-		WindowPrt.focus();
-		WindowPrt.print();
+		// WindowPrt.focus();
+		// WindowPrt.print();
+		// WindowPrt.close();
 	}
 }
