@@ -14,7 +14,6 @@ import { AddOrderComponent } from './orders/add-order/add-order.component';
 import { AddMenuComponent } from './products/add-menu/add-menu.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PrintOrderComponent } from './orders/print-order/print-order.component';
-import { NgxPrintModule } from 'ngx-print';
 
 @NgModule({
   declarations: [
@@ -45,7 +44,6 @@ import { NgxPrintModule } from 'ngx-print';
     ReactiveFormsModule,
     HttpClientModule,
     NgbTypeaheadModule,
-    NgxPrintModule,
   ],
   providers: [
     DecimalPipe,
