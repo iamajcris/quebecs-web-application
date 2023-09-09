@@ -5,6 +5,7 @@ import { RestaurantComponent } from './restaurant/restaurant.component';
 import { HomeComponent } from './home/home.component';
 import { ProductsComponent } from './products/products.component';
 import { CustomersComponent } from './customers/customers.component';
+import { PrintOrderComponent } from './orders/print-order/print-order.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,9 @@ const routes: Routes = [
   },
   {
     path: 'customers', component: CustomersComponent
+  },
+  {
+    path: 'orders/print', component: PrintOrderComponent
   },
   {
     path: '**',
