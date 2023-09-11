@@ -4,6 +4,7 @@ import { AddOrderComponent } from './add-order/add-order.component';
 import { OrderService } from 'src/services/order.service';
 import { PrintOrderComponent } from './print-order/print-order.component';
 import { TemplateService } from 'src/services/template.service';
+import { DateTime } from "luxon";
 
 @Component({
   selector: 'app-orders',
@@ -32,391 +33,301 @@ export class OrdersComponent implements OnInit {
 	}
 
 	print(order: any) {
-		console.log('print');
-		this.templateService.getTemplate('order-receipt').subscribe((res) => {
-			console.log(res);
-			const printContent: any = document.getElementById("print-component");
-			const WindowPrt: any = window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-			WindowPrt.document.write(res);
-			WindowPrt.document.close();
-		});
-		// this.modalService.open(PrintOrderComponent, {  });
+		console.log('print', order);
 
-		// const printContent: any = document.getElementById("print-component");
-		// const WindowPrt: any = window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-		// const main = `<!DOCTYPE html>
-		// <html>
-		// <head>
-		// 	<title>Invoice Template Design</title>
-		// </head>
-		// <body>
-		// <style>
-		// @import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;400;900&display=swap');
+		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
 
-		// :root {
-		// 	--primary: #0000ff;
-		// 	--secondary: #3d3d3d; 
-		// 	--white: #fff;
-		// }
+		const template = `<html>
+			<head>
+				<title>Invoice Template Design</title>
+			</head>
+			<body>
+				<style>
+					@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;400;900&display=swap');
 
-		// *{
-		// 	margin: 0;
-		// 	padding: 0;
-		// 	box-sizing: border-box;
-		// 	font-family: 'Lato', sans-serif;
-		// }
+					:root {
+						--primary: #0000ff;
+						--secondary: #3d3d3d;
+						--white: #fff;
+					}
+					* {
+						margin: 0;
+						padding: 0;
+						box-sizing: border-box;
+						font-family: 'Lato', sans-serif;
+					}
+					body {
+						background: var(--secondary);
+						padding: 50px;
+						color: var(--secondary);
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						font-size: 14px;
+					}
 
-		// body{
-		// 	background: var(--secondary);
-		// 	padding: 50px;
-		// 	color: var(--secondary);
-		// 	display: flex;
-		// 	align-items: center;
-		// 	justify-content: center;
-		// 	font-size: 14px;
-		// }
+					.bold {
+						font-weight: 900;
+					}
 
-		// .bold{
-		// 	font-weight: 900;
-		// }
+					.light {
+						font-weight: 100;
+					}
 
-		// .light{
-		// 	font-weight: 100;
-		// }
+					.wrapper {
+						background: var(--white);
+						padding: 10px;
+					}
 
-		// .wrapper{
-		// 	background: var(--white);
-		// 	padding: 30px;
-		// }
+					.invoice_wrapper {
+						width: 200px;
+						max-width: 100%;
+					}
 
-		// .invoice_wrapper{
-		// 	border: 3px solid var(--primary);
-		// 	width: 700px;
-		// 	max-width: 100%;
-		// }
+					.invoice_wrapper .header .logo_invoice_wrap {
+						display: flex;
+						justify-content: center;
+						padding: 20px 0px;
+					}
 
-		// .invoice_wrapper .header .logo_invoice_wrap,
-		// .invoice_wrapper .header .bill_total_wrap{
-		// 	display: flex;
-		// 	justify-content: space-between;
-		// 	padding: 30px;
-		// }
+					.invoice_wrapper .header .bill_total_wrap {
+						display: flex;
+						justify-content: space-between;
+						padding-bottom: 10px;
+						border-bottom: 1px solid var(--secondary);
+					}
 
-		// .invoice_wrapper .header .logo_sec{
-		// 	display: flex;
-		// 	align-items: center;
-		// }
+					.invoice_wrapper .header .logo_sec {
+						display: flex;
+						align-items: center;
+						text-align: center;
+					}
 
-		// .invoice_wrapper .header .logo_sec .title_wrap{
-		// 	margin-left: 5px;
-		// }
+					.invoice_wrapper .header .logo_sec .title_wrap {
+						margin-left: 5px;
+					}
 
-		// .invoice_wrapper .header .logo_sec .title_wrap .title{
-		// 	text-transform: uppercase;
-		// 	font-size: 18px;
-		// 	color: var(--primary);
-		// }
+					.invoice_wrapper .header .logo_sec .title_wrap .title {
+						text-transform: uppercase;
+						font-size: 26px;
+					}
 
-		// .invoice_wrapper .header .logo_sec .title_wrap .sub_title{
-		// 	font-size: 12px;
-		// }
+					.invoice_wrapper .header .logo_sec .title_wrap .sub_title {
+						text-transform: uppercase;
+						font-size: 12px;
+					}
 
-		// .invoice_wrapper .header .invoice_sec,
-		// .invoice_wrapper .header .bill_total_wrap .total_wrap{
-		// 	text-align: right;
-		// }
+					.invoice_wrapper .header .invoice_sec,
+					.invoice_wrapper .header .bill_total_wrap .total_wrap {
+						text-align: right;
+					}
 
-		// .invoice_wrapper .header .invoice_sec .invoice{
-		// 	font-size: 28px;
-		// 	color: var(--primary);
-		// }
+					.invoice_wrapper .header .invoice_sec .invoice {
+						font-size: 28px;
+						color: var(--primary);
+					}
 
-		// .invoice_wrapper .header .invoice_sec .invoice_no,
-		// .invoice_wrapper .header .invoice_sec .date{
-		// 	display: flex;
-		// 	width: 100%;
-		// }
+					.invoice_wrapper .header .invoice_sec .invoice_no,
+					.invoice_wrapper .header .invoice_sec .date {
+						display: flex;
+						width: 100%;
+					}
 
-		// .invoice_wrapper .header .invoice_sec .invoice_no span:first-child,
-		// .invoice_wrapper .header .invoice_sec .date span:first-child{
-		// 	width: 70px;
-		// 	text-align: left;
-		// }
+					.invoice_wrapper .header .invoice_sec .invoice_no span:first-child,
+					.invoice_wrapper .header .invoice_sec .date span:first-child {
+						width: 70px;
+						text-align: left;
+					}
 
-		// .invoice_wrapper .header .invoice_sec .invoice_no span:last-child,
-		// .invoice_wrapper .header .invoice_sec .date span:last-child{
-		// 	width: calc(100% - 70px);
-		// }
+					.invoice_wrapper .header .invoice_sec .invoice_no span:last-child,
+					.invoice_wrapper .header .invoice_sec .date span:last-child {
+						width: calc(100% - 70px);
+					}
 
-		// .invoice_wrapper .header .bill_total_wrap .total_wrap .price,
-		// .invoice_wrapper .header .bill_total_wrap .bill_sec .name{
-		// 	color: var(--primary);
-		// 	font-size: 20px;
-		// }
+					.invoice_wrapper .header .bill_total_wrap .total_wrap .price,
+					.invoice_wrapper .header .bill_total_wrap .bill_sec .name {
+						color: var(--primary);
+						font-size: 20px;
+					}
 
-		// .invoice_wrapper .body .main_table .table_header{
-		// 	background: var(--primary);
-		// }
+					.invoice_wrapper .body .main_table .table_header {}
 
-		// .invoice_wrapper .body .main_table .table_header .row{
-		// 	color: var(--white);
-		// 	font-size: 18px;
-		// 	border-bottom: 0px;	
-		// }
+					.invoice_wrapper .body .main_table .table_header .row {
+						font-size: 18px;
+						border-bottom: 0px;
+					}
 
-		// .invoice_wrapper .body .main_table .row{
-		// 	display: flex;
-		// 	border-bottom: 1px solid var(--secondary);
-		// }
+					.invoice_wrapper .body .main_table .row {
+						display: flex;
+					}
 
-		// .invoice_wrapper .body .main_table .row .col{
-		// 	padding: 10px;
-		// }
-		// .invoice_wrapper .body .main_table .row .col_no{width: 5%;}
-		// .invoice_wrapper .body .main_table .row .col_des{width: 45%;}
-		// .invoice_wrapper .body .main_table .row .col_price{width: 20%; text-align: center;}
-		// .invoice_wrapper .body .main_table .row .col_qty{width: 10%; text-align: center;}
-		// .invoice_wrapper .body .main_table .row .col_total{width: 20%; text-align: right;}
+					.invoice_wrapper .body .main_table .row .col {
+						padding: 0px;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap{
-		// 	display: flex;
-		// 	justify-content: space-between;
-		// 	padding: 5px 0 30px;
-		// 	align-items: flex-end;
-		// }
+					.invoice_wrapper .body .main_table .row .col_no {
+						width: 10%;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .paymethod_sec{
-		// 	padding-left: 30px;
-		// }
+					.invoice_wrapper .body .main_table .row .col_des {
+						width: 70%;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec{
-		// 	width: 30%;
-		// }
+					.invoice_wrapper .body .main_table .row .col_price {
+						width: 20%;
+						text-align: center;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p{
-		// 	display: flex;
-		// 	width: 100%;
-		// 	padding-bottom: 5px;
-		// }
+					.invoice_wrapper .body .main_table .row .col_qty {
+						width: 10%;
+						text-align: center;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p span{
-		// 	padding: 0 10px;
-		// }
+					.invoice_wrapper .body .main_table .row .col_total {
+						width: 20%;
+						text-align: right;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p span:first-child{
-		// 	width: 60%;
-		// }
+					.invoice_wrapper .body .paymethod_grandtotal_wrap {
+						display: flex;
+						justify-content: end;
+						padding: 15px 0 5px;
+						align-items: flex-end;
+						border-bottom: 1px solid var(--secondary);
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p span:last-child{
-		// 	width: 40%;
-		// 	text-align: right;
-		// }
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .paymethod_sec {
+						padding-left: 30px;
+					}
 
-		// .invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p:last-child span{
-		// 	background: var(--primary);
-		// 	padding: 10px;
-		// 	color: #fff;
-		// }
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec {
+						width: 80%;
+					}
 
-		// .invoice_wrapper .footer{
-		// 	padding: 30px;
-		// }
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p {
+						display: flex;
+						width: 100%;
+						padding-bottom: 5px;
+					}
 
-		// .invoice_wrapper .footer > p{
-		// 	color: var(--primary);
-		// 	text-decoration: underline;
-		// 	font-size: 18px;
-		// 	padding-bottom: 5px;
-		// }
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p span {
+						padding: 0 10px;
+					}
 
-		// .invoice_wrapper .footer .terms .tc{
-		// 	font-size: 16px;
-		// }
-		// </style>
-		// <div class="wrapper">
-		// 	<div class="invoice_wrapper">
-		// 		<div class="header">
-		// 			<div class="logo_invoice_wrap">
-		// 				<div class="logo_sec">
-		// 					<img src="codingboss.png" alt="code logo">
-		// 					<div class="title_wrap">
-		// 						<p class="title bold">Coding Boss</p>
-		// 						<p class="sub_title">Privite Limited</p>
-		// 					</div>
-		// 				</div>
-		// 				<div class="invoice_sec">
-		// 					<p class="invoice bold">INVOICE</p>
-		// 					<p class="invoice_no">
-		// 						<span class="bold">Invoice</span>
-		// 						<span>#3488</span>
-		// 					</p>
-		// 					<p class="date">
-		// 						<span class="bold">Date</span>
-		// 						<span>08/Jan/2022</span>
-		// 					</p>
-		// 				</div>
-		// 			</div>
-		// 			<div class="bill_total_wrap">
-		// 				<div class="bill_sec">
-		// 					<p>Bill To</p> 
-		// 								<p class="bold name">Alex Deo</p>
-		// 							<span>
-		// 								 123 walls street, Townhall<br/>
-		// 								 +111 222345667
-		// 							</span>
-		// 				</div>
-		// 				<div class="total_wrap">
-		// 					<p>Total Due</p>
-		// 								<p class="bold price">USD: $1200</p>
-		// 				</div>
-		// 			</div>
-		// 		</div>
-		// 		<div class="body">
-		// 			<div class="main_table">
-		// 				<div class="table_header">
-		// 					<div class="row">
-		// 						<div class="col col_no">NO.</div>
-		// 						<div class="col col_des">ITEM DESCRIPTION</div>
-		// 						<div class="col col_price">PRICE</div>
-		// 						<div class="col col_qty">QTY</div>
-		// 						<div class="col col_total">TOTAL</div>
-		// 					</div>
-		// 				</div>
-		// 				<div class="table_body">
-		// 					<div class="row">
-		// 						<div class="col col_no">
-		// 							<p>01</p>
-		// 						</div>
-		// 						<div class="col col_des">
-		// 							<p class="bold">Web Design</p>
-		// 							<p>Lorem ipsum dolor sit.</p>
-		// 						</div>
-		// 						<div class="col col_price">
-		// 							<p>$350</p>
-		// 						</div>
-		// 						<div class="col col_qty">
-		// 							<p>2</p>
-		// 						</div>
-		// 						<div class="col col_total">
-		// 							<p>$700.00</p>
-		// 						</div>
-		// 					</div>
-		// 					<div class="row">
-		// 						<div class="col col_no">
-		// 							<p>02</p>
-		// 						</div>
-		// 						<div class="col col_des">
-		// 							<p class="bold">Web Development</p>
-		// 							<p>Lorem ipsum dolor sit.</p>
-		// 						</div>
-		// 						<div class="col col_price">
-		// 							<p>$350</p>
-		// 						</div>
-		// 						<div class="col col_qty">
-		// 							<p>2</p>
-		// 						</div>
-		// 						<div class="col col_total">
-		// 							<p>$700.00</p>
-		// 						</div>
-		// 					</div>
-		// 					<div class="row">
-		// 						<div class="col col_no">
-		// 							<p>03</p>
-		// 						</div>
-		// 						<div class="col col_des">
-		// 							<p class="bold">GitHub</p>
-		// 							<p>Lorem ipsum dolor sit.</p>
-		// 						</div>
-		// 						<div class="col col_price">
-		// 							<p>$120</p>
-		// 						</div>
-		// 						<div class="col col_qty">
-		// 							<p>1</p>
-		// 						</div>
-		// 						<div class="col col_total">
-		// 							<p>$700.00</p>
-		// 						</div>
-		// 					</div>
-		// 					<div class="row">
-		// 						<div class="col col_no">
-		// 							<p>04</p>
-		// 						</div>
-		// 						<div class="col col_des">
-		// 							<p class="bold">Backend Design</p>
-		// 							<p>Lorem ipsum dolor sit.</p>
-		// 						</div>
-		// 						<div class="col col_price">
-		// 							<p>$350</p>
-		// 						</div>
-		// 						<div class="col col_qty">
-		// 							<p>2</p>
-		// 						</div>
-		// 						<div class="col col_total">
-		// 							<p>$700.00</p>
-		// 						</div>
-		// 					</div>
-		// 					<div class="row">
-		// 						<div class="col col_no">
-		// 							<p>05</p>
-		// 						</div>
-		// 						<div class="col col_des">
-		// 							<p class="bold">Backend Development</p>
-		// 							<p>Lorem ipsum dolor sit.</p>
-		// 						</div>
-		// 						<div class="col col_price">
-		// 							<p>$150</p>
-		// 						</div>
-		// 						<div class="col col_qty">
-		// 							<p>1</p>
-		// 						</div>
-		// 						<div class="col col_total">
-		// 							<p>$700.00</p>
-		// 						</div>
-		// 					</div>
-		// 				</div>
-		// 			</div>
-		// 			<div class="paymethod_grandtotal_wrap">
-		// 				<div class="paymethod_sec">
-		// 					<p class="bold">Payment Method</p>
-		// 					<p>Visa, master Card and We accept Cheque</p>
-		// 				</div>
-		// 				<div class="grandtotal_sec">
-		// 							<p class="bold">
-		// 									<span>SUB TOTAL</span>
-		// 									<span>$7500</span>
-		// 							</p>
-		// 							<p>
-		// 									<span>Tax Vat 18%</span>
-		// 									<span>$200</span>
-		// 							</p>
-		// 							<p>
-		// 									<span>Discount 10%</span>
-		// 									<span>-$700</span>
-		// 							</p>
-		// 							 <p class="bold">
-		// 									<span>Grand Total</span>
-		// 									<span>$7000.0</span>
-		// 							</p>
-		// 				</div>
-		// 			</div>
-		// 		</div>
-		// 		<div class="footer">
-		// 			<p>Thank you and Best Wishes</p>
-		// 			<div class="terms">
-		// 						<p class="tc bold">Terms & Coditions</p>
-		// 						<p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit non praesentium doloribus. Quaerat vero iure itaque odio numquam, debitis illo quasi consequuntur velit, explicabo esse nesciunt error aliquid quis eius!</p>
-		// 				</div>
-		// 		</div>
-		// 	</div>
-		// </div>
-		
-		
-		// </body>
-		// </html>`;
-		// WindowPrt.document.write(main);
-		// WindowPrt.document.close();
-		// WindowPrt.focus();
-		// WindowPrt.print();
-		// WindowPrt.close();
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p span:first-child {
+						width: 60%;
+					}
+
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p span:last-child {
+						width: 40%;
+						text-align: right;
+					}
+
+					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p:last-child span {
+						padding: 10px;
+					}
+
+					.invoice_wrapper .footer {
+						padding: 30px;
+					}
+
+					.invoice_wrapper .footer>p {
+						color: var(--primary);
+						text-decoration: underline;
+						font-size: 18px;
+						padding-bottom: 5px;
+					}
+
+					.invoice_wrapper .footer .terms .tc {
+						text-align: center;
+						font-size: 16px;
+					}
+
+					.customer {
+						font-weight: bold;
+						font-size: 13px;
+						padding: 20px 0px;
+						line-height: 20px;
+						text-transform: uppercase;
+					}
+
+					.grandtotal_entry {
+						display: flex;
+						justify-content: space-between;
+					}
+				</style>
+				<div class="wrapper">
+					<div class="invoice_wrapper">
+						<div class="header">
+							<div class="logo_invoice_wrap">
+								<div class="logo_sec">
+									<div class="title_wrap">
+										<p class="title bold">Quebec's</p>
+										<p class="sub_title">Filipino Cuisine</p>
+										<p class="sub_title">016 Betterlife Subd, Tanzang Luma III, <br>Imus City, Cavite4103, Philippines</p>
+										<p class="sub_title">tel: 09121233123</p>
+									</div>
+								</div>
+							</div>
+							<div class="bill_total_wrap">
+								<div class="bill_sec">
+									<p>ORDER NO: ${order.orderId}</p>
+									<p>DELIVERY: ${DateTime.fromISO(order.orderDate).toLocaleString(DateTime.DATETIME_SHORT)}</p>
+								</div>
+								<div class="total_wrap">
+								</div>
+							</div>
+						</div>
+						<div class="body">
+							<div class="main_table">
+								<div class="table_body">
+									<div class="row">
+										<div class="col col_no">
+											<p>01</p>
+										</div>
+										<div class="col col_des">
+											<p>Web Design</p>
+											<p>Lorem ipsum dolor sit.</p>
+										</div>
+										<div class="col col_total">
+											<p>₱700</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="paymethod_grandtotal_wrap">
+								<div class="grandtotal_sec">
+									<div class="grandtotal_entry">
+										<span>SUB TOTAL</span>
+										<span>₱7500</span>
+									</div>
+									<div class="grandtotal_entry">
+										<span>Delivery fee</span>
+										<span>₱50</span>
+									</div>
+									<div class="grandtotal_entry bold">
+										<span>Total</span>
+										<span>₱7000</span>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="customer">
+							<p class="bold">${order.customerName}</p>
+							<p class="bold">${order.address}</p>
+							<p class="bold">${order.mobileNumber}</p>
+						</div>
+						<div class="footer">
+							<div class="terms">
+								<p class="tc bold">THANK YOU FOR YOUR ORDER!</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</body>
+			</html>
+		`;
+		WindowPrt.document.write(template);
+		WindowPrt.document.close();
 	}
 }
