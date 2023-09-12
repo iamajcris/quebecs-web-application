@@ -5,6 +5,7 @@ import { OrderService } from 'src/services/order.service';
 import { PrintOrderComponent } from './print-order/print-order.component';
 import { TemplateService } from 'src/services/template.service';
 import { DateTime } from "luxon";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-orders',
@@ -35,7 +36,8 @@ export class OrdersComponent implements OnInit {
 	print(order: any) {
 		console.log('print', order);
 
-		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
+		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=350,height=750,toolbar=0,scrollbars=0,status=0');
+		// WindowPrt.resizeTo(350, 500)
 
 		const template = `<html>
 			<head>
@@ -58,8 +60,7 @@ export class OrdersComponent implements OnInit {
 					}
 					body {
 						background: var(--secondary);
-						padding: 50px;
-						color: var(--secondary);
+						color: #00000;
 						display: flex;
 						align-items: center;
 						justify-content: center;
@@ -94,7 +95,7 @@ export class OrdersComponent implements OnInit {
 						display: flex;
 						justify-content: space-between;
 						padding-bottom: 10px;
-						border-bottom: 1px solid var(--secondary);
+						border-bottom: 1px dashed #000;
 					}
 
 					.invoice_wrapper .header .logo_sec {
@@ -159,6 +160,7 @@ export class OrdersComponent implements OnInit {
 
 					.invoice_wrapper .body .main_table .row {
 						display: flex;
+						padding-bottom: 10px;
 					}
 
 					.invoice_wrapper .body .main_table .row .col {
@@ -174,7 +176,7 @@ export class OrdersComponent implements OnInit {
 					}
 
 					.invoice_wrapper .body .main_table .row .col_price {
-						width: 20%;
+						width: 25%;
 						text-align: center;
 					}
 
@@ -184,16 +186,16 @@ export class OrdersComponent implements OnInit {
 					}
 
 					.invoice_wrapper .body .main_table .row .col_total {
-						width: 20%;
+						width: 30%;
 						text-align: right;
 					}
 
 					.invoice_wrapper .body .paymethod_grandtotal_wrap {
 						display: flex;
 						justify-content: end;
-						padding: 15px 0 5px;
+						padding: 10px 0px;
 						align-items: flex-end;
-						border-bottom: 1px solid var(--secondary);
+						border-bottom: 1px dashed #000;
 					}
 
 					.invoice_wrapper .body .paymethod_grandtotal_wrap .paymethod_sec {
@@ -201,7 +203,7 @@ export class OrdersComponent implements OnInit {
 					}
 
 					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec {
-						width: 80%;
+						width: 100%;
 					}
 
 					.invoice_wrapper .body .paymethod_grandtotal_wrap .grandtotal_sec p {
@@ -255,6 +257,17 @@ export class OrdersComponent implements OnInit {
 						display: flex;
 						justify-content: space-between;
 					}
+
+					.total_price {
+						font-size: 16px;
+    				font-weight: bolder;
+						padding-top: 10px;
+					}
+
+					.table_body {
+						border-bottom: 1px dashed #000;
+						padding-top: 10px;
+					}
 				</style>
 				<div class="wrapper">
 					<div class="invoice_wrapper">
@@ -281,33 +294,19 @@ export class OrdersComponent implements OnInit {
 						<div class="body">
 							<div class="main_table">
 								<div class="table_body">
-									<div class="row">
-										<div class="col col_no">
-											<p>01</p>
-										</div>
-										<div class="col col_des">
-											<p>Web Design</p>
-											<p>Lorem ipsum dolor sit.</p>
-										</div>
-										<div class="col col_total">
-											<p>₱700</p>
-										</div>
-									</div>
+									${this.printOrderItems(order.items)}
 								</div>
 							</div>
 							<div class="paymethod_grandtotal_wrap">
 								<div class="grandtotal_sec">
 									<div class="grandtotal_entry">
 										<span>SUB TOTAL</span>
-										<span>₱7500</span>
+										<span>${this.formatToCurrency(order.subTotal)}</span>
 									</div>
-									<div class="grandtotal_entry">
-										<span>Delivery fee</span>
-										<span>₱50</span>
-									</div>
-									<div class="grandtotal_entry bold">
+									${this.printOrderSubItems(order.subItems)}
+									<div class="grandtotal_entry total_price">
 										<span>Total</span>
-										<span>₱7000</span>
+										<span>${this.formatToCurrency(order.total)}</span>
 									</div>
 								</div>
 							</div>
@@ -329,5 +328,41 @@ export class OrdersComponent implements OnInit {
 		`;
 		WindowPrt.document.write(template);
 		WindowPrt.document.close();
+	}
+
+	printOrderItems(items: [any]) {
+		const template = _.map(items, (item) => {
+			return `<div class="row">
+				<div class="col col_des">
+					<p>${item.name} - ${item.size}</p>
+					${_.isEmpty(item.notes) ? '' : `<p>${item.notes}</p>`}
+					<p>${item.quantity} x ${this.formatToCurrency(item.menuPrice)}</p>
+				</div>
+				<div class="col col_total">
+					<p>${this.formatToCurrency(item.price)}</p>
+				</div>
+			</div>`;
+		});
+		return _.join(template, '');
+	}
+
+	printOrderSubItems(subItems: [any]) {
+		const template = _.map(subItems, (subItem) => {
+			return `<div class="grandtotal_entry">
+				<span>${subItem.text}</span>
+				<span>${this.formatToCurrency(subItem.price)}</span>
+			</div>`;
+		});
+
+		return _.join(template, '');
+	}
+
+	formatToCurrency(val: number) {
+		const formatter = new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'PHP',
+	 });
+
+	 return formatter.format(val);
 	}
 }

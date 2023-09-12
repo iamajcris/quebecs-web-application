@@ -174,6 +174,7 @@ export class AddOrderComponent implements OnInit {
       name: [name],
       size: [size],
       price: [price],
+      menuPrice: [price],
       enableNotes: [false],
       notes: ['']
     });
