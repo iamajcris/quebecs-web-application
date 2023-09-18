@@ -14,6 +14,7 @@ import * as _ from 'lodash';
 })
 export class OrdersComponent implements OnInit {
 	orderList: any[];
+	isLoading: boolean = false;
 
 	constructor(
 		private modalService: NgbModal,
@@ -23,21 +24,32 @@ export class OrdersComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
+		this.loadOrders();
+	}
+
+	loadOrders() {
+		this.isLoading = true;
 		this.orderService.geOrders().subscribe((res) => {
 			console.log(res);
 			this.orderList = res;
+			this.isLoading = false;
 		});
 	}
 
-	openAddOrder() {
-		this.modalService.open(AddOrderComponent, { fullscreen: true, scrollable: true });
+	openOrder(order: any = null) {
+		const modalRef = this.modalService.open(AddOrderComponent, { fullscreen: true, scrollable: true });
+		modalRef.componentInstance.order = order;
+		modalRef.closed.subscribe((res) => {
+			if (res === 'success') {
+				this.loadOrders();
+			}
+		});
 	}
 
 	print(order: any) {
 		console.log('print', order);
 
-		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=350,height=750,toolbar=0,scrollbars=0,status=0');
-		// WindowPrt.resizeTo(350, 500)
+		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=400,height=750,toolbar=0,scrollbars=0,status=0');
 
 		const template = `<html>
 			<head>

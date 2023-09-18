@@ -10,7 +10,7 @@
 					</div>
 					<div class="row">
 						<div class="col">
-							<button type="button" class="btn btn-primary" (click)="openAddOrder()">Add Order</button>
+							<button type="button" class="btn btn-primary" (click)="openOrder()">Add Order</button>
 						</div>
 					</div>
 				</div>
@@ -40,20 +40,33 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr *ngFor="let order of orderList">
-									<th scope="row">{{ order.orderId }}</th>
-									<td>{{ order.orderDate | date:'MM/dd/yyyy' }}</td>
-									<td>{{ order.orderDate | date:'h:mma' }}</td>
-									<td>{{ order.customerName }}</td>
-									<td>{{ order.total }}</td>
-									<td>
-										<p>
-											<a class="text-decoration-none pointer" (click)="print(order)">
-												<i class="bi bi-printer"></i>
-											</a>
-										</p>
+								<tr *ngIf="isLoading">
+									<td colspan="6">
+										<div class="d-flex justify-content-center">
+											<div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+										</div>
 									</td>
 								</tr>
+								<ng-container *ngIf="!isLoading">
+									<tr *ngFor="let order of orderList">
+										<th scope="row">
+											<button type="button" class="btn btn-link" (click)="openOrder(order)">
+												{{ order.orderId }}
+											</button>
+										</th>
+										<td>{{ order.orderDate | date:'MM/dd/yyyy' }}</td>
+										<td>{{ order.orderDate | date:'h:mma' }}</td>
+										<td>{{ order.customerName }}</td>
+										<td>{{ order.total }}</td>
+										<td>
+											<p>
+												<a class="text-decoration-none pointer" (click)="print(order)">
+													<i class="bi bi-printer"></i>
+												</a>
+											</p>
+										</td>
+									</tr>
+								</ng-container>
 							</tbody>
 						</table>
 					</div>
