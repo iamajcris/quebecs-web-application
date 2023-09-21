@@ -6,6 +6,9 @@ import { PrintOrderComponent } from './print-order/print-order.component';
 import { TemplateService } from 'src/services/template.service';
 import { DateTime } from "luxon";
 import * as _ from 'lodash';
+import { CustomersComponent } from '../customers/customers.component';
+import { CustomerService } from 'src/services/customer.service';
+import { Customer } from 'src/models/customer';
 
 @Component({
   selector: 'app-orders',
@@ -14,30 +17,62 @@ import * as _ from 'lodash';
 })
 export class OrdersComponent implements OnInit {
 	orderList: any[];
+	isLoading: boolean = false;
+	customers: Customer[];
 
+	page = 1;
+	pageSize = 4;
+	collectionSize = 0;
+	
 	constructor(
 		private modalService: NgbModal,
 		private orderService: OrderService,
+		private customerService: CustomerService,
 		private templateService: TemplateService,
 	) {
 	}
 
 	ngOnInit(): void {
+		this.loadOrders();
+
+		this.customerService.getCustomers()
+      .subscribe((res) => {
+        this.customers = res;
+				this.collectionSize = this.customers.length;
+        console.log(res);
+      });
+	}
+
+	loadOrders() {
+		this.isLoading = true;
 		this.orderService.geOrders().subscribe((res) => {
 			console.log(res);
 			this.orderList = res;
+			this.isLoading = false;
 		});
 	}
 
-	openAddOrder() {
-		this.modalService.open(AddOrderComponent, { fullscreen: true, scrollable: true });
+	openOrder(order: any = null) {
+		const modalRef = this.modalService.open(AddOrderComponent, { fullscreen: true, scrollable: true });
+		modalRef.componentInstance.order = order;
+		modalRef.closed.subscribe((res) => {
+			if (res === 'success') {
+				this.loadOrders();
+			}
+		});
+	}
+
+	refreshCountries() {
+		this.customers = this.customers.map((customer, i) => ({ ...customer })).slice(
+			(this.page - 1) * this.pageSize,
+			(this.page - 1) * this.pageSize + this.pageSize,
+		);
 	}
 
 	print(order: any) {
 		console.log('print', order);
 
-		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=350,height=750,toolbar=0,scrollbars=0,status=0');
-		// WindowPrt.resizeTo(350, 500)
+		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=400,height=750,toolbar=0,scrollbars=0,status=0');
 
 		const template = `<html>
 			<head>
@@ -364,5 +399,14 @@ export class OrdersComponent implements OnInit {
 	 });
 
 	 return formatter.format(val);
+	}
+
+	openCustomer() {
+		const modalRef = this.modalService.open(CustomersComponent, {scrollable: true });
+		modalRef.closed.subscribe((res) => {
+			if (res === 'success') {
+				this.loadOrders();
+			}
+		});
 	}
 }

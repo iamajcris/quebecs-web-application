@@ -35,7 +35,7 @@
 					</thead>
 					<tbody *ngIf="menuList">
 						<tr *ngFor="let menu of menuList">
-							<th scope="row"><a></a><button type="button" class="btn btn-link" (click)="openMenu(menu)">{{ menu.menuId }}</button></th>
+							<th scope="row"><button type="button" class="btn btn-link" (click)="openMenu(menu)">{{ menu.menuId }}</button></th>
 							<td>{{ menu.scheduledDate | date:"YYYY/MM/dd" }}</td>
 							<td>{{ menu.createdAt }}</td>
 							<td>{{ menu.updatedAt }}</td>

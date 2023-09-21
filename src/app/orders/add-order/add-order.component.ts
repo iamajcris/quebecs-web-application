@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, startWith } from 'rxjs';
@@ -49,6 +49,8 @@ export class AddOrderComponent implements OnInit {
   @ViewChild('instance', { static: true }) instance: NgbTypeahead;
   focus$ = new Subject<string>();
 	click$ = new Subject<string>();
+
+  @Input() public order: any;
 
   constructor(
     public activeModal: NgbActiveModal,
@@ -106,7 +108,12 @@ export class AddOrderComponent implements OnInit {
         console.log(this.filters)
       }
     });
+
     this.initializeForm();
+    if (this.order) {
+      console.log(this.order);
+      this.patchOrder(this.order);
+    }
 
     this.meridianTimeList = this.createMeridianTimeArrayWithAMPMFrom6AMTo6PM();
     console.log('meridianTimeList', this.meridianTimeList);
@@ -120,6 +127,22 @@ export class AddOrderComponent implements OnInit {
   removeFilter() {
     this.activeFilter = [];
     this._filteredMenu.next(this.menu);
+  }
+
+  patchOrder(order: any) {
+    order.items = _.map(order.items, (item) => {
+      if (!_.isEmpty(item.notes)) {
+        _.assign(item, { enableNotes: true});
+      }
+      return item
+    });
+
+    _.forEach(order.items, () => this.items.push(this.onCreateOrderItem()));
+
+    _.forEach(order.subItems, () => this.subItems.push(this.onCreateSubItem()));
+
+    _.assign(order, { orderDate: convertToDateStruct(order.orderDate)})
+    this.orderForm.patchValue(order);
   }
 
   initializeForm() {
@@ -168,15 +191,14 @@ export class AddOrderComponent implements OnInit {
   addOrder(name: any, price: any, size: any) {
     const id = _.kebabCase(`${_.toLower(size === 'Regular' ? '' : size)} ${name}`);
 
-    const item = this.fb.group({
-      id: [id],
-      quantity: [1],
-      name: [name],
-      size: [size],
-      price: [price],
-      menuPrice: [price],
-      enableNotes: [false],
-      notes: ['']
+    const item = this.onCreateOrderItem();
+    item.patchValue({
+      id: id,
+      quantity: 1,
+      name: name,
+      size: size,
+      price: price,
+      menuPrice: price
     });
 
     this.items.push(item);
@@ -190,14 +212,31 @@ export class AddOrderComponent implements OnInit {
     console.log(this.dateFormatter.format(orderDate))
   }
 
-  addSubItem() {
-    const item = this.fb.group({
-      text: [''],
-      price: [0],
+  onCreateOrderItem() {
+    return this.fb.group({
+      id: [''],
+      quantity: [0],
+      name: [''],
+      size: [''],
+      price: [''],
+      menuPrice: [''],
+      enableNotes: [false],
+      notes: ['']
     });
+  }
+
+  addSubItem() {
+    const item = this.onCreateSubItem();
 
     this.subItems.push(item);
   }
+
+  onCreateSubItem() {
+    return this.fb.group({
+      text: [''],
+      price: [0],
+    });
+  };
 
   deleteItem(index: any) {
     this.items.removeAt(index);
@@ -233,15 +272,22 @@ export class AddOrderComponent implements OnInit {
     order.items = _.map(order.items, (item: any) => {
       return _.omit(item, ['enableNotes']);
     });
-
     const formattedDate = this.dateFormatter.format(order.orderDate);
     order.orderDate = new Date(formattedDate.concat(' ', order.orderTime));
-    console.log(order.orderDate);
-    this.orderService.createOrder(order)
-      .subscribe((res) => {
-        this.isSaving = false;
-        this.activeModal.close('success');
-      });
+    order.subItems = _.filter((order.subItems), (sub) => !_.isNil(sub.price) && !_.isEmpty(sub.text))
+    if (this.order) {
+      this.orderService.updateOrder(this.order.id, order)
+        .subscribe((res) => {
+          this.isSaving = false;
+          this.activeModal.close('success');
+        });
+    } else {
+      this.orderService.createOrder(order)
+        .subscribe((res) => {
+          this.isSaving = false;
+          this.activeModal.close('success');
+        });
+    }
   }
 
   activateNotes(index: any) {

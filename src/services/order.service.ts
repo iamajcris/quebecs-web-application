@@ -21,6 +21,10 @@ export class OrderService {
     return this.httpClient.post(`${this.apiBase}/order`, order);
   }
 
+  updateOrder(id: any, data: any){
+    return this.httpClient.put(`${this.apiBase}/order/${id}`, data);
+  }
+
   geOrders(options: any = null) {
     const params = {
       p: 0,
