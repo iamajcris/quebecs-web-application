@@ -10,7 +10,52 @@
 					</div>
 					<div class="row">
 						<div class="col">
-							<button type="button" class="btn btn-primary" (click)="openOrder()">Add Order</button>
+							<button type="button" class="btn btn-primary me-2" (click)="openOrder()">Add Order</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col">
+			<div class="card">
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<h3>Customers</h3>
+							<button type="button" class="btn btn-primary" (click)="openCustomer()">Add Customer</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th scope="col">#</th>
+										<th scope="col">Firstname</th>
+										<th scope="col">Lastname</th>
+										<th scope="col">Address</th>
+										<th scope="col">Mobile #</th>
+									</tr>
+								</thead>
+								<tbody *ngIf="customers">
+									<tr *ngFor="let customer of customers">
+										<th scope="row">{{ customer.customerId }}</th>
+										<td> {{ customer.firstName }}</td>
+										<td>{{ customer.lastName }}</td>
+										<td>{{ customer.address }}</td>
+										<td>{{ customer.mobileNumber }}</td>
+									</tr>
+								</tbody>
+							</table>
+							<div class="d-flex justify-content-between p-2">
+								<ngb-pagination
+									[collectionSize]="1"
+									[(page)]="page"
+									[pageSize]="pageSize"
+									(pageChange)="refreshCountries()"
+								>
+								</ngb-pagination>
+							</div>
 						</div>
 					</div>
 				</div>
