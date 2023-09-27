@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Form, FormBuilder, FormGroup } from '@angular/forms';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Customer } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
+import { AddCustomerComponent } from './add-customer/add-customer.component';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-customers',
@@ -10,36 +12,57 @@ import { CustomerService } from 'src/services/customer.service';
   styleUrls: ['./customers.component.scss']
 })
 export class CustomersComponent implements OnInit {
-  isSaving: boolean = false;
+  isLoading: boolean = false;
+  customers: Customer[];
+  filteredCustomers: Customer[];
   form: FormGroup;
 
   constructor(
-    public activeModal: NgbActiveModal,
-    public formBuilder: FormBuilder,
-    private customerService: CustomerService,
-    ) {
-
-  }
+    public fb: FormBuilder,
+    private modalService: NgbModal,
+		private customerService: CustomerService
+  ) { }
 
   ngOnInit(): void {
-    this.form = this.intializeForm();
+    this.form = this.fb.group({
+      search: ['']
+    });
+
+    this.form.controls['search'].valueChanges
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged()
+      ).subscribe((val) => {
+        console.log(val)
+        this.filteredCustomers = this.customers.filter((c) => {
+          const fullName = c.firstName.concat(" ", c.lastName).toLowerCase();
+          return fullName.includes(val);
+        });
+
+        console.log(this.filteredCustomers);
+      });
+
+    this.loadCustomerList();
   }
 
-  intializeForm() {
-    return this.formBuilder.group({
-      lastName: [''],
-      firstName: [''],
-      address: [''],
-      mobileNumber: ['']
-    });
+  loadCustomerList() {
+    this.isLoading = true;
+    this.customerService.getCustomers({ ps: 100 })
+      .subscribe((res) => {
+        this.customers = res;
+        this.filteredCustomers = res;
+        this.isLoading = false;
+        console.log(res);
+      });
   }
 
-  save() {
-    this.isSaving = true;
-
-    this.customerService.saveCustomer(this.form.value).subscribe((res) => {
-      this.isSaving = false;
-      this.activeModal.close('success');
-    });
+  openCustomerModal(customer?: Customer) {
+    const modalRef = this.modalService.open(AddCustomerComponent, {scrollable: true });
+    modalRef.componentInstance.customer = customer;
+		modalRef.closed.subscribe((res) => {
+			if (res === 'success') {
+				this.loadCustomerList();
+			}
+		});
   }
 }

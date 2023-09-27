@@ -18,7 +18,6 @@ import { Customer } from 'src/models/customer';
 export class OrdersComponent implements OnInit {
 	orderList: any[];
 	isLoading: boolean = false;
-	customers: Customer[];
 
 	page = 1;
 	pageSize = 4;
@@ -27,20 +26,12 @@ export class OrdersComponent implements OnInit {
 	constructor(
 		private modalService: NgbModal,
 		private orderService: OrderService,
-		private customerService: CustomerService,
 		private templateService: TemplateService,
 	) {
 	}
 
 	ngOnInit(): void {
 		this.loadOrders();
-
-		this.customerService.getCustomers()
-      .subscribe((res) => {
-        this.customers = res;
-				this.collectionSize = this.customers.length;
-        console.log(res);
-      });
 	}
 
 	loadOrders() {
@@ -60,13 +51,6 @@ export class OrdersComponent implements OnInit {
 				this.loadOrders();
 			}
 		});
-	}
-
-	refreshCountries() {
-		this.customers = this.customers.map((customer, i) => ({ ...customer })).slice(
-			(this.page - 1) * this.pageSize,
-			(this.page - 1) * this.pageSize + this.pageSize,
-		);
 	}
 
 	print(order: any) {

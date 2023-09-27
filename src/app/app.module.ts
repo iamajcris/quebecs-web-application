@@ -14,6 +14,7 @@ import { AddOrderComponent } from './orders/add-order/add-order.component';
 import { AddMenuComponent } from './products/add-menu/add-menu.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PrintOrderComponent } from './orders/print-order/print-order.component';
+import { AddCustomerComponent } from './customers/add-customer/add-customer.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { PrintOrderComponent } from './orders/print-order/print-order.component'
     HomeComponent,
     ProductsComponent,
     CustomersComponent,
+    AddCustomerComponent,
     AddOrderComponent,
     AddMenuComponent,
     PrintOrderComponent

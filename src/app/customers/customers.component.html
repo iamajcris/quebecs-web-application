@@ -1,53 +1,60 @@
-<div class="modal-header">
-  <h4 class="modal-title">Customer form</h4>
-  <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
-</div>
-<div class="modal-body">
-  <div class="row">
-    <div class="col">
-      <form class="needs-validation" [formGroup]="form">
-        <div class="row g-3">
-          <div class="col-sm-6">
-            <label for="firstName" class="form-label">First name</label>
-            <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="" value="" required>
-            <div class="invalid-feedback">
-              Valid first name is required.
-            </div>
-          </div>
+<div class="px-3 py-2 border-bottom mb-3">
+  <div class="container d-flex flex-wrap justify-content-center">
+    <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" [formGroup]="form">
+      <input type="search" class="form-control" placeholder="Search by name..." aria-label="Search" formControlName="search">
+    </form>
 
-          <div class="col-sm-6">
-            <label for="lastName" class="form-label">Last name</label>
-            <input type="text" class="form-control" id="lastName" formControlName="lastName" placeholder="" value="" required>
-            <div class="invalid-feedback">
-              Valid last name is required.
-            </div>
-          </div>
-
-          <div class="col-12">
-            <label for="address" class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" formControlName="address" placeholder="1234 Main St" required>
-            <div class="invalid-feedback">
-              Please enter your shipping address.
-            </div>
-          </div>
-
-          <div class="col-12">
-            <label for="mobileNumber" class="form-label">Mobile number</label>
-            <input type="tel" class="form-control" id="mobileNumber" formControlName="mobileNumber" placeholder="+63" required>
-            <div class="invalid-feedback">
-              Please enter mobile number.
-            </div>
-          </div>
-          
-        </div>
-      </form>
+    <div class="text-end align-self-end">
+      <button type="button" class="btn btn-primary btn-sm" (click)="openCustomerModal()">
+        <i class="bi bi-plus"></i>
+        Add Customer
+      </button>
     </div>
-  </div>  
+  </div>
 </div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="this.isSaving">
-    Save
-    <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
-  </button>
-  <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
+
+<main class="container-md">
+<div class="my-3 p-3 bg-body rounded shadow-sm">
+  <div class="d-flex">
+    <div class="pb-2 mb-0 small lh-sm w-100">
+      <div class="d-flex justify-content-between">
+        <span class="heading align-self-center">Customers</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-sm">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Firstname</th>
+          <th scope="col">Lastname</th>
+          <th scope="col">Address</th>
+          <th scope="col">Mobile #</th>
+        </tr>
+      </thead>
+      <tr *ngIf="isLoading">
+        <td colspan="6">
+          <div class="d-flex justify-content-center">
+            <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          </div>
+        </td>
+      </tr>
+      <tbody *ngIf="customers">
+        <tr *ngFor="let customer of filteredCustomers">
+          <th scope="row">
+            <a class="text-decoration-none pointer" (click)="openCustomerModal(customer)">
+              {{ customer.customerId }}
+            </a>
+          </th>
+          <td> {{ customer.firstName }}</td>
+          <td>{{ customer.lastName }}</td>
+          <td class="text-nowrap">{{ customer.address }}</td>
+          <td>{{ customer.mobileNumber }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
+</main>
