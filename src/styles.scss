@@ -3,6 +3,16 @@
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
 
+html,
+body {
+  overflow-x: hidden; /* Prevent scroll on narrow devices */
+}
+
+body {
+  padding-top: 56px;
+  background-color: #f8f9fa!important;
+}
+
 .no-border-radius-top {
   border-top-left-radius: 0px !important;
   border-top-right-radius: 0px !important;
@@ -24,4 +34,11 @@
 
 .pointer {
   cursor: pointer;
+}
+
+.heading {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--bs-heading-color);
 }

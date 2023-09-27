@@ -37,4 +37,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   public open(modal: any): void {
     this.modalService.open(modal);
   }
+
+  toggleNavbar() {
+    (document.querySelector('.offcanvas-collapse') as HTMLElement).classList.toggle('open');
+  }
 }

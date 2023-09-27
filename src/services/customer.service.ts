@@ -24,6 +24,10 @@ export class CustomerService {
     return this.httpClient.put(`${this.apiBase}/customer/${id}`, data);
   }
 
+  deleteCustomer(id: any){
+    return this.httpClient.delete(`${this.apiBase}/customer/${id}`);
+  }
+
   getCustomers(options: any = null): Observable<Customer[]> {
     const params = {
       p: 0,
