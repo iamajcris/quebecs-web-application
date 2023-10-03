@@ -25,7 +25,7 @@ export class OrderService {
     return this.httpClient.put(`${this.apiBase}/order/${id}`, data);
   }
 
-  geOrders(options: any = null) {
+  listOrders(options: any = null) {
     const params = {
       p: 0,
       ps: 10,
@@ -35,5 +35,13 @@ export class OrderService {
     };
 
     return this.httpClient.get<any[]>(`${this.apiBase}/orders`, { params });
+  }
+
+  getOrdersByField(query: any, field: string = 'orderDate') {
+    const params = {
+      ...query
+    };
+
+    return this.httpClient.get<any[]>(`${this.apiBase}/orders/${field}`, { params });
   }
 }

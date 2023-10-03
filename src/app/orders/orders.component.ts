@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbModal, NgbPaginationModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCalendar, NgbDate, NgbDateParserFormatter, NgbModal, NgbPaginationModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { AddOrderComponent } from './add-order/add-order.component';
 import { OrderService } from 'src/services/order.service';
 import { PrintOrderComponent } from './print-order/print-order.component';
@@ -9,6 +9,10 @@ import * as _ from 'lodash';
 import { CustomersComponent } from '../customers/customers.component';
 import { CustomerService } from 'src/services/customer.service';
 import { Customer } from 'src/models/customer';
+import { Types } from 'src/services/types.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { convertToDateStruct } from 'src/helpers/util';
+import { combineLatest, forkJoin, merge } from 'rxjs';
 
 @Component({
   selector: 'app-orders',
@@ -23,20 +27,141 @@ export class OrdersComponent implements OnInit {
 	pageSize = 4;
 	collectionSize = 0;
 	
+	hoveredDate: NgbDate | null = null;
+
+	filterGroup: FormGroup;
+
+	// fromDate: NgbDate | null;
+	// toDate: NgbDate | null;
+
+	filterDateOptions: Types[] = [
+		{
+			id: 'today',
+			text: 'Today',
+			ext: {
+				frequency: 'days',
+				value: 0
+			}
+		},
+		{
+			id: 'last-7-days',
+			text: 'Last 7 days',
+			ext: {
+				frequency: 'days',
+				value: 7
+			}
+		},
+		{
+			id: 'last-2-weeks',
+			text: 'Last 2 weeks',
+			ext: {
+				frequency: 'weeks',
+				value: 2
+			}
+		},
+		{
+			id: 'this-month',
+			text: 'This month',
+			ext: {
+				frequency: 'months',
+				value: 1
+			}
+		},
+		{
+			id: 'custom',
+			text: 'Custom',
+			ext: {
+				frequency: 'custom',
+				value: 0
+			}
+		},
+	];
+
 	constructor(
 		private modalService: NgbModal,
 		private orderService: OrderService,
 		private templateService: TemplateService,
+		private calendar: NgbCalendar,
+		public formatter: NgbDateParserFormatter,
+		public fb: FormBuilder,
 	) {
+		// this.fromDate = calendar.getToday();
+		// this.toDate = calendar.getNext(calendar.getToday(), 'd', 10);
 	}
 
 	ngOnInit(): void {
-		this.loadOrders();
+		this.filterDateOptions = this.filterDateOptions.map((opt) => {
+			const {
+				frequency,
+				value,
+			} = opt.ext;
+
+			const [
+				startDate,
+				endDate,
+			] = this.calculateDateRange(frequency, value);
+
+			_.assign(opt.ext, {startDate, endDate});
+			return opt;
+		});
+
+		console.log(this.filterDateOptions);
+
+		this.filterGroup = this.fb.group({
+			search: [''],
+			dateRange: [''],
+			fromDate: [''],
+			toDate: [''],
+		});
+
+		const {
+			dateRange,
+			fromDate,
+			toDate,
+		} = this.filterGroup.controls;
+
+		dateRange.valueChanges.subscribe((val) => {
+			if (val === 'Custom') return;
+
+			const opt = this.filterDateOptions.find((x) => x.text === val);
+
+			if (opt) {
+				const {
+					startDate,
+					endDate,
+				} = opt.ext;
+
+				this.filterGroup.patchValue({
+					fromDate: convertToDateStruct(startDate),
+					toDate: convertToDateStruct(endDate),
+				});
+			}
+
+			console.log(this.filterGroup.value);
+		});
+
+		combineLatest([
+			fromDate.valueChanges,
+			toDate.valueChanges
+		]).subscribe((val: any) => {
+			console.log(val)
+			this.loadOrders();	
+		})
+
+		// set default to today
+		dateRange.setValue(this.filterDateOptions[1].text);
 	}
 
 	loadOrders() {
 		this.isLoading = true;
-		this.orderService.geOrders().subscribe((res) => {
+
+		const query = {
+			start: this.formatter.format(this.fromDate.value),
+			end: this.formatter.format(this.toDate.value)
+		};
+		console.log(query);
+
+		this.orderService.getOrdersByField(query).subscribe((res) => {
 			console.log(res);
 			this.orderList = res;
 			this.isLoading = false;
@@ -393,4 +518,80 @@ export class OrdersComponent implements OnInit {
 			}
 		});
 	}
+
+	onDateSelection(date: NgbDate) {
+		this.dateRange.setValue(this.filterDateOptions.find((x) => (x.id === 'custom'))?.text);
+
+		if (!this.fromDate.value && !this.toDate.value) {
+			this.fromDate.setValue(date);
+		} else if (this.fromDate.value && !this.toDate.value && date && date.after(this.fromDate.value)) {
+			this.toDate.setValue(date);
+		} else {
+			this.toDate.setValue(null);
+			this.fromDate.setValue(date);
+		}
+	}
+
+	isHovered(date: NgbDate) {
+		return (
+			this.fromDate.value && !this.toDate.value && this.hoveredDate && date.after(this.fromDate.value) && date.before(this.hoveredDate)
+		);
+	}
+
+	isInside(date: NgbDate) {
+		return this.toDate.value && date.after(this.fromDate.value) && date.before(this.toDate.value);
+	}
+
+	isRange(date: NgbDate) {
+		return (
+			date.equals(this.fromDate.value) ||
+			(this.toDate.value && date.equals(this.toDate.value)) ||
+			this.isInside(date) ||
+			this.isHovered(date)
+		);
+	}
+
+	validateInput(currentValue: NgbDate | null, input: string): NgbDate | null {
+		const parsed = this.formatter.parse(input);
+		return parsed && this.calendar.isValid(NgbDate.from(parsed)) ? NgbDate.from(parsed) : currentValue;
+	}
+
+	calculateDateRange(frequency: string, val: number) {
+		// Get the current date
+		const today = new Date();
+	
+		// Calculate the start and end dates of the range
+		let startDate, endDate;
+		switch (frequency) {
+			case "days":
+				startDate = new Date(today.getTime() - (val * 24 * 60 * 60 * 1000));
+				endDate = today;
+				break;
+			case "weeks":
+				startDate = new Date(today.getTime() - ((val * 2) * 24 * 60 * 60 * 1000));
+				endDate = today;
+				break;
+			case "months":
+				startDate = new Date(today.getFullYear(), today.getMonth(), val);
+				endDate = today;
+				break;
+			default:
+				break;
+		}
+	
+		// Return the start and end dates of the range
+		return [startDate, endDate];
+	}
+
+	get dateRange() {
+		return this.filterGroup.controls['dateRange'] as any;
+	}
+
+	get fromDate() {
+    return this.filterGroup.controls['fromDate'] as any;
+  }
+
+  get toDate() {
+    return this.filterGroup.controls['toDate'] as any;
+  }
 }
