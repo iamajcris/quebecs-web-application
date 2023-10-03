@@ -14,47 +14,47 @@
 </div>
 
 <main class="container-md">
-<div class="my-3 p-3 bg-body rounded shadow-sm">
-  <div class="d-flex">
-    <div class="pb-2 mb-0 small lh-sm w-100">
-      <div class="d-flex justify-content-between">
-        <span class="heading align-self-center">Customers</span>
+  <div class="my-3 p-3 bg-body rounded shadow-sm">
+    <div class="d-flex">
+      <div class="pb-2 mb-0 small lh-sm w-100">
+        <div class="d-flex justify-content-between">
+          <span class="heading align-self-center">Customers</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="table-responsive">
-    <table class="table table-striped table-sm">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Firstname</th>
-          <th scope="col">Lastname</th>
-          <th scope="col">Address</th>
-          <th scope="col">Mobile #</th>
+    <div class="table-responsive">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Firstname</th>
+            <th scope="col">Lastname</th>
+            <th scope="col">Address</th>
+            <th scope="col">Mobile #</th>
+          </tr>
+        </thead>
+        <tr *ngIf="isLoading">
+          <td colspan="6">
+            <div class="d-flex justify-content-center">
+              <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+            </div>
+          </td>
         </tr>
-      </thead>
-      <tr *ngIf="isLoading">
-        <td colspan="6">
-          <div class="d-flex justify-content-center">
-            <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
-          </div>
-        </td>
-      </tr>
-      <tbody *ngIf="customers">
-        <tr *ngFor="let customer of filteredCustomers">
-          <th scope="row">
-            <a class="text-decoration-none pointer" (click)="openCustomerModal(customer)">
-              {{ customer.customerId }}
-            </a>
-          </th>
-          <td> {{ customer.firstName }}</td>
-          <td>{{ customer.lastName }}</td>
-          <td class="text-nowrap">{{ customer.address }}</td>
-          <td>{{ customer.mobileNumber }}</td>
-        </tr>
-      </tbody>
-    </table>
+        <tbody *ngIf="customers">
+          <tr *ngFor="let customer of filteredCustomers">
+            <th scope="row">
+              <a class="text-decoration-none pointer" (click)="openCustomerModal(customer)">
+                {{ customer.customerId }}
+              </a>
+            </th>
+            <td> {{ customer.firstName }}</td>
+            <td>{{ customer.lastName }}</td>
+            <td class="text-nowrap">{{ customer.address }}</td>
+            <td>{{ customer.mobileNumber }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 </main>
