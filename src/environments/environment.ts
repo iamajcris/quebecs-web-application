@@ -9,5 +9,8 @@ export const environment = {
     measurementId: "G-G139SSH94D"
   },
   apiBase: "https://us-central1-quebecs-system.cloudfunctions.net/app",
+  api: {
+    types: "https://us-central1-quebecs-system.cloudfunctions.net/app/types",
+  },
   templateBaseUrl: "https://us-central1-quebecs-system.cloudfunctions.net/app"
 };

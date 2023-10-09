@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Form, FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Customer } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
@@ -21,19 +21,19 @@ export class AddCustomerComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.form = this.intializeForm();
+    this.form = AddCustomerComponent.customerModel();
 
     if (this.customer) {
       this.form.patchValue(this.customer);
     }
   }
 
-  intializeForm() {
-    return this.formBuilder.group({
-      lastName: [''],
-      firstName: [''],
-      address: [''],
-      mobileNumber: ['']
+  static customerModel() {
+    return new FormGroup({
+      lastName: new FormControl(''),
+      firstName: new FormControl(''),
+      address: new FormControl(''),
+      mobileNumber: new FormControl('')
     });
   }
 

@@ -36,6 +36,11 @@ export class OrdersComponent implements OnInit {
 
 	filterDateOptions: Types[] = [
 		{
+			id: 'most-recent',
+			text: 'Most Recent',
+			ext: {}
+		},
+		{
 			id: 'today',
 			text: 'Today',
 			ext: {
@@ -123,21 +128,23 @@ export class OrdersComponent implements OnInit {
 		dateRange.valueChanges.subscribe((val) => {
 			if (val === 'Custom') return;
 
-			const opt = this.filterDateOptions.find((x) => x.text === val);
+			if (val === 'Most Recent') {
+				this.loadRecentOrders();
+			} else {
+				const opt = this.filterDateOptions.find((x) => x.text === val);
 
-			if (opt) {
-				const {
-					startDate,
-					endDate,
-				} = opt.ext;
+				if (opt) {
+					const {
+						startDate,
+						endDate,
+					} = opt.ext;
 
-				this.filterGroup.patchValue({
-					fromDate: convertToDateStruct(startDate),
-					toDate: convertToDateStruct(endDate),
-				});
+					this.filterGroup.patchValue({
+						fromDate: convertToDateStruct(startDate),
+						toDate: convertToDateStruct(endDate),
+					});
+				}
 			}
-
-			console.log(this.filterGroup.value);
 		});
 
 		combineLatest([
@@ -149,7 +156,16 @@ export class OrdersComponent implements OnInit {
 		})
 
 		// set default to today
-		dateRange.setValue(this.filterDateOptions[1].text);
+		dateRange.setValue(this.filterDateOptions[0].text);
+	}
+
+	loadRecentOrders() {
+		this.isLoading = true;
+		this.orderService.listOrders().subscribe((res) => {
+			
+			this.orderList = res;
+			this.isLoading = false;
+		});
 	}
 
 	loadOrders() {
@@ -181,6 +197,9 @@ export class OrdersComponent implements OnInit {
 	print(order: any) {
 		console.log('print', order);
 
+		const {
+			customer
+		} = order;
 		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=400,height=750,toolbar=0,scrollbars=0,status=0');
 
 		const template = `<html>
@@ -375,6 +394,7 @@ export class OrdersComponent implements OnInit {
 
 					.invoice_wrapper .footer {
 						padding: 30px;
+						border-bottom: 1px dashed #000;
 					}
 
 					.invoice_wrapper .footer>p {
@@ -455,15 +475,15 @@ export class OrdersComponent implements OnInit {
 								</div>
 							</div>
 						</div>
-						<div class="customer">
-							<p class="bold">${order.customerName}</p>
-							<p class="bold">${order.address}</p>
-							<p class="bold">${order.mobileNumber}</p>
-						</div>
 						<div class="footer">
 							<div class="terms">
 								<p class="tc bold">THANK YOU FOR YOUR ORDER!</p>
 							</div>
+						</div>
+						<div class="customer">
+							<p class="bold">${customer.firstName} ${customer.lastName}</p>
+							<p class="bold">${customer.address}</p>
+							<p class="bold">${customer.mobileNumber}</p>
 						</div>
 					</div>
 				</div>

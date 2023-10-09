@@ -1,186 +1,198 @@
-<div class="modal-header">
+<div class="modal-header bg-light">
   <h4 class="modal-title">Add Order</h4>
   <button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
 </div>
-<div class="modal-body">
-  <div class="container-fluid">
-    <form [formGroup]="orderForm">
-      <div class="row">
-        <div class="col-3">
-          <div class="input-group input-group-md mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-md">Name</span>
-            <input type="text" class="form-control form-control-md" id="customerName" formControlName="customerName" placeholder="Enter customer name">
+<div class="modal-body bg-light">
+  <div class="row">
+    <div class="col-md-5 col-lg-4 order-md-last">
+      <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex">
+          <span class="text-primary">Your cart</span>
+          <div class="form-check form-switch ms-1">
+            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" (click)="toggleEditItems()">
           </div>
         </div>
-        <div class="col">
-          <div class="input-group input-group-md mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-md">Address</span>
-            <input class="form-control form-control-md" id="address" formControlName="address" placeholder="Enter address">
+        <span class="badge bg-primary rounded-pill">{{itemsCount}}</span>
+      </h4>
+      <ul class="list-group mb-3">
+        <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let item of items.controls; index as i" [formGroup]="item">
+          <div>
+            <h6 class="my-0">{{item.value.name}}</h6>
+            <small class="text-muted">{{item.value.quantity}}x {{item.value.size}}</small>
           </div>
-        </div>
-        <div class="col-3">
-          <div class="input-group input-group-md mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-md">Mobile #</span>
-            <input type="text" class="form-control form-control-md" id="mobileNumber" formControlName="mobileNumber" placeholder="Enter mobile number">
+          <div>
+            <span class="text-muted">₱{{item.value.price}}</span>
+            <a class="text-decoration-none text-danger pointer" *ngIf="editItems" (click)="deleteItem(i)">
+              <i class="bi bi-x-lg"></i>
+            </a>
           </div>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Sub Total</span>
+          <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
+        </li>
+        <li class="list-group-item d-flex justify-content-between lh-sm bg-light" *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
+          <div>
+            <h6 class="my-0">{{subItem.value.text}}</h6>
+          </div>
+          <div>
+            <span class="text-muted">P{{subItem.value.price}}</span>
+            <a class="text-decoration-none text-danger pointer" *ngIf="editItems" (click)="deleteSubItem(i)">
+              <i class="bi bi-x-lg"></i>
+            </a>
+          </div>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Total</span>
+          <strong>₱{{ orderForm.controls['total'].value }}</strong>
+        </li>
+      </ul>
+      <form class="card p-2 mb-3" (submit)="addSubItem($event)">
+        <div class="input-group">
+          <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="search" #instance="ngbTypeahead"
+            (focus)="focus$.next($any($event).target.value)" (click)="click$.next($any($event).target.value)">
+          <span class="input-group-text">₱</span>
+          <input type="number" class="form-control text-end" id="subItem-value">
+          <button type="submit" class="btn btn-secondary">Add</button>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-4">
-          <div class="input-group input-group-md mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-md">Order Date</span>
+      </form>
+      <form class="p-2">
+        <button class="w-100 btn btn-primary btn-lg" (click)="save()" [disabled]="this.isSaving">
+          Book Order
+          <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
+        </button>
+      </form>
+    </div>
+    <div class="col-md-7 col-lg-8">
+      <h4 class="mb-3">Billing address</h4>
+      <form class="needs-validation" novalidate [formGroup]="orderForm">
+        <div class="row g-3">
+          <label for="customerSearch" class="form-label">Customer</label>
+          <div class="input-group mt-0">
             <input
-              class="form-control"
-              placeholder="yyyy-mm-dd"
-              name="dp"
-              formControlName="orderDate"
-              ngbDatepicker
-              #d="ngbDatepicker"
+              id="typeahead-template"
+              type="text"
+              class="form-control col"
+              formControlName="customerSearch"
+              [ngbTypeahead]="searchCustomer"
+              [inputFormatter]="formatter"
+              [resultFormatter]="formatter"
             />
-            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="input-group input-group-md mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-md">Time</span>
-            <select class="form-select" formControlName="orderTime">
-              <option selected>{{orderForm.controls['orderTime'].value}}</option>
-              <option *ngFor="let time of meridianTimeList">
-                {{time}}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="row mb-3">
-            <div class="col">
-              <ng-container *ngFor="let type of filters | keyvalue">
-                <button class="btn btn-outline-primary me-2" (click)="filterMenu(type)">{{type.value}}</button>
-              </ng-container>
-              <button class="btn btn-outline-primary me-2" (click)="removeFilter()">
-                <i class="bi bi-arrow-clockwise"></i>
-              </button>
+            <div class="input-group-text">
+              <input id="manual-entry" class="form-check-input mt-0" type="checkbox" formControlName="isManualEntry">
+              <label for="manual-entry" class="ps-1">Manual Entry</label>
             </div>
           </div>
-          <!--Menu items-->
-          <div class="row">
-            <ng-container *ngIf="filteredMenu$ | async as menu">
-              <div *ngFor="let category of menu | keyvalue">
-                <div class="border-bottom mb-3">
-                  <h5>{{category.value[0].category}}</h5>
-                </div>
-                <div class="row">
-                  <div class="col-4 col-xl-3 pb-3" *ngFor="let product of category.value; let i = index">
-                    <div class="card">
-                      <div class="card-body p-0 text-center">
-                        <div class="title" (click)="addOrder(product.name, product.price, product.size)">
-                          <label class="card-title mt-2">{{product.name}}</label>
-                        </div>
-                        <div class="btn-group w-100">
-                          <button type="button" class="btn btn-secondary no-border-radius-top text-end pe-0"
-                            [ngClass]="{'border-radius-bottom-right': product.pricing.length <= 1, 'text-end pe-0': product.pricing.length > 1}"
-                            (click)="addOrder(product.name, product.price, product.size)">
-                            {{product.size}} - {{product.price}}
-                          </button>
-                          <button *ngIf="product.pricing.length > 1" type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
-                            <span class="visually-hidden">Toggle Dropdown</span>
-                          </button>
-                          <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
-                            <li *ngFor="let pricing of product.pricing">
-                              <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}} - {{pricing.price}}</a>
-                            </li>
-                          </ul>
-                        </div>
+        </div>
+        <div class="row g-3" formGroupName="customer" *ngIf="orderForm.get('isManualEntry')?.value">
+          <div class="col-sm-6">
+            <label for="firstName" class="form-label">First name</label>
+            <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="">
+          </div>
+          <div class="col-sm-6">
+            <label for="lastName" class="form-label">Last name</label>
+            <input type="text" class="form-control" id="lastName" formControlName="lastName" placeholder="">
+          </div>
+          <div class="col-12">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" class="form-control" id="address" formControlName="address">
+          </div>
+          <div class="col-12">
+            <label for="mobileNumber" class="form-label">Mobile number</label>
+            <input type="tel" class="form-control" id="mobileNumber" formControlName="mobileNumber" placeholder="+63">
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="save-customer" formControlName="saveCustomer">
+              <label class="form-check-label" for="save-customer">Save customer information?</label>
+            </div>
+          </div>
+          <hr class="my-4">
+        </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-md-4">
+            <label for="country" class="form-label">Order Date</label>
+            <div class="input-group input-group-md">
+              <input
+                class="form-control"
+                placeholder="yyyy-mm-dd"
+                name="dp"
+                formControlName="orderDate"
+                ngbDatepicker
+                #d="ngbDatepicker"
+              />
+              <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label for="state" class="form-label">Time</label>
+            <div class="input-group input-group-md">
+              <select class="form-select" formControlName="orderTime">
+                <option selected>{{orderForm.controls['orderTime'].value}}</option>
+                <option *ngFor="let time of meridianTimeList">
+                  {{time}}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="form-floating">
+              <textarea class="form-control" id="floatingTextarea" style="height: 70px;"></textarea>
+              <label for="floatingTextarea">Notes</label>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row g-3 mb-3">
+          <div class="col">
+            <ng-container *ngFor="let type of filters | keyvalue">
+              <button class="btn btn-outline-primary me-2" (click)="filterMenu(type)">{{type.value}}</button>
+            </ng-container>
+            <button class="btn btn-outline-primary me-2" (click)="removeFilter()">
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <ng-container *ngIf="filteredMenu$ | async as menu">
+            <div *ngFor="let category of menu | keyvalue">
+              <div class="border-bottom mb-3">
+                <h5>{{category.value[0].category}}</h5>
+              </div>
+              <div class="row">
+                <div class="col-4 col-xl-3 pb-3" *ngFor="let product of category.value; let i = index">
+                  <div class="card shadow-sm text-dark bg-light pointer">
+                    <div class="card-body p-0 text-center">
+                      <div class="title" (click)="addOrder(product.name, product.price, product.size)">
+                        <label class="card-title mt-2 pointer">{{product.name}}</label>
+                      </div>
+                      <div class="btn-group w-100">
+                        <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0"
+                          [ngClass]="{'border-radius-bottom-right': product.pricing.length <= 1, 'text-end pe-0': product.pricing.length > 1}"
+                          (click)="addOrder(product.name, product.price, product.size)">
+                          {{product.size}} - {{product.price}}
+                        </button>
+                        <button *ngIf="product.pricing.length > 1" type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+                          <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
+                          <li *ngFor="let pricing of product.pricing">
+                            <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}} - {{pricing.price}}</a>
+                          </li>
+                        </ul>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </ng-container>
-          </div>
-        </div>
-        <div class="col-4 border-left">
-          <div class="accordion" id="accordionPanelsStayOpenExample">
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="panelsStayOpen-headingTwo">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTwo" aria-expanded="false" aria-controls="panelsStayOpen-collapseTwo">
-                  Orders
-                </button>
-              </h2>
-              <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingTwo">
-                <div class="accordion-body p-1">
-                  <ng-container formArrayName="items">
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" (click)="toggleEditItems()">
-                      <label class="form-check-label" for="flexSwitchCheckDefault" (value)="editItems">Toggle to edit</label>
-                    </div>
-                    <ul class="list-group list-group-flush items">
-                      <li class="list-group-item ps-1" *ngFor="let item of items.controls; index as i" [formGroup]="item">
-                        <div class="container-fluid p-0">
-                          <div class="d-flex float-start" *ngIf="editItems">
-                            <a class="text-decoration-none text-success" (click)="addQuantity(i)">
-                              <i class="bi bi-plus-lg"></i>
-                            </a>
-                          </div>
-                          <label>{{item.value.quantity}}x {{item.value.id}}</label>
-                          <a class="text-decoration-none" *ngIf="editItems">
-                            <i class="bi bi-pencil-square" (click)="activateNotes(i)"></i>
-                          </a>
-                          <div class="d-flex float-end">
-                            <label>{{item.value.price}}</label>
-                            <a class="text-decoration-none text-danger"  *ngIf="editItems" (click)="deleteItem(i)">
-                              <i class="bi bi-x-lg"></i>
-                            </a>
-                          </div>
-                        </div>
-                        <div class="ms-3" *ngIf="item.value.enableNotes">
-                          <input class="form-control form-control-sm" formControlName="notes">
-                        </div>
-                      </li>
-                    </ul>
-                  </ng-container>
-                  <ng-container formArrayName="subItems">
-                    <ul class="list-group list-group-flush items">
-                      <li class="list-group-item ps-1">
-                        <b>Subtotal</b>
-                        <a class="text-decoration-none text-success" (click)="addSubItem()">
-                          <i class="bi bi-plus-lg"></i>
-                        </a>
-                        <label class="float-end"> {{ orderForm.controls['subTotal'].value }} </label>
-                      </li>
-                      <li class="list-group-item ps-1 pe-1" *ngFor="let item of subItems.controls; index as i" [formGroup]="item">
-                        <div class="input-group input-group-sm">
-                          <input type="text" class="form-control w-50" formControlName="text" [ngbTypeahead]="search" #instance="ngbTypeahead"
-                            (focus)="focus$.next($any($event).target.value)" (click)="click$.next($any($event).target.value)">
-                          <span class="input-group-text">₱</span>
-                          <input type="number" class="form-control text-end" formControlName="price">
-                        </div>
-                      </li>
-                    </ul>  
-                  </ng-container>
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item ps-1">
-                      <div>
-                        <b>Total</b>
-                        <label class="float-end"> {{ orderForm.controls['total'].value }} </label>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
-</div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="this.isSaving">
-    Save
-    <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
-  </button>
-  <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close click')">Close</button>
 </div>

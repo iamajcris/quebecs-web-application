@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -29,8 +29,15 @@ export class TypesService {
     return this.httpClient.post(`${this.apiBase}/types`, data);
   }
 
-  getTypes(slug: any = null) {
-    
+  getTypesList(name: string, applySessionStorage = true): Observable<any> {
+    if (sessionStorage.getItem(name) && applySessionStorage) {
+      return new Observable(observer => {
+        observer.next(JSON.parse(sessionStorage.getItem(name) || ''));
+        observer.complete();
+      });
+    } else {
+      return this.httpClient.get<any[]>(`${environment.api.types}/list/${name}`);
+    }
   }
 }
 
