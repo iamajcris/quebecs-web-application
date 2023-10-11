@@ -171,7 +171,7 @@
                         <label class="card-title mt-2 pointer">{{product.name}}</label>
                       </div>
                       <div class="btn-group w-100">
-                        <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0"
+                        <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0 item-sp"
                           [ngClass]="{'border-radius-bottom-right': product.pricing.length <= 1, 'text-end pe-0': product.pricing.length > 1}"
                           (click)="addOrder(product.name, product.price, product.size)">
                           {{product.size}} - {{product.price}}
@@ -193,6 +193,30 @@
           </ng-container>
         </div>
       </form>
+      <div class="row g-3 mb-3">
+        <div class="border-bottom mb-3">
+          <h5>Custom</h5>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-sm-6 pb-3">
+            <div class="card p-2 mb-3">
+              <input type="text" class="form-control" placeholder="Item name" [(ngModel)]="customItem.name">
+              <div class="input-group">
+                <button class="btn btn-outline-secondary dropdown-toggle w-25" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+                  {{customItem.size}}
+                </button>
+                <ul class="dropdown-menu">
+                  <li *ngFor="let type of priceType">
+                    <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
+                  </li>
+                </ul>
+                <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price">
+                <button class="btn btn-warning" type="button" (click)="addOrder(customItem.name, customItem.price, customItem.size)">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

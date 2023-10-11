@@ -50,6 +50,21 @@ export class AddOrderComponent implements OnInit {
 
   customerList: CustomerSearch[]
 
+  priceType = [
+    'Regular',
+    'Half',
+    'S',
+    'M',
+    'L',
+    'XL'
+  ];
+
+  customItem = {
+    size: this.priceType[0],
+    name: '',
+    price: ''
+  };
+
   constructor(
     public activeModal: NgbActiveModal,
     private menuService: MenuService,
@@ -60,7 +75,7 @@ export class AddOrderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.menuService.getMenu('kLCk8Lfn1XefwPTa4kPX').subscribe((res) => {
+    this.menuService.getMenu('TMeHLI8r2ww31lXihoKt').subscribe((res) => {
       if (!_.isEmpty(res.menuItems)) {
         const menuItems = res.menuItems.map((m) => {
           const defaultPrice = _.head(m.pricing);

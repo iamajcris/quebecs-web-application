@@ -1,59 +1,51 @@
-<div class="container-fluid">
-  <div class="row">
-		<div class="col">
-			<h3>Products</h3>
-		</div>
+<div class="px-3 py-2 border-bottom mb-3">
+  <div class="container d-flex flex-wrap">
+    <div class="">
+      <button type="button" class="btn btn-primary btn-sm" (click)="openMenu()">
+        <i class="bi bi-plus"></i>
+        Create new menu
+      </button>
+    </div>
   </div>
-	<div class="row">
-		<div class="col">
-			<button type="button" class="btn btn-primary" (click)="openMenu()">Add Menu</button>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col">
-			<form>
-				<div class="mb-3 row">
-					<label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Full text search:</label>
-					<div class="col-xs-3 col-sm-auto">
-						<input
-							id="table-complete-search"
-							type="text"
-							class="form-control"
-							name="searchTerm"
-						/>
+</div>
+
+<main class="container-md">
+	<ng-container *ngFor="let menu of menuList">
+		<div class="my-3 p-3 bg-body rounded shadow-sm">
+			<div class="d-flex">
+				<div class="pb-2 mb-0 small lh-sm w-100">
+					<div class="d-flex justify-content-between">
+						<span class="heading align-self-center">Menu - {{menu.store}}</span>
+						<button type="button" class="btn btn-primary btn-sm" (click)="openMenu(menu)">
+							<i class="bi bi-pen"></i>
+							Edit
+						</button>
 					</div>
 				</div>
-			
-				<table class="table table-striped">
+			</div>
+
+			<div class="table-responsive">
+				<table class="table table-striped table-sm">
 					<thead>
 						<tr>
-							<th scope="col">Menu #</th>
-							<th scope="col">Scheduled Date</th>
-							<th scope="col">Created on</th>
-							<th scope="col">Last updated on</th>
+							<th scope="col">Meal</th>
+							<th scope="col">Type</th>
+							<th scope="col">Pricing</th>
 						</tr>
 					</thead>
-					<tbody *ngIf="menuList">
-						<tr *ngFor="let menu of menuList">
-							<th scope="row"><button type="button" class="btn btn-link" (click)="openMenu(menu)">{{ menu.menuId }}</button></th>
-							<td>{{ menu.scheduledDate | date:"YYYY/MM/dd" }}</td>
-							<td>{{ menu.createdAt }}</td>
-							<td>{{ menu.updatedAt }}</td>
+					<tbody>
+						<tr *ngFor="let items of menu.menuItems">
+							<td>{{items.name}}</td>
+							<td>{{items.category}}</td>
+							<td>
+								<div *ngFor="let pricing of items.pricing">
+									{{pricing.size}} - {{pricing.price}}
+								</div>
+							</td>
 						</tr>
 					</tbody>
 				</table>
-			
-				<div class="d-flex justify-content-between p-2">
-					<!-- <ngb-pagination [collectionSize]="(total$ | async)!" [(page)]="service.page" [pageSize]="service.pageSize">
-					</ngb-pagination>
-			
-					<select class="form-select" style="width: auto" name="pageSize" [(ngModel)]="service.pageSize">
-						<option [ngValue]="2">2 items per page</option>
-						<option [ngValue]="4">4 items per page</option>
-						<option [ngValue]="6">6 items per page</option>
-					</select> -->
-				</div>
-			</form>
+			</div>
 		</div>
-	</div>
-</div>
+	</ng-container>
+</main>

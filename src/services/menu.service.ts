@@ -88,10 +88,10 @@ export interface MenuItem {
 }
 
 export interface Menu {
-  scheduledDate: Date;
   menuId: number;
   id: number;
   menuItems: [MenuItem];
   updatedAt: Date;
   createdAt: Date;
+  store: string;
 }
