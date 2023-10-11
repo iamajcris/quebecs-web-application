@@ -50,10 +50,7 @@ export class AddMenuComponent implements OnInit {
   }
 
   initializeForm() {
-    const defaultDt = this.convertToDateStruct(Date.now());
-
     this.form = this.fb.group({
-      scheduledDate: [defaultDt, Validators.required],
       store: [this.storeTypes[0]],
       isActive: [true],
       menuItems: this.fb.array([]),
@@ -87,12 +84,6 @@ export class AddMenuComponent implements OnInit {
   }
 
   patchMenu(menu: Menu) {
-    const {
-      scheduledDate
-    } = this.form.controls;
-
-    scheduledDate.patchValue(this.convertToDateStruct(menu.scheduledDate));
-    
     if (menu.menuItems.length) {
       menu.menuItems.forEach((x: any) => {
         const item = this.onCreateMenuItem();

@@ -7,3 +7,13 @@
     border-bottom: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);
   }
 }
+
+.item-sp {
+  @media (min-width: 425px) {
+    text-align-last: center;
+  }
+  @media (min-width: 992px) {
+    text-align-last: right;
+  }
+
+}

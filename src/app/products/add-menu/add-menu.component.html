@@ -60,9 +60,11 @@
             </div>
             <ng-container formArrayName="pricing">
               <div class="row mt-1" *ngFor="let pricing of itemPricing(i).controls; index as p">
-                <div class="col-8" [formGroup]="pricing">
+                <div class="col-lg-8 col-md-12" [formGroup]="pricing">
                   <div class="input-group">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-25" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{pricing.value.size}}</button>
+                    <button class="btn btn-outline-secondary dropdown-toggle w-25" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+                      {{pricing.value.size}}
+                    </button>
                     <ul class="dropdown-menu">
                       <li *ngFor="let type of priceType">
                         <a class="dropdown-item" [routerLink]="" (click)="patchValue(type, pricing.get('size'))">{{type}}</a>
