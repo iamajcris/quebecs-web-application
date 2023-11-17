@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body bg-light">
   <div class="row">
-    <div class="col-md-5 col-lg-4 order-md-last">
+    <div *ngIf="orderType === 'quebecs'" class="col-md-5 col-lg-4 order-md-last">
       <h4 class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex">
           <span class="text-primary">Your cart</span>
@@ -49,10 +49,13 @@
       </ul>
       <form class="card p-2 mb-3" (submit)="addSubItem($event)">
         <div class="input-group">
-          <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="search" #instance="ngbTypeahead"
-            (focus)="focus$.next($any($event).target.value)" (click)="click$.next($any($event).target.value)">
+          <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem" #subItemInstance="ngbTypeahead"
+            (focus)="focus$.next($any($event).target.value)"
+            (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
+            [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
+            (selectItem)="subItemSelected($event)">
           <span class="input-group-text">₱</span>
-          <input type="number" class="form-control text-end" id="subItem-value">
+          <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value" [ngModelOptions]="{standalone: true}">
           <button type="submit" class="btn btn-secondary">Add</button>
         </div>
       </form>
@@ -63,10 +66,11 @@
         </button>
       </form>
     </div>
-    <div class="col-md-7 col-lg-8">
+    <div [ngClass]="{'col-md-7 col-lg-8': orderType === 'quebecs',
+                     'col-md-12': orderType === 'turo-turo'}">
       <h4 class="mb-3">Billing address</h4>
       <form class="needs-validation" novalidate [formGroup]="orderForm">
-        <div class="row g-3">
+        <div class="row g-3" *ngIf="!orderForm.get('isManualEntry')?.disabled">
           <label for="customerSearch" class="form-label">Customer</label>
           <div class="input-group mt-0">
             <input
@@ -74,6 +78,7 @@
               type="text"
               class="form-control col"
               formControlName="customerSearch"
+              #customerSearchInstance="ngbTypeahead"
               [ngbTypeahead]="searchCustomer"
               [inputFormatter]="formatter"
               [resultFormatter]="formatter"
@@ -84,7 +89,7 @@
             </div>
           </div>
         </div>
-        <div class="row g-3" formGroupName="customer" *ngIf="orderForm.get('isManualEntry')?.value">
+        <div class="row g-3" formGroupName="customer" *ngIf="orderForm.get('isManualEntry')?.value || orderForm.get('isManualEntry')?.disabled">
           <div class="col-sm-6">
             <label for="firstName" class="form-label">First name</label>
             <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="">
@@ -101,7 +106,7 @@
             <label for="mobileNumber" class="form-label">Mobile number</label>
             <input type="tel" class="form-control" id="mobileNumber" formControlName="mobileNumber" placeholder="+63">
           </div>
-          <div class="col-12">
+          <div class="col-12" *ngIf="!this.orderForm.get('customer')?.get('saveCustomer')?.disabled">
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="save-customer" formControlName="saveCustomer">
               <label class="form-check-label" for="save-customer">Save customer information?</label>
@@ -146,77 +151,200 @@
 
         <hr class="my-4">
 
-        <div class="row g-3 mb-3">
-          <div class="col">
-            <ng-container *ngFor="let type of filters | keyvalue">
-              <button class="btn btn-outline-primary me-2" (click)="filterMenu(type)">{{type.value}}</button>
-            </ng-container>
-            <button class="btn btn-outline-primary me-2" (click)="removeFilter()">
-              <i class="bi bi-arrow-clockwise"></i>
-            </button>
+        <ng-container *ngIf="orderType === 'quebecs'">
+          <div class="row g-3 mb-3">
+            <div class="col">
+              <ng-container *ngFor="let type of filters | keyvalue">
+                <button class="btn btn-outline-primary me-2" (click)="filterMenu(type)">{{type.value}}</button>
+              </ng-container>
+              <button class="btn btn-outline-primary me-2" (click)="removeFilter()">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div class="row g-3 mb-3">
-          <ng-container *ngIf="filteredMenu$ | async as menu">
-            <div *ngFor="let category of menu | keyvalue">
-              <div class="border-bottom mb-3">
-                <h5>{{category.value[0].category}}</h5>
-              </div>
-              <div class="row">
-                <div class="col-4 col-xl-3 pb-3" *ngFor="let product of category.value; let i = index">
-                  <div class="card shadow-sm text-dark bg-light pointer">
-                    <div class="card-body p-0 text-center">
-                      <div class="title" (click)="addOrder(product.name, product.price, product.size)">
-                        <label class="card-title mt-2 pointer">{{product.name}}</label>
-                      </div>
-                      <div class="btn-group w-100">
-                        <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0 item-sp"
-                          [ngClass]="{'border-radius-bottom-right': product.pricing.length <= 1, 'text-end pe-0': product.pricing.length > 1}"
-                          (click)="addOrder(product.name, product.price, product.size)">
-                          {{product.size}} - {{product.price}}
-                        </button>
-                        <button *ngIf="product.pricing.length > 1" type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
-                          <span class="visually-hidden">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
-                          <li *ngFor="let pricing of product.pricing">
-                            <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}} - {{pricing.price}}</a>
-                          </li>
-                        </ul>
+          <div class="row g-3 mb-3">
+            <ng-container *ngIf="filteredMenu$ | async as menu">
+              <div *ngFor="let category of menu | keyvalue">
+                <div class="border-bottom mb-3">
+                  <h5>{{category.value[0].category}}</h5>
+                </div>
+                <div class="row">
+                  <div class="col-4 col-xl-3 pb-3" *ngFor="let product of category.value; let i = index">
+                    <div class="card shadow-sm text-dark bg-light pointer">
+                      <div class="card-body p-0 text-center">
+                        <div class="title" (click)="addOrder(product.name, product.price, product.size)">
+                          <label class="card-title mt-2 pointer">{{product.name}}</label>
+                        </div>
+                        <div class="btn-group w-100">
+                          <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0 item-sp"
+                            (click)="addOrder(product.name, product.price, product.size)">
+                            {{product.size}} - {{product.price}}
+                          </button>
+                          <button  type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
+                            <li *ngFor="let pricing of product.pricing">
+                              <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}} - {{pricing.price}}</a>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </ng-container>
-        </div>
-      </form>
-      <div class="row g-3 mb-3">
-        <div class="border-bottom mb-3">
-          <h5>Custom</h5>
-        </div>
-        <div class="row">
-          <div class="col-md-6 col-sm-6 pb-3">
-            <div class="card p-2 mb-3">
-              <input type="text" class="form-control" placeholder="Item name" [(ngModel)]="customItem.name">
-              <div class="input-group">
-                <button class="btn btn-outline-secondary dropdown-toggle w-25" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
-                  {{customItem.size}}
-                </button>
-                <ul class="dropdown-menu">
-                  <li *ngFor="let type of priceType">
-                    <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
-                  </li>
-                </ul>
-                <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price">
-                <button class="btn btn-warning" type="button" (click)="addOrder(customItem.name, customItem.price, customItem.size)">Add</button>
-              </div>
-            </div>
+            </ng-container>
           </div>
-        </div>
-      </div>
+        </ng-container>
+        <ng-container *ngIf="orderType === 'turo-turo'">
+          <ng-container *ngIf="filteredMenu$ | async as menu">
+            <ng-container *ngFor="let category of menu | keyvalue">
+              <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let product of category.value; let i = index">
+                  <div class="d-flex">
+                    <div class="input-group" role="group" aria-label="Basic mixed styles example">
+                      <button type="button" class="btn btn-outline-secondary" (click)="addOrder(product.name, product.price, product.size)">
+                        <i class="bi bi-plus-lg"></i>
+                      </button>
+                      <span class="input-group-text border border-secondary">{{itemQuantity(product.name)}}</span>
+                      <button type="button" class="btn btn-outline-secondary" (click)="reduceOrder(product.name, product.size)">
+                        <i class="bi bi-dash-lg"></i>
+                      </button>
+                    </div>
+                    <div class="ms-2">
+                      <h6 class="my-0 text-nowrap">{{product.name}}</h6>
+                      <!-- <small class="text-muted">1x {{item.pricing[0].size}}</small> -->
+                      <div class="btn-group">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          {{product.size}}
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li *ngFor="let pricing of product.pricing">
+                            <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">
+                              {{pricing.size}} - {{pricing.price}}
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="text-muted">₱{{product.price}}</span>
+                  </div>
+                </li>
+              </ul>
+            </ng-container>
+            <ul class="list-group mb-3" *ngIf="customItemList.length">
+              <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let customItem of customItemList; index as i">
+                <div>
+                  <h6 class="my-0">{{customItem.name}}</h6>
+                  <small class="text-muted">{{customItem.quantity}}x {{customItem.size}}</small>
+                </div>
+                <div>
+                  <span class="text-muted">₱{{customItem.price}}</span>
+                </div>
+              </li>
+            </ul>
+            <hr class="mt-4 mb-2">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" (click)="toggleCheckbox($event)">
+              <label class="form-check-label" for="same-address">Add custom item</label>
+            </div>
+            <form class="row g-3 mb-3 px-2" *ngIf="addCustomItem">
+              <div class="card p-2">
+                <div class="input-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+                    {{customItem.size}}
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li *ngFor="let type of priceType">
+                      <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
+                    </li>
+                  </ul>
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 50px;">
+                    {{customItem.quantity}}
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li *ngFor="let number of [1,2,3,4,5]">
+                      <a class="dropdown-item" [routerLink]="" (click)="customItem.quantity = number">{{number}}</a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Custom</a></li>
+                  </ul>
+                  <input type="text" class="form-control" [(ngModel)]="customItem.name" [ngModelOptions]="{standalone: true}">
+                  <span class="input-group-text">₱</span>
+                  <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price" [ngModelOptions]="{standalone: true}">
+                  <button class="btn btn-secondary" type="button" (click)="addOrder(customItem.name, customItem.price, customItem.size); updateCustomItemList()">Add</button>
+                </div>
+              </div>
+            </form>
+            <ul class="list-group mb-3">
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Sub Total</span>
+                <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
+              </li>
+              <li class="list-group-item d-flex justify-content-between lh-sm bg-light" *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
+                <div>
+                  <h6 class="my-0">{{subItem.value.text}}</h6>
+                </div>
+                <div>
+                  <span class="text-muted">P{{subItem.value.price}}</span>
+                  <a class="text-decoration-none text-danger pointer" *ngIf="editItems" (click)="deleteSubItem(i)">
+                    <i class="bi bi-x-lg"></i>
+                  </a>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Total</span>
+                <strong>₱{{ orderForm.controls['total'].value }}</strong>
+              </li>
+            </ul>
+          </ng-container>
+        </ng-container>
+        <form class="card p-2 mb-3" (submit)="addSubItem($event)">
+          <div class="input-group">
+            <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem" #subItemInstance="ngbTypeahead"
+              (focus)="focus$.next($any($event).target.value)"
+              (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
+              [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
+              (selectItem)="subItemSelected($event)">
+            <span class="input-group-text">₱</span>
+            <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value" [ngModelOptions]="{standalone: true}">
+            <button type="submit" class="btn btn-secondary">Add</button>
+          </div>
+        </form>
+        <hr class="my-4">
+        <h4 class="mb-3">Payment</h4>
+        <ul class="list-group mb-3">
+          <li class="list-group-item d-flex">
+            <div class="input-group">
+              <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+                {{ orderForm.controls['modeOfPayment'].value }}
+              </button>
+              <ul class="dropdown-menu">
+                <li *ngFor="let opt of paymentOptions">
+                  <a class="dropdown-item" [routerLink]="" (click)="orderForm.controls['modeOfPayment'].patchValue(opt)">{{opt}}</a>
+                </li>
+              </ul>
+              <span class="input-group-text">₱</span>
+              <input type="number" class="form-control text-end" formControlName="paymentAmount" placeholder="Amount">
+            </div>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Change</span>
+            <strong>₱{{ orderForm.controls['paymentChange'].value }}</strong>
+          </li>
+        </ul>
+        <hr class="my-4">
+        <form class="p-2">
+          <button class="w-100 btn btn-primary btn-lg" (click)="save()" [disabled]="this.isSaving">
+            {{ order ? 'Update' : 'Book'}} Order
+            <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
+          </button>
+        </form>
+      </form>
     </div>
   </div>
 </div>

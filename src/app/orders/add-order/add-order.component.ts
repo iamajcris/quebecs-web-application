@@ -7,12 +7,23 @@ import settings from '../../../../app.config.json';
 import { Menu, MenuService } from 'src/services/menu.service';
 import { OrderService } from 'src/services/order.service';
 import { convertToDateStruct } from 'src/helpers/util';
-import { AddCustomerComponent } from 'src/app/customers/add-customer/add-customer.component';
 import { Customer, CustomerSearch } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
+import { ORDER_TYPES } from '../../contants/order-type.constant';
 
 const options = [
-  'Delivery fee',
+  { 
+    text: 'Mass Delivery',
+    value: 50
+  },
+  { 
+    text: 'Lalamove',
+    value: 70
+  },
+  {
+    text: 'Delivery',
+    value: 70
+  }
 ];
 
 @Component({
@@ -21,6 +32,9 @@ const options = [
   styleUrls: ['./add-order.component.scss']
 })
 export class AddOrderComponent implements OnInit {
+  @Input() public order: any;
+  @Input() public orderType: string;
+
   filters: any = [];
   menu: any;
   
@@ -41,13 +55,15 @@ export class AddOrderComponent implements OnInit {
   isSaving: boolean = false;
   model: NgbDateStruct;
   meridianTimeList: any = [];
+  addCustomItem: boolean = false;
 
   @ViewChild('instance', { static: true }) instance: NgbTypeahead;
   focus$ = new Subject<string>();
 	click$ = new Subject<string>();
 
-  @Input() public order: any;
-
+  @ViewChild('subItemInstance', { static: true }) subItemInstance: NgbTypeahead;
+  @ViewChild('customerSearchInstance', { static: true }) customerSearchInstance: NgbTypeahead;
+  
   customerList: CustomerSearch[]
 
   priceType = [
@@ -61,10 +77,24 @@ export class AddOrderComponent implements OnInit {
 
   customItem = {
     size: this.priceType[0],
+    quantity: 1,
     name: '',
     price: ''
   };
 
+  customSubItem = {
+    text: '',
+    value: 0,
+  }
+
+  paymentOptions: string[] = [
+    'Cash',
+    'COD',
+    'GCash',
+    'Maya'
+  ];
+
+  customItemList: any = [];
   constructor(
     public activeModal: NgbActiveModal,
     private menuService: MenuService,
@@ -75,59 +105,23 @@ export class AddOrderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.menuService.getMenu('TMeHLI8r2ww31lXihoKt').subscribe((res) => {
-      if (!_.isEmpty(res.menuItems)) {
-        const menuItems = res.menuItems.map((m) => {
-          const defaultPrice = _.head(m.pricing);
+    this.initializeForm();
 
-          if (defaultPrice) {
-            m.price = defaultPrice.price;
-            m.size = defaultPrice.size;
+    this.menuService.getMenus().subscribe((res) => {
+      if (!_.isEmpty(res)) {
+        const menu = this.menuService.getLatestMenu(res, this.orderType);
+
+        if (menu) {
+          this.setupMenu(menu);
+
+          if (!this.order) {
+            const orderDate = new Date(menu.scheduleDate);
+            this.orderForm.patchValue({orderDate: convertToDateStruct(orderDate)});
           }
-
-          return m;
-        });
-
-        this.menuItems = menuItems;
-
-        const menu: any = _.chain(menuItems)
-          .map((m) => {
-            if (_.isEmpty(m.category)) {
-              m.category = 'Misc';
-            }
-            m.sort = settings.categoryList.indexOf(m.category);
-            return m;
-          })
-          .orderBy('sort')
-          .groupBy('sort')
-          .value();
-        
-        this.menu = menu;
-        this._filteredMenu.next(menu);
-
-        this.filters = _.chain(menu)
-          .values()
-          .map((m: any) => {
-            const obj = Object.keys(m);
-              console.log(obj);
-            return m[0].category;
-          })
-          .value();
-
-        console.log(menu);
-        
-        this.filters = _.transform(menu, (r: any, v: any, k: any) => {
-          r[k] = v[0].category; 
-        });
-        console.log(this.filters)
+        }
       }
     });
 
-    this.initializeForm();
-    if (this.order) {
-      console.log(this.order);
-      this.patchOrder(this.order);
-    }
 
     this.meridianTimeList = this.createMeridianTimeArrayWithAMPMFrom6AMTo6PM();
     console.log('meridianTimeList', this.meridianTimeList);
@@ -143,6 +137,52 @@ export class AddOrderComponent implements OnInit {
         }
         console.log(res);
       });
+  }
+
+  setupMenu(mn: Menu) {
+    const menuItems = mn.menuItems.map((m) => {
+      const defaultPrice = _.head(m.pricing);
+
+      if (defaultPrice) {
+        m.price = defaultPrice.price;
+        m.size = defaultPrice.size;
+      }
+
+      return m;
+    });
+
+    this.menuItems = menuItems;
+
+    const menu: any = _.chain(menuItems)
+      .map((m) => {
+        if (_.isEmpty(m.category)) {
+          m.category = 'Misc';
+        }
+        m.sort = settings.categoryList.indexOf(m.category);
+        return m;
+      })
+      .orderBy('sort')
+      .groupBy('sort')
+      .value();
+    
+    this.menu = menu;
+    this._filteredMenu.next(menu);
+
+    this.filters = _.chain(menu)
+      .values()
+      .map((m: any) => {
+        const obj = Object.keys(m);
+          console.log(obj);
+        return m[0].category;
+      })
+      .value();
+
+    console.log(menu);
+    
+    this.filters = _.transform(menu, (r: any, v: any, k: any) => {
+      r[k] = v[0].category; 
+    });
+    console.log(this.filters)
   }
 
   filterMenu(type: any) {
@@ -168,12 +208,22 @@ export class AddOrderComponent implements OnInit {
     _.forEach(order.subItems, () => this.subItems.push(this.onCreateSubItem()));
 
     _.assign(order, { orderDate: convertToDateStruct(order.orderDate)})
+
+    const customer = new CustomerSearch(order.customer)
+    this.orderForm.get('customer')?.patchValue({ ...customer, saveCustomer: false });
+
+    // set order form for manual input only during edit/update
+    this.orderForm.get('customer')?.get('saveCustomer')?.disable();
+    this.orderForm.get('customerSearch')?.disable();
+    this.orderForm.get('isManualEntry')?.disable();
+
     this.orderForm.patchValue(order);
   }
 
   initializeForm() {
     this.orderForm = this.fb.group({
       customer: this.fb.group({
+        customerId: [''],
         lastName: [''],
         firstName: [''],
         address: [''],
@@ -186,14 +236,18 @@ export class AddOrderComponent implements OnInit {
       subTotal: [0],
       subItems: this.fb.array([]),
       total: [0],
-      orderDate: [convertToDateStruct(Date.now())],
+      orderDate: [],
       orderTime: [],
+      modeOfPayment: [this.paymentOptions[0]],
+      paymentAmount: [0],
+      paymentChange: [0]
     });
     
     combineLatest([
       this.orderForm.controls['items'].valueChanges,
-      this.orderForm.controls['subItems'].valueChanges.pipe(startWith(null))
-    ]).subscribe(([items, subItems]) => {
+      this.orderForm.controls['subItems'].valueChanges.pipe(startWith(null)),
+      this.orderForm.controls['paymentAmount'].valueChanges.pipe(startWith(null)),
+    ]).subscribe(([items, subItems, paymentAmount]) => {
       let subTotal = 0;
       let subItemsTotal = 0;
       let total = 0;
@@ -210,19 +264,45 @@ export class AddOrderComponent implements OnInit {
 
       total = subTotal + subItemsTotal;
 
+      let paymentChange = 0;
+      if (paymentAmount) {
+        paymentChange = paymentAmount - total;
+      }
+      
       this.orderForm.patchValue({
         total,
-        subTotal
-      })
+        subTotal,
+        paymentChange,
+      });
     });
 
+    // combineLatest([
+    //   this.orderForm.controls['paymentAmount'].valueChanges,
+    // ]).subscribe(([payment]) => {
+    //   console.log(payment);
+
+    //   const {
+    //     total
+    //   } = this.orderForm.value;
+
+    //   const paymentChange = total - payment;
+
+    //   this.orderForm.patchValue({
+    //     paymentChange
+    //   })
+    // });
+
     this.orderForm.get('customerSearch')?.valueChanges.subscribe((x) => {
-      this.orderForm.get('customer')?.patchValue({
-        firstName: x.firstName,
-        lastName: x.lastName,
-        address: x.address,
-        mobileNumber: x.mobileNumber,
-      }, { emitEvent: false });
+      console.log('customerSearch', x);
+      if (x instanceof(CustomerSearch)) {
+        this.orderForm.get('customer')?.patchValue({
+          firstName: x.firstName,
+          lastName: x.lastName,
+          address: x.address,
+          mobileNumber: x.mobileNumber,
+          customerId: x.customerId
+        }, { emitEvent: false });
+      }
     });
 
     this.orderForm.get('isManualEntry')?.valueChanges.subscribe((checked) => {
@@ -234,6 +314,7 @@ export class AddOrderComponent implements OnInit {
           lastName: '',
           address: '',
           mobileNumber: '',
+          customerId: '',
           saveCustomer: true,
         }, { emitEvent: false });
       }
@@ -242,30 +323,49 @@ export class AddOrderComponent implements OnInit {
     this.orderForm.get('customer')?.valueChanges.subscribe((x) => {
       console.log(x);
     });
+    
+    if (this.order) {
+      console.log(this.order);
+      this.patchOrder(this.order);
+    }
   }
 
   addOrder(name: any, price: any, size: any) {
-    const id = _.kebabCase(`${_.toLower(size === 'Regular' ? '' : size)} ${name}`);
+    const id = _.kebabCase(`${name} ${size}`);
 
-    const item = this.onCreateOrderItem();
-    item.patchValue({
-      id: id,
-      quantity: 1,
-      name: name,
-      size: size,
-      price: price,
-      menuPrice: price
-    });
+    const existingItem = this.items.value.find((i: any) => i.id === id);
 
-    this.items.push(item);
-    console.log(this.orderForm.value)
+    if (_.isEmpty(existingItem)) {
+      const item = this.onCreateOrderItem();
+      item.patchValue({
+        id: id,
+        quantity: 1,
+        name: name,
+        size: size,
+        price: price,
+        menuPrice: price
+      });
 
-    const {
-      orderDate,
-      orderTime,
-    } = this.orderForm.value;
+      this.items.push(item);
+    } else {
+      this.updateQuantity(this.items.value.findIndex((i: any) => i.id === id), +1);
+    }
+  }
 
-    console.log(this.dateFormatter.format(orderDate))
+  reduceOrder(name: any, size: any) {
+    const id = _.kebabCase(`${name} ${size}`);
+
+    const existingItem = this.items.value.find((i: any) => i.id === id);
+
+    if (!_.isEmpty(existingItem)) {
+      const index = this.items.value.findIndex((i: any) => i.id === id);
+
+      if (existingItem.quantity > 1) {
+        this.updateQuantity(index, -1);
+      } else {
+        this.deleteItem(index);
+      }
+    }
   }
 
   onCreateOrderItem() {
@@ -311,7 +411,7 @@ export class AddOrderComponent implements OnInit {
     this.subItems.removeAt(index);
   }
 
-  addQuantity(index: any) {
+  updateQuantity(index: any, qty: number) {
     const item = this.items.controls[index] as FormGroup;
 
     const {
@@ -324,11 +424,12 @@ export class AddOrderComponent implements OnInit {
     const menu = this.menuItems.find((m: any) => m.name === name);
     if (menu) {
       const pricing = menu.pricing.find((p: any) => p.size === size);
+      const calculatedQty = Math.abs(quantity + qty);
 
       if (pricing) {
         item.patchValue({
-          price: price + pricing.price,
-          quantity: quantity + 1
+          price: pricing.price * calculatedQty,
+          quantity: calculatedQty
         });
       }
     }
@@ -356,9 +457,13 @@ export class AddOrderComponent implements OnInit {
     order.items = _.map(order.items, (item: any) => {
       return _.omit(item, ['enableNotes']);
     });
+
     const formattedDate = this.dateFormatter.format(order.orderDate);
-    order.orderDate = new Date(formattedDate.concat(' ', order.orderTime));
+    order.orderDate = new Date(formattedDate.concat(' ', order.orderTime || "00:00"));
+
     order.subItems = _.filter((order.subItems), (sub) => !_.isNil(sub.price) && !_.isEmpty(sub.text))
+
+    order.orderType = this.orderType;
 
     if (this.order) {
       this.orderService.updateOrder(this.order.id, order)
@@ -399,18 +504,31 @@ export class AddOrderComponent implements OnInit {
     this.editItems = !this.editItems;
   }
 
-  search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) => {
+  searchSubItem: OperatorFunction<string, readonly any[]> = (text$: Observable<string>) => {
 		const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
-		const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.instance?.isPopupOpen()));
+		const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.subItemInstance?.isPopupOpen()));
 		const inputFocus$ = this.focus$;
 
 		return merge(debouncedText$, inputFocus$, clicksWithClosedPopup$).pipe(
 			map((term) =>
-				(term === '' ? options : options.filter((v) => v.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10),
+				(term === '' ? options : options.filter((v) => v.text.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10),
 			),
 		);
 	};
 
+  subItemFormatter = (x: any) => `${x.text} - ${x.value}`;
+
+  subItemInputFormatter = (x: any) => `${x.text}`;
+
+  subItemSelected(value: any) {
+    const item = value.item;
+    if (item && item.text && item.value) {
+      _.assign(this.customSubItem, item);
+      console.log(this.customSubItem);
+    }
+  }
+
+  
   itemChangeSze(categoryIndex: any, product: any, size: any, price: any) {
     const menuCategoryList = this.menu[categoryIndex];
     
@@ -459,5 +577,33 @@ export class AddOrderComponent implements OnInit {
 
   get itemsCount() {
     return (this.orderForm.get('items') as FormArray).length;
+  }
+
+  itemQuantity(name: string) {
+    let totalQuantity = 0;
+
+    const items = this.items.value.filter((i: any) => i.name === name);
+    if (!_.isEmpty(items)) {
+      _.forEach(items, (i) => {
+        totalQuantity += i.quantity;
+      })
+    }
+
+    return totalQuantity;
+  }
+
+  toggleCheckbox(evt: any) {
+    this.addCustomItem = evt.target.checked;
+  }
+
+  updateCustomItemList() {
+    this.customItemList.push(this.customItem);
+
+    this.customItem = {
+      size: this.priceType[0],
+      quantity: 1,
+      name: '',
+      price: ''
+    };
   }
 }

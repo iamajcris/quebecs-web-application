@@ -4,6 +4,7 @@ import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct } from '@ng-boots
 import { Menu, MenuService } from 'src/services/menu.service';
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
+import { convertToDateStruct } from 'src/helpers/util';
 
 @Component({
   selector: 'app-add-menu',
@@ -50,9 +51,13 @@ export class AddMenuComponent implements OnInit {
   }
 
   initializeForm() {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+
     this.form = this.fb.group({
       store: [this.storeTypes[0]],
-      isActive: [true],
+      scheduleDate: [convertToDateStruct(date)],
+      // isActive: [true],
       menuItems: this.fb.array([]),
     });
   }
@@ -68,14 +73,21 @@ export class AddMenuComponent implements OnInit {
   saveMenu() {
     this.isSaving = true;
 
+    const menu = this.form.value;
+
+    const formattedDate = this.dateFormatter.format(menu.scheduleDate);
+    menu.scheduleDate = new Date(formattedDate);
+
+    console.log(menu);
+
     if (this.menu) {
-      this.menuService.updateMenu(this.menu.id, this.form.value)
+      this.menuService.updateMenu(this.menu.id, menu)
         .subscribe((res) => {
           this.isSaving = false;
           this.activeModal.close('success');
         });
     } else {
-      this.menuService.createMenu(this.form.value)
+      this.menuService.createMenu(menu)
         .subscribe((res) => {
           this.isSaving = false;
           this.activeModal.close('success');
@@ -84,6 +96,17 @@ export class AddMenuComponent implements OnInit {
   }
 
   patchMenu(menu: Menu) {
+    const {
+      store,
+    } = menu;
+
+    const dt = new Date(menu.scheduleDate);
+    const scheduleDate = convertToDateStruct(dt);
+    this.form.patchValue({
+      store,
+      scheduleDate
+    });
+
     if (menu.menuItems.length) {
       menu.menuItems.forEach((x: any) => {
         const item = this.onCreateMenuItem();
@@ -97,18 +120,6 @@ export class AddMenuComponent implements OnInit {
       });
     }
   }
-
-  convertToDateStruct(date: any) {
-    const dt = new Date(date);
-
-    const defaultDt: NgbDateStruct = {
-      day: dt.getDate(),
-      month: dt.getMonth()+1,
-      year: dt.getFullYear(),
-    };
-
-    return defaultDt;
-  };
 
   addMenuItem() {
     const item = this.onCreateMenuItem();

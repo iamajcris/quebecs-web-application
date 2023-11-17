@@ -11,3 +11,12 @@ export function convertToDateStruct(date: any) {
 
   return defaultDt;
 };
+
+export function formatToCurrency(val: number) {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'PHP',
+   });
+
+   return formatter.format(val);
+}

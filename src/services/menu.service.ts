@@ -1,8 +1,9 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, filter, map } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
+import _ from 'lodash';
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -33,21 +34,13 @@ export class MenuService {
   getMenus(options: any = null): Observable<Menu[]> {
     const params = {
       p: 0,
-      ps: 10,
+      ps: 20,
       sd: -1,
       s: 'createdAt',
       ...options,
     };
 
-    return this.httpClient
-      .get<Menu[]>(`${this.apiBase}/menus`, { params })
-      .pipe(
-        map((m: any) => {
-          const date = new Date(m.scheduledDate);
-          m.scheduledDate = new Date(date.toLocaleDateString("fil-PH"));
-          return m;
-        },
-      ));
+    return this.httpClient.get<Menu[]>(`${this.apiBase}/menus`, { params });
   }
 
   getMenu(id: any) {
@@ -56,6 +49,21 @@ export class MenuService {
 
   updateMenu(id: any, data: any){
     return this.httpClient.put(`${this.apiBase}/menu/${id}`, data);
+  }
+
+  getLatestMenu(menus: Menu[], orderType: string) {
+    if (!_.isEmpty(menus)) {
+      const menu = _.chain(menus)
+        .filter((m) => _.toLower(m.store) === _.toLower(orderType))
+        .orderBy('createdAt', 'desc')
+        .head()
+        .value();
+
+      if (menu) {
+        return menu
+      }
+    }
+    return null;
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -94,4 +102,5 @@ export interface Menu {
   updatedAt: Date;
   createdAt: Date;
   store: string;
+  scheduleDate: Date;
 }
