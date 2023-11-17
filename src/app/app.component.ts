@@ -4,6 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { environment } from './../environments/environment';
 import { LoaderService } from 'src/services/loader.service';
+import { ToastService } from 'src/services/toast.service';
 
 @Component({
   selector: 'app-root',
@@ -11,12 +12,13 @@ import { LoaderService } from 'src/services/loader.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, AfterViewInit {
-  title = 'quebecs-web-application';
 
   constructor(
     private loaderService: LoaderService,
     private modalService: NgbModal,
-  ) { }
+    public toastService: ToastService
+  ) {
+  }
 
   ngOnInit() {
     // Initialize Firebase

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NgbDatepicker, NgbModalModule, NgbModule, NgbPaginationModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepicker, NgbModalModule, NgbModule, NgbPaginationModule, NgbTooltipModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { OrdersComponent } from './orders/orders.component';
 import { RestaurantComponent } from './restaurant/restaurant.component';
 import { HomeComponent } from './home/home.component';
@@ -15,6 +15,7 @@ import { AddMenuComponent } from './products/add-menu/add-menu.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PrintOrderComponent } from './orders/print-order/print-order.component';
 import { AddCustomerComponent } from './customers/add-customer/add-customer.component';
+import { ToastsContainer } from './_globals/app-toast/app-toast.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,8 @@ import { AddCustomerComponent } from './customers/add-customer/add-customer.comp
     ReactiveFormsModule,
     HttpClientModule,
     NgbTypeaheadModule,
+    NgbTooltipModule,
+    ToastsContainer
   ],
   providers: [
     DecimalPipe,

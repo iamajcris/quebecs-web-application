@@ -8,16 +8,16 @@
     <div class="navbar-collapse offcanvas-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="#" routerLinkActive="active">Dashboard</a>
+          <a class="nav-link" aria-current="page" routerLinkActive="active" (click)="toggleNavbar()">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/orders" routerLinkActive="active">Orders</a>
+          <a class="nav-link" routerLink="/orders" routerLinkActive="active" (click)="toggleNavbar()">Orders</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/products" routerLinkActive="active">Product</a>
+          <a class="nav-link" routerLink="/products" routerLinkActive="active" (click)="toggleNavbar()">Product</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/customers" routerLinkActive="active">Customers</a>
+          <a class="nav-link" routerLink="/customers" routerLinkActive="active" (click)="toggleNavbar()">Customers</a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false">Settings</a>
@@ -29,5 +29,6 @@
     </div>
   </div>
 </nav>
+<app-toasts aria-live="polite" aria-atomic="true"></app-toasts>
 <router-outlet></router-outlet>
 
