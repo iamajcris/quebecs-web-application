@@ -248,35 +248,35 @@
               </li>
             </ul>
             <hr class="mt-4 mb-2">
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" (click)="toggleCheckbox($event)">
-              <label class="form-check-label" for="same-address">Add custom item</label>
+            <div class="form-check form-switch" style="font-size: 17px;">
+              <input type="checkbox" id="add-custom-tem" class="form-check-input" (click)="toggleCheckbox($event)">
+              <label class="form-check-label" for="add-custom-tem">Add custom item</label>
             </div>
             <form class="row g-3 mb-3 px-2" *ngIf="addCustomItem">
               <div class="card p-2">
+                <ul class="dropdown-menu">
+                  <li *ngFor="let type of priceType">
+                    <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
+                  </li>
+                </ul>
                 <div class="input-group">
                   <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
                     {{customItem.size}}
                   </button>
-                  <ul class="dropdown-menu">
-                    <li *ngFor="let type of priceType">
-                      <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
-                    </li>
-                  </ul>
                   <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 50px;">
                     {{customItem.quantity}}
                   </button>
                   <ul class="dropdown-menu">
-                    <li *ngFor="let number of [1,2,3,4,5]">
+                    <li *ngFor="let number of [1,2,3,4,5,6,7,8,9,10]">
                       <a class="dropdown-item" [routerLink]="" (click)="customItem.quantity = number">{{number}}</a>
                     </li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Custom</a></li>
+                    <li><a class="dropdown-item" href="#">Custom - Coming soon..</a></li>
                   </ul>
                   <input type="text" class="form-control" [(ngModel)]="customItem.name" [ngModelOptions]="{standalone: true}">
                   <span class="input-group-text">₱</span>
                   <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price" [ngModelOptions]="{standalone: true}">
-                  <button class="btn btn-secondary" type="button" (click)="addOrder(customItem.name, customItem.price, customItem.size); updateCustomItemList()">Add</button>
+                  <button class="btn btn-secondary" type="button" (click)="addOrder(customItem.name, customItem.price, customItem.size, customItem.quantity); updateCustomItemList()">Add</button>
                 </div>
               </div>
             </form>
