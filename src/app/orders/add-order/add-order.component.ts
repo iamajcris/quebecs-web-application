@@ -330,7 +330,7 @@ export class AddOrderComponent implements OnInit {
     }
   }
 
-  addOrder(name: any, price: any, size: any) {
+  addOrder(name: any, price: any, size: any, quantity: number = 1) {
     const id = _.kebabCase(`${name} ${size}`);
 
     const existingItem = this.items.value.find((i: any) => i.id === id);
@@ -339,10 +339,10 @@ export class AddOrderComponent implements OnInit {
       const item = this.onCreateOrderItem();
       item.patchValue({
         id: id,
-        quantity: 1,
+        quantity,
         name: name,
         size: size,
-        price: price,
+        price: price * quantity,
         menuPrice: price
       });
 
@@ -374,8 +374,8 @@ export class AddOrderComponent implements OnInit {
       quantity: [0],
       name: [''],
       size: [''],
-      price: [''],
-      menuPrice: [''],
+      price: [0],
+      menuPrice: [0],
       enableNotes: [false],
       notes: ['']
     });
