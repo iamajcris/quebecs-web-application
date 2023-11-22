@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Customer } from 'src/models/customer';
 
@@ -38,5 +38,23 @@ export class CustomerService {
     };
 
     return this.httpClient.get<Customer[]>(`${this.apiBase}/customers`, { params });
+  }
+
+  getCustomerList(applySessionStorage = true): Observable<Customer[]> {
+    const name = 'customerList';
+    if (sessionStorage.getItem(name) && applySessionStorage) {
+      return new Observable(observer => {
+        observer.next(JSON.parse(sessionStorage.getItem(name) || ''));
+        observer.complete();
+      });
+    } else {
+      return this.getCustomers({ ps: 500 }).pipe(
+        tap(
+          data => {
+            sessionStorage.setItem(name, JSON.stringify(data));
+          },
+        )
+      );
+    }
   }
 }

@@ -132,7 +132,7 @@ export class AddOrderComponent implements OnInit {
     this.meridianTimeList = this.createMeridianTimeArrayWithAMPMFrom6AMTo6PM();
     console.log('meridianTimeList', this.meridianTimeList);
 
-    this.customerService.getCustomers({ ps: 100 })
+    this.customerService.getCustomerList()
       .subscribe((res) => {
         if (!_.isEmpty(res)) {
           this.customerList = res.map((c) => {
@@ -457,7 +457,10 @@ export class AddOrderComponent implements OnInit {
         address: customer.address,
         mobileNumber: customer.mobileNumber,
       }
-      this.customerService.saveCustomer(customerData).subscribe((res) => console.log(res));
+      this.customerService.saveCustomer(customerData).subscribe((res) => {
+        // sync customer list from session storage
+        this.customerService.getCustomerList(false).subscribe(() => {});
+      });
     }
     
     // object properties to be omitted from order model
