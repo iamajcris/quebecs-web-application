@@ -217,13 +217,7 @@ export class OrdersComponent implements OnInit {
 	}
 
 	print(order: any) {
-		console.log('print', order);
-
-		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=400,height=750,toolbar=0,scrollbars=0,status=0');
-		const receipt = this.receiptService.printOrderReceipt(order);
-		
-		WindowPrt.document.write(receipt);
-		WindowPrt.document.close();
+		this.receiptService.openPrintWindow(order);
 	}
 
 	copy(order: any) {

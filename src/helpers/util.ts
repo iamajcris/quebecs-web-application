@@ -1,4 +1,5 @@
 import { NgbDateParserFormatter, NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
+import { DateTime } from "luxon";
 
 export function convertToDateStruct(date: any) {
   const dt = new Date(date);
@@ -19,4 +20,12 @@ export function formatToCurrency(val: number) {
    });
 
    return formatter.format(val);
+}
+
+export function formatDateTime(dt: Date | string) {
+  if (dt instanceof Date) {
+    return DateTime.fromJSDate(dt).toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY);
+  } else {
+    return DateTime.fromISO(dt).toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)
+  }
 }

@@ -1,18 +1,15 @@
 import { Injectable } from '@angular/core';
 import { ORDER_TYPES } from 'src/app/contants/order-type.constant';
 import { DateTime } from "luxon";
-import { formatToCurrency } from "src/helpers/util";
+import { formatDateTime, formatToCurrency } from "src/helpers/util";
 import * as _ from 'lodash';
-
-const SIZE_TABLE = {
-	'Regular': ''
-};
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TemplateService {
-  constructor() {}
+  constructor(private toastService: ToastService) {}
 
 	generateOrderForm(order: any) {
 		const {
@@ -20,7 +17,7 @@ export class TemplateService {
 			customer,
 		} = order
 
-		let template = `${DateTime.fromISO(orderDate).toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)}`
+		let template = `${formatDateTime(orderDate)}`
 		template +=	`\nName: ${customer.firstName} ${customer.lastName}`;
 		template +=	`\nAddress: ${customer.address}`;
 		template +=	`\nContact Number: ${customer.mobileNumber}`;
@@ -39,6 +36,12 @@ export class TemplateService {
 		template +=	`\nTotal: ${formatToCurrency(order.total)}`;
 
 		return template;
+	}
+
+	copyOrderForm(order: any) {
+		const orderFormTemplate = this.generateOrderForm(order);
+		navigator.clipboard.writeText(orderFormTemplate);
+		this.toastService.show('The order form has been copied to the clipboard', { classname: 'bg-primary text-light', delay: 2000 });
 	}
 
 	private formatOrderItems(item: any) {
