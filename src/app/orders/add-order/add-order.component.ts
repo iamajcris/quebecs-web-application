@@ -229,11 +229,13 @@ export class AddOrderComponent implements OnInit {
   initializeForm() {
     this.orderForm = this.fb.group({
       customer: this.fb.group({
+        id: [''],
         customerId: [''],
         lastName: [''],
         firstName: [''],
         address: [''],
         mobileNumber: [''],
+        preferredDeliveryTime: [''],
         saveCustomer: [true],
       }),
       customerSearch: [''],
@@ -282,21 +284,18 @@ export class AddOrderComponent implements OnInit {
       });
     });
 
-    // combineLatest([
-    //   this.orderForm.controls['paymentAmount'].valueChanges,
-    // ]).subscribe(([payment]) => {
-    //   console.log(payment);
+    this.orderForm.get('modeOfPayment')?.valueChanges.subscribe((val) => {
+      const {
+        total,
+      } = this.orderForm.value;
 
-    //   const {
-    //     total
-    //   } = this.orderForm.value;
-
-    //   const paymentChange = total - payment;
-
-    //   this.orderForm.patchValue({
-    //     paymentChange
-    //   })
-    // });
+      let paymentAmount = 0;
+      if (val !== 'Cash') {
+        paymentAmount = total;
+      }
+      
+      this.orderForm.get('paymentAmount')?.patchValue(paymentAmount);
+    });
 
     this.orderForm.get('customerSearch')?.valueChanges.subscribe((x) => {
       console.log('customerSearch', x);
@@ -306,8 +305,14 @@ export class AddOrderComponent implements OnInit {
           lastName: x.lastName,
           address: x.address,
           mobileNumber: x.mobileNumber,
-          customerId: x.customerId
+          customerId: x.customerId,
+          preferredDeliveryTime: x.preferredDeliveryTime,
+          id: x.id
         }, { emitEvent: false });
+
+        if (!_.isEmpty(x.preferredDeliveryTime)) {
+          this.orderForm.get('orderTime')?.patchValue(x.preferredDeliveryTime);
+        }
       }
     });
 
@@ -445,17 +450,18 @@ export class AddOrderComponent implements OnInit {
     this.isSaving = true;
 
     let order = this.orderForm.value;
+    
+    const {
+      customer
+    } = order;
 
-    if (order.isManualEntry && order.customer.saveCustomer) {
-      const {
-        customer
-      } = order;
-
+    if (order.isManualEntry && customer.saveCustomer) {
       const customerData: Customer = {
         firstName: customer.firstName,
         lastName: customer.lastName,
         address: customer.address,
         mobileNumber: customer.mobileNumber,
+        preferredDeliveryTime: order.orderTime,
       }
       this.customerService.saveCustomer(customerData).subscribe((res) => {
         // sync customer list from session storage
@@ -463,6 +469,19 @@ export class AddOrderComponent implements OnInit {
       });
     }
     
+    if (_.isNil(customer.preferredDeliveryTime) || customer.preferredDeliveryTime !== order.orderTime) {
+      if (order.orderTime !== '') {
+        const data = {
+          preferredDeliveryTime: order.orderTime
+        };
+
+        this.customerService.updateCustomer(customer.id, data).subscribe((res) => {
+          // sync customer list from session storage
+          this.customerService.getCustomerList(false).subscribe(() => {});
+        });
+      }
+    }
+
     // object properties to be omitted from order model
     order = _.omit(order, ['customerSearch', 'isManualEntry', 'customer.saveCustomer']);
     order.items = _.map(order.items, (item: any) => {
