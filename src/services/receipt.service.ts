@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ORDER_TYPES } from 'src/app/contants/order-type.constant';
 import { DateTime } from "luxon";
-import { formatToCurrency } from "src/helpers/util";
+import { formatDateTime, formatToCurrency } from "src/helpers/util";
 import * as _ from 'lodash';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class ReceiptService {
 
     return `<html>
 			<head>
-				<title>Invoice Template Design</title>
+				<title>${order.orderId} Order receipt</title>
 			</head>
 			<body>
 				<style>
@@ -244,7 +244,7 @@ export class ReceiptService {
 							<div class="bill_total_wrap">
 								<div class="bill_sec">
 									<p>ORDER NO: ${order.orderId}</p>
-									<p>DELIVERY: ${DateTime.fromISO(order.orderDate).toLocaleString(DateTime.DATETIME_SHORT)}</p>
+									<p>DELIVERY: ${formatDateTime(order.orderDate)}</p>
 								</div>
 								<div class="total_wrap">
 								</div>
@@ -287,6 +287,19 @@ export class ReceiptService {
 			</html>
 		`;
   }
+
+	openPrintWindow(order: any) {
+		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=750,toolbar=0,scrollbars=0,status=0');
+		const receipt = this.printOrderReceipt(order);
+		
+		WindowPrt.document.write(receipt);
+		WindowPrt.document.close();
+		setTimeout(()=>{
+			WindowPrt.print();
+			WindowPrt.close();
+			return;
+		}, 300);
+	}
 
   private printTitle(orderType: string) {
 		switch(orderType) {

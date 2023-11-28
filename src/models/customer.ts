@@ -5,6 +5,7 @@ export interface Customer {
   lastName: string;
   address: string;
   mobileNumber: string;
+  preferredDeliveryTime: string;
 }
 
 export class CustomerSearch implements Customer {
@@ -14,6 +15,7 @@ export class CustomerSearch implements Customer {
   lastName: string;
   address: string;
   mobileNumber: string;
+  preferredDeliveryTime: string;
 
   constructor(customer: Customer) {
     this.id = customer.id;
@@ -22,6 +24,7 @@ export class CustomerSearch implements Customer {
     this.lastName = customer.lastName;
     this.address = customer.address;
     this.mobileNumber = customer.mobileNumber;
+    this.preferredDeliveryTime = customer.preferredDeliveryTime;
   }
 
   get fullname() {

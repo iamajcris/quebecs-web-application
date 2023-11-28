@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, filter, map, merge, startWith } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, filter, firstValueFrom, map, merge, startWith, take } from 'rxjs';
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
 import { Menu, MenuService } from 'src/services/menu.service';
@@ -10,6 +10,9 @@ import { convertToDateStruct } from 'src/helpers/util';
 import { Customer, CustomerSearch } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
 import { ORDER_TYPES } from '../../contants/order-type.constant';
+import { TemplateService } from 'src/services/template.service';
+import { ToastService } from 'src/services/toast.service';
+import { ReceiptService } from 'src/services/receipt.service';
 
 const options = [
   { 
@@ -56,6 +59,7 @@ export class AddOrderComponent implements OnInit {
   model: NgbDateStruct;
   meridianTimeList: any = [];
   addCustomItem: boolean = false;
+  printReceipt: boolean = true;
 
   @ViewChild('instance', { static: true }) instance: NgbTypeahead;
   focus$ = new Subject<string>();
@@ -100,6 +104,8 @@ export class AddOrderComponent implements OnInit {
     private menuService: MenuService,
     private orderService: OrderService,
     private customerService: CustomerService,
+    private templateService: TemplateService,
+    private receiptService: ReceiptService,
     private fb: FormBuilder,
     private dateFormatter: NgbDateParserFormatter) {
   }
@@ -126,7 +132,7 @@ export class AddOrderComponent implements OnInit {
     this.meridianTimeList = this.createMeridianTimeArrayWithAMPMFrom6AMTo6PM();
     console.log('meridianTimeList', this.meridianTimeList);
 
-    this.customerService.getCustomers({ ps: 100 })
+    this.customerService.getCustomerList()
       .subscribe((res) => {
         if (!_.isEmpty(res)) {
           this.customerList = res.map((c) => {
@@ -223,11 +229,13 @@ export class AddOrderComponent implements OnInit {
   initializeForm() {
     this.orderForm = this.fb.group({
       customer: this.fb.group({
+        id: [''],
         customerId: [''],
         lastName: [''],
         firstName: [''],
         address: [''],
         mobileNumber: [''],
+        preferredDeliveryTime: [''],
         saveCustomer: [true],
       }),
       customerSearch: [''],
@@ -276,21 +284,18 @@ export class AddOrderComponent implements OnInit {
       });
     });
 
-    // combineLatest([
-    //   this.orderForm.controls['paymentAmount'].valueChanges,
-    // ]).subscribe(([payment]) => {
-    //   console.log(payment);
+    this.orderForm.get('modeOfPayment')?.valueChanges.subscribe((val) => {
+      const {
+        total,
+      } = this.orderForm.value;
 
-    //   const {
-    //     total
-    //   } = this.orderForm.value;
-
-    //   const paymentChange = total - payment;
-
-    //   this.orderForm.patchValue({
-    //     paymentChange
-    //   })
-    // });
+      let paymentAmount = 0;
+      if (val !== 'Cash') {
+        paymentAmount = total;
+      }
+      
+      this.orderForm.get('paymentAmount')?.patchValue(paymentAmount);
+    });
 
     this.orderForm.get('customerSearch')?.valueChanges.subscribe((x) => {
       console.log('customerSearch', x);
@@ -300,8 +305,14 @@ export class AddOrderComponent implements OnInit {
           lastName: x.lastName,
           address: x.address,
           mobileNumber: x.mobileNumber,
-          customerId: x.customerId
+          customerId: x.customerId,
+          preferredDeliveryTime: x.preferredDeliveryTime,
+          id: x.id
         }, { emitEvent: false });
+
+        if (!_.isEmpty(x.preferredDeliveryTime)) {
+          this.orderForm.get('orderTime')?.patchValue(x.preferredDeliveryTime);
+        }
       }
     });
 
@@ -439,20 +450,39 @@ export class AddOrderComponent implements OnInit {
     this.isSaving = true;
 
     let order = this.orderForm.value;
-    if (order.isManualEntry && order.customer.saveCustomer) {
-      const {
-        customer
-      } = order;
+    
+    const {
+      customer
+    } = order;
 
+    if (order.isManualEntry && customer.saveCustomer) {
       const customerData: Customer = {
         firstName: customer.firstName,
         lastName: customer.lastName,
         address: customer.address,
         mobileNumber: customer.mobileNumber,
+        preferredDeliveryTime: order.orderTime,
       }
-      this.customerService.saveCustomer(customerData).subscribe((res) => console.log(res));
+      this.customerService.saveCustomer(customerData).subscribe((res) => {
+        // sync customer list from session storage
+        this.customerService.getCustomerList(false).subscribe(() => {});
+      });
     }
     
+    if (_.isNil(customer.preferredDeliveryTime) || customer.preferredDeliveryTime !== order.orderTime) {
+      if (order.orderTime !== '') {
+        const data = {
+          preferredDeliveryTime: order.orderTime
+        };
+
+        this.customerService.updateCustomer(customer.id, data).subscribe((res) => {
+          // sync customer list from session storage
+          this.customerService.getCustomerList(false).subscribe(() => {});
+        });
+      }
+    }
+
+    // object properties to be omitted from order model
     order = _.omit(order, ['customerSearch', 'isManualEntry', 'customer.saveCustomer']);
     order.items = _.map(order.items, (item: any) => {
       return _.omit(item, ['enableNotes']);
@@ -465,18 +495,33 @@ export class AddOrderComponent implements OnInit {
 
     order.orderType = this.orderType;
 
-    if (this.order) {
-      this.orderService.updateOrder(this.order.id, order)
-        .subscribe((res) => {
-          this.isSaving = false;
-          this.activeModal.close('success');
+    this.orderService.saveOrUpdateOrder(order, _.get(this.order, 'id', null))
+      .subscribe((res) => {
+        this.isSaving = false;
+
+        if (!_.isEmpty(res)) {
+          _.assign(order, res);
+        }
+
+        this.initiateCopyPrintProcess(order).then(() => { 
+          this.activeModal.close('success')
         });
-    } else {
-      this.orderService.createOrder(order)
-        .subscribe((res) => {
-          this.isSaving = false;
-          this.activeModal.close('success');
-        });
+      });
+  }
+
+  async initiateCopyPrintProcess(order: any) {
+    this.templateService.copyOrderForm(order);
+
+    if (this.printReceipt) {
+      let orderData = _.cloneDeep(order);
+      if (this.order) {
+        _.assign(orderData, { orderId: this.order.orderId });
+      } else {
+        // this block means its from the create order process
+        const res = await firstValueFrom(this.orderService.getOrder(order.id).pipe(take(1)));
+        orderData = res;
+      }
+      this.receiptService.openPrintWindow(orderData);
     }
   }
 

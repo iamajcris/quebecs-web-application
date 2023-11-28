@@ -21,8 +21,16 @@ export class OrderService {
     return this.httpClient.post(`${this.apiBase}/order`, order);
   }
 
+  getOrder(id: any){
+    return this.httpClient.get(`${this.apiBase}/order/${id}`);
+  }
+
   updateOrder(id: any, data: any){
     return this.httpClient.put(`${this.apiBase}/order/${id}`, data);
+  }
+
+  saveOrUpdateOrder(data: any, id: any = null) {
+    return id ? this.updateOrder(id, data) : this.createOrder(data);
   }
 
   listOrders(options: any = null) {

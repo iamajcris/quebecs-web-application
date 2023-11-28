@@ -14,6 +14,7 @@ import { ORDER_TYPES } from '../contants/order-type.constant';
 import { MenuService } from 'src/services/menu.service';
 import { TemplateService } from 'src/services/template.service';
 import { ToastService } from 'src/services/toast.service';
+import { CustomerService } from 'src/services/customer.service';
 
 @Component({
   selector: 'app-orders',
@@ -90,6 +91,7 @@ export class OrdersComponent implements OnInit {
 		private receiptService: ReceiptService,
 		private templateService: TemplateService,
 		private toastService: ToastService,
+		private customerService: CustomerService,
 		private calendar: NgbCalendar,
 		public formatter: NgbDateParserFormatter,
 		public fb: FormBuilder,
@@ -203,6 +205,8 @@ export class OrdersComponent implements OnInit {
 			this.orderList = res;
 			this.isLoading = false;
 		});
+		// store customer list in session storage
+		this.customerService.getCustomerList(false).subscribe((res) => {});
 	}
 
 	openOrder(order: any = null) {
@@ -217,13 +221,7 @@ export class OrdersComponent implements OnInit {
 	}
 
 	print(order: any) {
-		console.log('print', order);
-
-		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=400,height=750,toolbar=0,scrollbars=0,status=0');
-		const receipt = this.receiptService.printOrderReceipt(order);
-		
-		WindowPrt.document.write(receipt);
-		WindowPrt.document.close();
+		this.receiptService.openPrintWindow(order);
 	}
 
 	copy(order: any) {
