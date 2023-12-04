@@ -35,6 +35,12 @@ export class TemplateService {
 
 		template +=	`\nTotal: ${formatToCurrency(order.total)}`;
 
+		if ((order.paymentAmount || 0) > 0) {
+			template +=	'\n';
+			template +=	`\n${order.modeOfPayment}: ${formatToCurrency(order.paymentAmount)}`;
+			template +=	`\nChange: ${formatToCurrency(order.paymentChange)}`;
+		}
+
 		return template;
 	}
 

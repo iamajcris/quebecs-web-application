@@ -5,6 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { environment } from './../environments/environment';
 import { LoaderService } from 'src/services/loader.service';
 import { ToastService } from 'src/services/toast.service';
+const { version } = require('package.json');
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { ToastService } from 'src/services/toast.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, AfterViewInit {
+  public appVersion: string;
 
   constructor(
     private loaderService: LoaderService,
@@ -24,6 +26,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Initialize Firebase
     const app = initializeApp(environment.firebaseConfig);
     const analytics = getAnalytics(app);
+
+    this.appVersion = version;
   }
 
   ngAfterViewInit() {

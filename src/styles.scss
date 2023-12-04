@@ -6,11 +6,15 @@
 html,
 body {
   overflow-x: hidden; /* Prevent scroll on narrow devices */
+  min-height: 100vh;
+  height: auto;
 }
 
 body {
   padding-top: 56px;
   background-color: #f8f9fa!important;
+  display: flex;
+  flex-direction: column;
 }
 
 .no-border-radius-top {
