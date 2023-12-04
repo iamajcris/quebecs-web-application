@@ -237,7 +237,6 @@ export class ReceiptService {
 									<div class="title_wrap">
 										${this.printTitle(order.orderType)}
 										<p class="sub_title">016 Betterlife Subd, Tanzang Luma III, <br>Imus City, Cavite4103, Philippines</p>
-										<p class="sub_title">tel: 09121233123</p>
 									</div>
 								</div>
 							</div>
@@ -287,6 +286,7 @@ export class ReceiptService {
 			</html>
 		`;
   }
+	// <p class="sub_title">tel: 09121233123</p>
 
 	openPrintWindow(order: any) {
 		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=750,toolbar=0,scrollbars=0,status=0');

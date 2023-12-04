@@ -121,8 +121,8 @@ export class AddOrderComponent implements OnInit {
           this.setupMenu(menu);
 
           if (!this.order) {
-            const orderDate = new Date(menu.scheduleDate);
-            this.orderForm.patchValue({orderDate: convertToDateStruct(orderDate)});
+            const scheduleDt = new Date(menu.scheduleDate);
+            this.orderForm.patchValue({orderDateStruct: convertToDateStruct(scheduleDt)});
           }
         }
       }
@@ -213,7 +213,7 @@ export class AddOrderComponent implements OnInit {
 
     _.forEach(order.subItems, () => this.subItems.push(this.onCreateSubItem()));
 
-    _.assign(order, { orderDate: convertToDateStruct(order.orderDate)})
+    _.assign(order, { orderDateStruct: convertToDateStruct(order.orderDate)})
 
     const customer = new CustomerSearch(order.customer)
     this.orderForm.get('customer')?.patchValue({ ...customer, saveCustomer: false });
@@ -245,6 +245,7 @@ export class AddOrderComponent implements OnInit {
       subItems: this.fb.array([]),
       total: [0],
       orderDate: [],
+      orderDateStruct: [],
       orderTime: [],
       modeOfPayment: [this.paymentOptions[0]],
       paymentAmount: [0],
@@ -488,7 +489,7 @@ export class AddOrderComponent implements OnInit {
       return _.omit(item, ['enableNotes']);
     });
 
-    const formattedDate = this.dateFormatter.format(order.orderDate);
+    const formattedDate = this.dateFormatter.format(order.orderDateStruct);
     order.orderDate = new Date(formattedDate.concat(' ', order.orderTime || "00:00"));
 
     order.subItems = _.filter((order.subItems), (sub) => !_.isNil(sub.price) && !_.isEmpty(sub.text))
