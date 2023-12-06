@@ -6,5 +6,8 @@
     "Fish",
     "Veg",
     "Misc"
-  ]
+  ],
+  "default": {
+    "orderTypeFilter": "turo-turo"
+  }
 }

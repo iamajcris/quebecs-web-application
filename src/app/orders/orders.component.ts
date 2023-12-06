@@ -11,10 +11,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { convertToDateStruct } from 'src/helpers/util';
 import { combineLatest, forkJoin, merge } from 'rxjs';
 import { ORDER_TYPES } from '../contants/order-type.constant';
-import { MenuService } from 'src/services/menu.service';
+import { Menu, MenuService } from 'src/services/menu.service';
 import { TemplateService } from 'src/services/template.service';
 import { ToastService } from 'src/services/toast.service';
 import { CustomerService } from 'src/services/customer.service';
+import settings from 'app.config.json';
 
 @Component({
   selector: 'app-orders',
@@ -84,6 +85,9 @@ export class OrdersComponent implements OnInit {
 		},
 	];
 
+	orderTypeFilter = settings.default.orderTypeFilter;
+	menu: Menu;
+
 	constructor(
 		private modalService: NgbModal,
 		private orderService: OrderService,
@@ -95,19 +99,15 @@ export class OrdersComponent implements OnInit {
 		private calendar: NgbCalendar,
 		public formatter: NgbDateParserFormatter,
 		public fb: FormBuilder,
-	) {
-		// this.fromDate = calendar.getToday();
-		// this.toDate = calendar.getNext(calendar.getToday(), 'd', 10);
-	}
+	) { }
 
 	ngOnInit(): void {
 		this.setupFilters();
+		this.menuService.getMenuList().subscribe((menus) => {
+			this.menu = _.find(menus, (m) => m.store === this.orderTypeFilter) || menus[0];
 
-		this.menuService.getMenus().subscribe((res) => {
-			const menu = this.menuService.getLatestMenu(res, 'turo-turo');
-
-			if (menu) {
-				const dt = new Date(menu.scheduleDate);
+			if (this.menu) {
+				const dt = new Date(this.menu.scheduleDate);
 				this.filterGroup.patchValue({
 					dateRange: this.filterDateOptions.find((f) => f.id === 'custom')?.text,
 					fromDate: convertToDateStruct(dt),

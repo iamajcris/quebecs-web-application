@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { catchError, filter, map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 import _ from 'lodash';
 
@@ -45,6 +45,36 @@ export class MenuService {
 
   getMenu(id: any) {
     return this.httpClient.get<Menu>(`${this.apiBase}/menu/${id}`);
+  }
+
+  getMenuList(applySessionStorage = true): Observable<Menu[]> {
+    const name = 'menuList';
+    if (sessionStorage.getItem(name) && applySessionStorage) {
+      return new Observable(observer => {
+        observer.next(JSON.parse(sessionStorage.getItem(name) || ''));
+        observer.complete();
+      });
+    } else {
+      return this.getMenus({ ps: 100 }).pipe(
+        map(menus => {
+          const res = _.chain(menus)
+            .map((menu) => {
+              const obj = Object.assign({}, menu)
+              obj.store = _.toLower(menu.store);
+              return obj;
+            })
+            .uniqBy('store')
+            .orderBy('createdAt', 'desc')
+            .value();
+          return res;
+        }),
+        tap(
+          data => {
+            sessionStorage.setItem(name, JSON.stringify(data));
+          },
+        )
+      );
+    }
   }
 
   updateMenu(id: any, data: any){
