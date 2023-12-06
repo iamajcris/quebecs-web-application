@@ -5,6 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { environment } from './../environments/environment';
 import { LoaderService } from 'src/services/loader.service';
 import { ToastService } from 'src/services/toast.service';
+import { MenuService } from 'src/services/menu.service';
 const { version } = require('package.json');
 
 @Component({
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   constructor(
     private loaderService: LoaderService,
     private modalService: NgbModal,
+    public menuService: MenuService,
     public toastService: ToastService
   ) {
   }
@@ -28,6 +30,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     const analytics = getAnalytics(app);
 
     this.appVersion = version;
+
+    this.menuService.getMenuList(false).subscribe((res) => {});
   }
 
   ngAfterViewInit() {

@@ -13,6 +13,7 @@ import { ORDER_TYPES } from '../../contants/order-type.constant';
 import { TemplateService } from 'src/services/template.service';
 import { ToastService } from 'src/services/toast.service';
 import { ReceiptService } from 'src/services/receipt.service';
+import { Location } from '@angular/common';
 
 const options = [
   { 
@@ -107,30 +108,40 @@ export class AddOrderComponent implements OnInit {
     private templateService: TemplateService,
     private receiptService: ReceiptService,
     private fb: FormBuilder,
-    private dateFormatter: NgbDateParserFormatter) {
+    private dateFormatter: NgbDateParserFormatter,
+    private location: Location) {
   }
 
   ngOnInit(): void {
     this.initializeForm();
+    // this.menuService.getMenus().subscribe((res) => {
+    //   if (!_.isEmpty(res)) {
+    //     const menu = this.menuService.getLatestMenu(res, this.orderType);
 
-    this.menuService.getMenus().subscribe((res) => {
-      if (!_.isEmpty(res)) {
-        const menu = this.menuService.getLatestMenu(res, this.orderType);
+    //     if (menu) {
+    //       this.setupMenu(menu);
 
-        if (menu) {
-          this.setupMenu(menu);
+    //       if (!this.order) {
+    //         const scheduleDt = new Date(menu.scheduleDate);
+    //         this.orderForm.patchValue({orderDateStruct: convertToDateStruct(scheduleDt)});
+    //       }
+    //     }
+    //   }
+    // });
 
-          if (!this.order) {
-            const scheduleDt = new Date(menu.scheduleDate);
-            this.orderForm.patchValue({orderDateStruct: convertToDateStruct(scheduleDt)});
-          }
+    this.menuService.getMenuList().subscribe((menus) => {
+      const menu = _.find(menus, (m) => m.store === this.orderType);
+      if (menu) {
+        this.setupMenu(menu);
+
+        if (!this.order) {
+          const scheduleDt = new Date(menu.scheduleDate);
+          this.orderForm.patchValue({orderDateStruct: convertToDateStruct(scheduleDt)});
         }
       }
     });
 
-
     this.meridianTimeList = this.createMeridianTimeArrayWithAMPMFrom6AMTo6PM();
-    console.log('meridianTimeList', this.meridianTimeList);
 
     this.customerService.getCustomerList()
       .subscribe((res) => {
@@ -138,10 +149,7 @@ export class AddOrderComponent implements OnInit {
           this.customerList = res.map((c) => {
             return new CustomerSearch(c);
           });
-
-          console.log(this.customerList);
         }
-        console.log(res);
       });
   }
 
