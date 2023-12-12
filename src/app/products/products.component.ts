@@ -17,6 +17,10 @@ export class ProductsComponent implements OnInit {
 	) { }
 
   ngOnInit(): void {
+    this.loadMenuList();
+  }
+
+  loadMenuList() {
     this.menuService.getMenus()
       .subscribe((res) => {
         this.menuList = res
@@ -27,5 +31,12 @@ export class ProductsComponent implements OnInit {
   openMenu(menu: any = null) {
     const modalRef = this.modalService.open(AddMenuComponent, { size: 'lg', backdrop: 'static' });
     modalRef.componentInstance.menu = menu;
+    modalRef.closed.subscribe((res) => {
+			if (res === 'success') {
+        // pull the latest menu & save to session storage
+				this.menuService.getMenuList(false).subscribe((res) => {});
+        this.loadMenuList();
+			}
+		});
   }
 }
