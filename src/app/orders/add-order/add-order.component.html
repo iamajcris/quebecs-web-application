@@ -84,6 +84,10 @@
               [resultFormatter]="formatter"
             />
             <div class="input-group-text">
+              <input id="multiple-entry" class="form-check-input mt-0" type="checkbox" formControlName="isMultipleEntry" (click)="toggleMultipleEntry($event)">
+              <label for="multiple-entry" class="ps-1">Multiple Entry</label>
+            </div>
+            <div class="input-group-text">
               <input id="manual-entry" class="form-check-input mt-0" type="checkbox" formControlName="isManualEntry">
               <label for="manual-entry" class="ps-1">Manual Entry</label>
             </div>
@@ -149,7 +153,24 @@
           </div>
         </div>
 
-        <hr class="my-4">
+        <hr class="mt-4 mb-2">
+
+        <ng-container *ngIf="orderForm.value.isMultipleEntry">
+          <div class="d-flex">
+            <label>Customer List</label>
+          </div>
+          <div class="d-flex">
+            <div class="btn-group me-3" role="group" *ngFor="let customer of customers.value; let i = index">
+              <button type="button" class="btn btn-outline-secondary"
+                [ngClass]="selectedCustomerId === customer.customerId ? 'text-bg-warning' : 'text-bg-light'"
+                (click)="setSelectedCustomer(customer.customerId)">
+                {{customer.firstName}} {{customer.lastName}}
+              </button>
+              <button type="button" class="btn btn-outline-secondary" (click)="removeCustomer(i)">x</button>
+            </div>
+          </div>
+        </ng-container>
+
 
         <ng-container *ngIf="orderType === 'quebecs'">
           <div class="row g-3 mb-3">
@@ -201,14 +222,14 @@
         <ng-container *ngIf="orderType === 'turo-turo'">
           <ng-container *ngIf="filteredMenu$ | async as menu">
             <ng-container *ngFor="let category of menu | keyvalue">
-              <ul class="list-group mb-3">
+              <ul class="list-group mb-3 mt-4">
                 <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let product of category.value; let i = index">
                   <div class="d-flex">
                     <div class="input-group" role="group" aria-label="Basic mixed styles example">
                       <button type="button" class="btn btn-outline-secondary" (click)="addOrder(product.name, product.price, product.size)">
                         <i class="bi bi-plus-lg"></i>
                       </button>
-                      <span class="input-group-text border border-secondary">{{itemQuantity(product.name)}}</span>
+                      <span class="input-group-text border border-secondary">{{orderForm.value.isMultipleEntry ? groupedItemQuantity(product.name) : itemQuantity(product.name)}}</span>
                       <button type="button" class="btn btn-outline-secondary" (click)="reduceOrder(product.name, product.size)">
                         <i class="bi bi-dash-lg"></i>
                       </button>
@@ -280,6 +301,47 @@
                 </div>
               </div>
             </form>
+            <div class="accordion my-3" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <strong>Summary</strong>
+                  </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <div class="row">
+                      <div class="col-md-4 col-lg-4" *ngFor="let groupItem of groupedItems">
+                        <ul class="list-group mb-3">
+                          <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div class="d-flex">
+                              <i class="bi bi-p-square-fill" *ngIf="orderForm.value.customer.customerId === groupItem.customerId"></i>
+                              <h6 class="ms-1 my-0">{{groupItem.customerName}}</h6>
+                            </div>
+                            <div>
+                              <span class="badge bg-primary rounded-pill">{{groupItem.totalQuantity}}</span>
+                            </div>
+                          </li>
+                          <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let item of groupItem.items; index as i">
+                            <div>
+                              <h6 class="my-0">{{item.name}}</h6>
+                              <small class="text-muted">{{item.quantity}}x {{item.size}}</small>
+                            </div>
+                            <div>
+                              <span class="text-muted">₱{{item.price}}</span>
+                            </div>
+                          </li>
+                          <li class="list-group-item d-flex justify-content-between">
+                            <span>Total</span>
+                            <strong>₱{{groupItem.total}}</strong>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <ul class="list-group mb-3">
               <li class="list-group-item d-flex justify-content-between">
                 <span>Sub Total</span>

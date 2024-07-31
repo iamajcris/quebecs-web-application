@@ -100,6 +100,10 @@ export class AddOrderComponent implements OnInit {
   ];
 
   customItemList: any = [];
+
+  selectedCustomerId: any = null;
+  groupedItems: any = [];
+
   constructor(
     public activeModal: NgbActiveModal,
     private menuService: MenuService,
@@ -217,11 +221,14 @@ export class AddOrderComponent implements OnInit {
       return item
     });
 
+    this.selectedCustomerId = _.get(order, 'customer.customerId', null);
+
+    // prepare the array form groups before patching the whole order form
     _.forEach(order.items, () => this.items.push(this.onCreateOrderItem()));
-
     _.forEach(order.subItems, () => this.subItems.push(this.onCreateSubItem()));
+    _.forEach(order.customers, () => this.customers.push(this.onCreateCustomerFormGroup()));
 
-    _.assign(order, { orderDateStruct: convertToDateStruct(order.orderDate)})
+    _.assign(order, { orderDateStruct: convertToDateStruct(order.orderDate)});
 
     const customer = new CustomerSearch(order.customer)
     this.orderForm.get('customer')?.patchValue({ ...customer, saveCustomer: false });
@@ -236,18 +243,11 @@ export class AddOrderComponent implements OnInit {
 
   initializeForm() {
     this.orderForm = this.fb.group({
-      customer: this.fb.group({
-        id: [''],
-        customerId: [''],
-        lastName: [''],
-        firstName: [''],
-        address: [''],
-        mobileNumber: [''],
-        preferredDeliveryTime: [''],
-        saveCustomer: [true],
-      }),
+      customer: this.onCreateCustomerFormGroup(),
+      customers: this.fb.array([]),
       customerSearch: [''],
       isManualEntry: [false],
+      isMultipleEntry: [false],
       items: this.fb.array([]),
       subTotal: [0],
       subItems: this.fb.array([]),
@@ -260,6 +260,17 @@ export class AddOrderComponent implements OnInit {
       paymentChange: [0]
     });
     
+    this.runCalculationObservables();
+    this.setupCustomerObservables();
+    this.setupItemObservables();
+
+    if (this.order) {
+      console.log(this.order);
+      this.patchOrder(this.order);
+    }
+  }
+
+  runCalculationObservables() {
     combineLatest([
       this.orderForm.controls['items'].valueChanges,
       this.orderForm.controls['subItems'].valueChanges.pipe(startWith(null)),
@@ -305,71 +316,67 @@ export class AddOrderComponent implements OnInit {
       
       this.orderForm.get('paymentAmount')?.patchValue(paymentAmount);
     });
+  }
 
-    this.orderForm.get('customerSearch')?.valueChanges.subscribe((x) => {
-      console.log('customerSearch', x);
-      if (x instanceof(CustomerSearch)) {
-        this.orderForm.get('customer')?.patchValue({
-          firstName: x.firstName,
-          lastName: x.lastName,
-          address: x.address,
-          mobileNumber: x.mobileNumber,
-          customerId: x.customerId,
-          preferredDeliveryTime: x.preferredDeliveryTime,
-          id: x.id
-        }, { emitEvent: false });
+  setupCustomerObservables() {
+    this.orderForm.get('customerSearch')?.valueChanges.subscribe((data) => {
+      console.log('customerSearch', data);
+      if (data instanceof(CustomerSearch)) {
+        this.addSelectedCustomer(data);
+        
+        if (!_.isEmpty(data.preferredDeliveryTime)) {
+          this.orderForm.get('orderTime')?.patchValue(data.preferredDeliveryTime);
+        }
 
-        if (!_.isEmpty(x.preferredDeliveryTime)) {
-          this.orderForm.get('orderTime')?.patchValue(x.preferredDeliveryTime);
+        if (this.orderForm.value.isMultipleEntry) {
+          this.orderForm.get('customerSearch')?.reset(null, { emitEvent: false });
+          console.log('customers', this.customers.value);
         }
       }
     });
 
     this.orderForm.get('isManualEntry')?.valueChanges.subscribe((checked) => {
       if (checked) {
-        this.orderForm.get('customerSearch')?.reset(null, { emitEvent: false });
-        // this.orderForm.get('customerSearch')?.disable({ emitEvent: false });
-        this.orderForm.get('customer')?.reset({
-          firstName: '',
-          lastName: '',
-          address: '',
-          mobileNumber: '',
-          customerId: '',
-          saveCustomer: true,
-        }, { emitEvent: false });
+        this.resetCustomerForms();
       }
     });
+  }
 
-    this.orderForm.get('customer')?.valueChanges.subscribe((x) => {
-      console.log(x);
+  setupItemObservables() {
+    this.items.valueChanges.subscribe((items: any) => {
+      this.groupedItems = this.orderService.mapGroupedItemsByCustomer(this.orderForm.value);
+      
+      console.log('groupedItems', this.groupedItems);
     });
-    
-    if (this.order) {
-      console.log(this.order);
-      this.patchOrder(this.order);
-    }
   }
 
   addOrder(name: any, price: any, size: any, quantity: number = 1) {
     const id = _.kebabCase(`${name} ${size}`);
 
-    const existingItem = this.items.value.find((i: any) => i.id === id);
-
-    if (_.isEmpty(existingItem)) {
-      const item = this.onCreateOrderItem();
-      item.patchValue({
+    const itemIndex = this.items.value.findIndex((i: any) => i.id === id && i.customerId === this.selectedCustomerId);
+    
+    // if item does not exist
+    if (itemIndex < 0) {
+      const item = {
         id: id,
         quantity,
         name: name,
         size: size,
         price: price * quantity,
-        menuPrice: price
-      });
+        menuPrice: price,
+        customerId: this.selectedCustomerId
+      };
 
-      this.items.push(item);
+      const formGroup = this.onCreateOrderItem();
+      formGroup.patchValue(item);
+
+      this.items.push(formGroup);
     } else {
-      this.updateQuantity(this.items.value.findIndex((i: any) => i.id === id), +1);
+      this.updateQuantity(itemIndex, +1);
     }
+
+    console.log('customers', this.orderForm.value.customers)
+    console.log('this.items', this.items.value);
   }
 
   reduceOrder(name: any, size: any) {
@@ -397,6 +404,7 @@ export class AddOrderComponent implements OnInit {
       price: [0],
       menuPrice: [0],
       enableNotes: [false],
+      customerId: [''],
       notes: ['']
     });
   }
@@ -518,6 +526,86 @@ export class AddOrderComponent implements OnInit {
       });
   }
 
+  addSelectedCustomer(data: CustomerSearch) {
+    const { isMultipleEntry, customer } = this.orderForm.value;
+
+    const customerData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      address: data.address,
+      mobileNumber: data.mobileNumber,
+      customerId: data.customerId,
+      preferredDeliveryTime: data.preferredDeliveryTime,
+      id: data.id,
+    };
+
+    this.selectedCustomerId = customerData.customerId;
+
+    if (isMultipleEntry) {
+      if (_.isEmpty(customer.id)) {
+        this.orderForm.get('customer')?.patchValue(customerData, { emitEvent: false });
+      }
+
+      const isCustomerExist = !!_.find(this.customers.value, { customerId: customerData.customerId });
+      if (isCustomerExist) return;
+
+      const formGroup = this.onCreateCustomerFormGroup();
+      formGroup.patchValue({ ...customerData, saveCustomer: false});
+
+      this.customers.push(formGroup);
+    } else {
+      this.orderForm.get('customer')?.patchValue(customerData, { emitEvent: false });
+    }
+  }
+
+  toggleMultipleEntry(event: any) {
+    this.orderForm.get('isMultipleEntry')?.patchValue(event.target.checked);
+    this.resetCustomerForms();
+    this.resetItems();
+    this.groupedItems = [];
+  }
+
+  resetCustomerForms() {
+    this.orderForm.get('customerSearch')?.reset(null, { emitEvent: false });
+    this.orderForm.get('customer')?.reset({
+      firstName: '',
+      lastName: '',
+      address: '',
+      mobileNumber: '',
+      customerId: '',
+      saveCustomer: true,
+    }, { emitEvent: false });
+
+    this.customers.clear();
+    this.selectedCustomerId = null;
+  }
+
+  resetItems() {
+    this.items.clear([]);
+  }
+
+  setSelectedCustomer(customerId: any) {
+    this.selectedCustomerId = customerId;
+  }
+
+  removeCustomer(index: number) {
+    const customer = this.customers.at(index).value;
+
+    for (let i = this.items.length - 1; i >= 0; i--) {
+      if (this.items.at(i).get('customerId').value === customer.customerId) {
+        this.items.removeAt(i);
+      }
+    }
+
+    this.customers.removeAt(index);
+
+    if (this.customers.length) {
+      const customer = this.customers.at(0).value;
+
+      this.orderForm.get('customer')?.patchValue(customer);
+    }
+  }
+
   async initiateCopyPrintProcess(order: any) {
     this.templateService.copyOrderForm(order);
 
@@ -530,6 +618,7 @@ export class AddOrderComponent implements OnInit {
         const res = await firstValueFrom(this.orderService.getOrder(order.id).pipe(take(1)));
         orderData = res;
       }
+      console.log('orderData', orderData);
       this.receiptService.openPrintWindow(orderData);
     }
   }
@@ -633,6 +722,10 @@ export class AddOrderComponent implements OnInit {
     return (this.orderForm.get('items') as FormArray).length;
   }
 
+  get customers() {
+    return this.orderForm.get('customers') as FormArray;
+  }
+
   itemQuantity(name: string) {
     let totalQuantity = 0;
 
@@ -642,7 +735,20 @@ export class AddOrderComponent implements OnInit {
         totalQuantity += i.quantity;
       })
     }
+    return totalQuantity;
+  }
 
+  groupedItemQuantity(name: string) {
+    let totalQuantity = 0;
+
+    const customerItems = this.groupedItems.find((item: any) => item.customerId === this.selectedCustomerId);
+
+    const items = customerItems?.items.filter((i: any) => i.name === name);
+    if (!_.isEmpty(items)) {
+      _.forEach(items, (i) => {
+        totalQuantity += i.quantity;
+      })
+    }
     return totalQuantity;
   }
 
@@ -659,5 +765,18 @@ export class AddOrderComponent implements OnInit {
       name: '',
       price: ''
     };
+  }
+
+  onCreateCustomerFormGroup() {
+    return this.fb.group({
+      id: [''],
+      customerId: [''],
+      lastName: [''],
+      firstName: [''],
+      address: [''],
+      mobileNumber: [''],
+      preferredDeliveryTime: [''],
+      saveCustomer: [true],
+    });
   }
 }

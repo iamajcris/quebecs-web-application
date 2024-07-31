@@ -1,6 +1,6 @@
 export interface Customer {
-  id?: number;
-  customerId?: number;
+  id?: string;
+  customerId?: string;
   firstName: string;
   lastName: string;
   address: string;
@@ -9,8 +9,8 @@ export interface Customer {
 }
 
 export class CustomerSearch implements Customer {
-  id: number | undefined;
-  customerId: number | undefined;
+  id: string | undefined;
+  customerId: string | undefined;
   firstName: string;
   lastName: string;
   address: string;
