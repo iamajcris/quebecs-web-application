@@ -1,0 +1,18 @@
+[33m46f6173[m[33m ([m[1;36mHEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33mdf0838f[m HEAD@{1}: reset: moving to HEAD~1
+[33m169c12e[m HEAD@{2}: reset: moving to HEAD~
+[33mfaa070a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{3}: checkout: moving from develop to faa070a3f41b8d101d7e17966d41c5f292d9348b
+[33m22d6f77[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{4}: checkout: moving from 22d6f77adb11790288b2e2f7571814c4fac8caa8 to develop
+[33m22d6f77[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{5}: checkout: moving from develop to 22d6f77adb11790288b2e2f7571814c4fac8caa8
+[33m22d6f77[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m HEAD@{6}: pull --tags origin develop: Merge made by the 'ort' strategy.
+[33m1052cec[m HEAD@{7}: commit: RECEIPT
+[33mee61f53[m HEAD@{8}: pull --tags origin develop: Fast-forward
+[33m48c4491[m HEAD@{9}: checkout: moving from main to develop
+[33mfaa070a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{10}: reset: moving to HEAD
+[33mfaa070a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{11}: pull --tags origin main: Fast-forward
+[33mee2b9d9[m HEAD@{12}: checkout: moving from develop to main
+[33m48c4491[m HEAD@{13}: pull --tags origin develop: Fast-forward
+[33mc6881e1[m HEAD@{14}: checkout: moving from main to develop
+[33mee2b9d9[m HEAD@{15}: checkout: moving from develop to main
+[33mc6881e1[m HEAD@{16}: checkout: moving from main to develop
+[33mee2b9d9[m HEAD@{17}: clone: from https://github.com/iamajcris/quebecs-web-application.git

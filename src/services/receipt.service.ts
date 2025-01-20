@@ -252,12 +252,12 @@ export class ReceiptService {
 						<div class="body">
 							<div class="main_table">
 								<div class="table_body">
-									${this.printOrderItems(order.items)}
+									${order.groupItems && order.groupItems.length  ? '' : this.printOrderItems(order.items)}
 								</div>
 							</div>
 							<div class="paymethod_grandtotal_wrap">
 								<div class="grandtotal_sec">
-									<div class="grandtotal_entry">
+									<div class="grandtotal_entry"> 
 										<span>SUB TOTAL</span>
 										<span>${formatToCurrency(order.subTotal)}</span>
 									</div>
@@ -280,14 +280,36 @@ export class ReceiptService {
 							<p class="bold">${customer.address}</p>
 							<p class="bold">${customer.mobileNumber}</p>
 						</div>
+						<div>
+							${this.printOrderSubItems(order.groupItems)}
+							<div class="grandtotal_entry table_body">
+								<span class="bold">Total</span>
+								<span>
+									${formatToCurrency(this.calculateGroupItemsTotal(order.groupItems))}
+								</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</body>
 			</html>
 		`;
   }
-	// <p class="sub_title">tel: 09121233123</p>
+  printTally(items: [any]) {
+    const template = _.map(items, (item) => {
+		return `<html>
+					<body>
+						<div class="row">
+							<div class="col col_des">
+								<p><h2>${item.name} - ${item.quantity}</h2></p>
+							</div>
+						</div>
+					</body>
+				</html>`;
+		});
+	return template;
 
+  }
 	openPrintWindow(order: any) {
 		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=750,toolbar=0,scrollbars=0,status=0');
 		const receipt = this.printOrderReceipt(order);
@@ -295,11 +317,25 @@ export class ReceiptService {
 		WindowPrt.document.write(receipt);
 		WindowPrt.document.close();
 		setTimeout(()=>{
-			WindowPrt.print();
-			WindowPrt.close();
+			// WindowPrt.print();
+			// WindowPrt.close();
 			return;
 		}, 300);
 	}
+
+	openTallyPrintWindow(order: any) {
+		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=350,toolbar=0,scrollbars=0,status=0');
+		const receipt = this.printTally(order);
+		console.log(receipt);
+		WindowPrt.document.write(receipt);
+		WindowPrt.document.close();
+		setTimeout(()=>{
+			// WindowPrt.print();
+			// WindowPrt.close();
+			return;
+		}, 300);
+	}
+
 
   private printTitle(orderType: string) {
 		switch(orderType) {
@@ -314,7 +350,7 @@ export class ReceiptService {
 	}
 
 	private printOrderItems(items: [any]) {
-		const template = _.map(items, (item) => {
+		const template = _.map(items, (item) => { 
 			return `<div class="row">
 				<div class="col col_des">
 					<p>${item.name} - ${item.size}</p>
@@ -331,7 +367,7 @@ export class ReceiptService {
 
 	private printOrderSubItems(subItems: [any]) {
 		const template = _.map(subItems, (subItem) => {
-			return `<div class="grandtotal_entry">
+			return `<div class="customer">
 				<span>${subItem.text}</span>
 				<span>${formatToCurrency(subItem.price)}</span>
 			</div>`;
@@ -351,5 +387,24 @@ export class ReceiptService {
 			<span>Change</span>
 			<span>${formatToCurrency(order.paymentChange)}</span>
 		</div>`;
+	}
+
+	private printGroupItems(groupItems: [any]) {
+		const template = _.map(groupItems, (groupItem) => {
+			return `<div class="row">
+					<p>${groupItem.text}</p>
+				<br>				
+			</div>
+			<div class="row">
+					<p><br>
+					{formatToCurrency(groupItem.price)}</p>
+			</div>`;
+		});
+
+		return _.join(template, '');
+	}
+
+	private calculateGroupItemsTotal(groupItems: [any]) {
+		return _.sum(_.map(groupItems, 'price'));
 	}
 }

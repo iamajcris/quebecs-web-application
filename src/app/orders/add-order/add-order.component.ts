@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, filter, firstValueFrom, map, merge, startWith, take } from 'rxjs';
+import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, empty, filter, firstValueFrom, map, merge, startWith, take } from 'rxjs';
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
 import { Menu, MenuService } from 'src/services/menu.service';
@@ -16,11 +16,11 @@ import { ReceiptService } from 'src/services/receipt.service';
 import { Location } from '@angular/common';
 
 const options = [
-  { 
+  {
     text: 'Mass Delivery',
     value: 50
   },
-  { 
+  {
     text: 'Lalamove',
     value: 70
   },
@@ -41,7 +41,7 @@ export class AddOrderComponent implements OnInit {
 
   filters: any = [];
   menu: any;
-  
+
   private _filter = new BehaviorSubject<any[]>([]);
   public filter$ = this._filter.asObservable();
 
@@ -60,15 +60,16 @@ export class AddOrderComponent implements OnInit {
   model: NgbDateStruct;
   meridianTimeList: any = [];
   addCustomItem: boolean = false;
+  groupOrdering: boolean = false;
   printReceipt: boolean = true;
 
   @ViewChild('instance', { static: true }) instance: NgbTypeahead;
   focus$ = new Subject<string>();
-	click$ = new Subject<string>();
+  click$ = new Subject<string>();
 
   @ViewChild('subItemInstance', { static: true }) subItemInstance: NgbTypeahead;
   @ViewChild('customerSearchInstance', { static: true }) customerSearchInstance: NgbTypeahead;
-  
+
   customerList: CustomerSearch[]
 
   priceType = [
@@ -87,6 +88,11 @@ export class AddOrderComponent implements OnInit {
     price: ''
   };
 
+  groupItem = {
+    text: '',
+    price: 0,
+  }
+
   customSubItem = {
     text: '',
     value: 0,
@@ -100,6 +106,7 @@ export class AddOrderComponent implements OnInit {
   ];
 
   customItemList: any = [];
+  groupItems: any = [];
   constructor(
     public activeModal: NgbActiveModal,
     private menuService: MenuService,
@@ -136,7 +143,7 @@ export class AddOrderComponent implements OnInit {
 
         if (!this.order) {
           const scheduleDt = new Date(menu.scheduleDate);
-          this.orderForm.patchValue({orderDateStruct: convertToDateStruct(scheduleDt)});
+          this.orderForm.patchValue({ orderDateStruct: convertToDateStruct(scheduleDt) });
         }
       }
     });
@@ -178,7 +185,7 @@ export class AddOrderComponent implements OnInit {
       .orderBy('sort')
       .groupBy('sort')
       .value();
-    
+
     this.menu = menu;
     this._filteredMenu.next(menu);
 
@@ -186,15 +193,15 @@ export class AddOrderComponent implements OnInit {
       .values()
       .map((m: any) => {
         const obj = Object.keys(m);
-          console.log(obj);
+        console.log(obj);
         return m[0].category;
       })
       .value();
 
     console.log(menu);
-    
+
     this.filters = _.transform(menu, (r: any, v: any, k: any) => {
-      r[k] = v[0].category; 
+      r[k] = v[0].category;
     });
     console.log(this.filters)
   }
@@ -212,7 +219,7 @@ export class AddOrderComponent implements OnInit {
   patchOrder(order: any) {
     order.items = _.map(order.items, (item) => {
       if (!_.isEmpty(item.notes)) {
-        _.assign(item, { enableNotes: true});
+        _.assign(item, { enableNotes: true });
       }
       return item
     });
@@ -221,7 +228,7 @@ export class AddOrderComponent implements OnInit {
 
     _.forEach(order.subItems, () => this.subItems.push(this.onCreateSubItem()));
 
-    _.assign(order, { orderDateStruct: convertToDateStruct(order.orderDate)})
+    _.assign(order, { orderDateStruct: convertToDateStruct(order.orderDate) })
 
     const customer = new CustomerSearch(order.customer)
     this.orderForm.get('customer')?.patchValue({ ...customer, saveCustomer: false });
@@ -259,7 +266,7 @@ export class AddOrderComponent implements OnInit {
       paymentAmount: [0],
       paymentChange: [0]
     });
-    
+
     combineLatest([
       this.orderForm.controls['items'].valueChanges,
       this.orderForm.controls['subItems'].valueChanges.pipe(startWith(null)),
@@ -285,7 +292,7 @@ export class AddOrderComponent implements OnInit {
       if (paymentAmount) {
         paymentChange = paymentAmount - total;
       }
-      
+
       this.orderForm.patchValue({
         total,
         subTotal,
@@ -302,13 +309,23 @@ export class AddOrderComponent implements OnInit {
       if (val !== 'Cash') {
         paymentAmount = total;
       }
-      
+
       this.orderForm.get('paymentAmount')?.patchValue(paymentAmount);
     });
 
+    if (this.order) {
+      console.log(this.order);
+      this.patchOrder(this.order);
+
+      this.groupItems = this.order.groupItems || [];
+      if (this.groupItems.length) {
+        this.groupOrdering = true;
+      }
+    }
+
     this.orderForm.get('customerSearch')?.valueChanges.subscribe((x) => {
       console.log('customerSearch', x);
-      if (x instanceof(CustomerSearch)) {
+      if (x instanceof (CustomerSearch)) {
         this.orderForm.get('customer')?.patchValue({
           firstName: x.firstName,
           lastName: x.lastName,
@@ -343,11 +360,35 @@ export class AddOrderComponent implements OnInit {
     this.orderForm.get('customer')?.valueChanges.subscribe((x) => {
       console.log(x);
     });
-    
-    if (this.order) {
-      console.log(this.order);
-      this.patchOrder(this.order);
+
+   
+  }
+
+  addGroupOrder(text: any, price: any) {
+
+
+    if (this.groupItems == null) {
+      this.groupItems = []; // Initialize groupItems if it's null
     }
+
+    let newOrder = {
+      price: price,
+      text: text
+    };
+
+    // Add the new order to the list
+    this.groupItems.push(newOrder);
+    this.groupItem.text = "";
+    this.groupItem.price = 0;
+  }
+
+  deleteGroupOrder(index: number) {
+    console.log('Deleting item at index:', index); // Debugging log
+    this.groupItems.splice(index, 1);
+  }
+  
+  getTotalPrice(): number {
+    return this.groupItems.reduce((total: any, order: { price: any; }) => total + order.price, 0);
   }
 
   addOrder(name: any, price: any, size: any, quantity: number = 1) {
@@ -459,7 +500,7 @@ export class AddOrderComponent implements OnInit {
     this.isSaving = true;
 
     let order = this.orderForm.value;
-    
+
     const {
       customer
     } = order;
@@ -474,10 +515,10 @@ export class AddOrderComponent implements OnInit {
       }
       this.customerService.saveCustomer(customerData).subscribe((res) => {
         // sync customer list from session storage
-        this.customerService.getCustomerList(false).subscribe(() => {});
+        this.customerService.getCustomerList(false).subscribe(() => { });
       });
     }
-    
+
     if (_.isNil(customer.preferredDeliveryTime) || customer.preferredDeliveryTime !== order.orderTime) {
       if (order.orderTime !== '') {
         const data = {
@@ -486,7 +527,7 @@ export class AddOrderComponent implements OnInit {
 
         this.customerService.updateCustomer(customer.id, data).subscribe((res) => {
           // sync customer list from session storage
-          this.customerService.getCustomerList(false).subscribe(() => {});
+          this.customerService.getCustomerList(false).subscribe(() => { });
         });
       }
     }
@@ -504,6 +545,12 @@ export class AddOrderComponent implements OnInit {
 
     order.orderType = this.orderType;
 
+    order.groupItems = this.groupItems;
+
+    order.statusType = "created";
+
+    console.log(order);
+
     this.orderService.saveOrUpdateOrder(order, _.get(this.order, 'id', null))
       .subscribe((res) => {
         this.isSaving = false;
@@ -512,10 +559,11 @@ export class AddOrderComponent implements OnInit {
           _.assign(order, res);
         }
 
-        this.initiateCopyPrintProcess(order).then(() => { 
+        this.initiateCopyPrintProcess(order).then(() => {
           this.activeModal.close('success')
         });
       });
+
   }
 
   async initiateCopyPrintProcess(order: any) {
@@ -535,14 +583,14 @@ export class AddOrderComponent implements OnInit {
   }
 
   searchCustomer: OperatorFunction<string, readonly Customer[]> = (text$: Observable<string>) =>
-		text$.pipe(
-			debounceTime(200),
-			map((term) =>
-				term === ''
-					? []
-					: this.customerList.filter((v) => v.fullname.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
-			),
-		);
+    text$.pipe(
+      debounceTime(200),
+      map((term) =>
+        term === ''
+          ? []
+          : this.customerList.filter((v) => v.fullname.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
+      ),
+    );
 
   formatter = (x: CustomerSearch) => x.fullCustomerDetail;
 
@@ -559,16 +607,16 @@ export class AddOrderComponent implements OnInit {
   }
 
   searchSubItem: OperatorFunction<string, readonly any[]> = (text$: Observable<string>) => {
-		const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
-		const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.subItemInstance?.isPopupOpen()));
-		const inputFocus$ = this.focus$;
+    const debouncedText$ = text$.pipe(debounceTime(200), distinctUntilChanged());
+    const clicksWithClosedPopup$ = this.click$.pipe(filter(() => !this.subItemInstance?.isPopupOpen()));
+    const inputFocus$ = this.focus$;
 
-		return merge(debouncedText$, inputFocus$, clicksWithClosedPopup$).pipe(
-			map((term) =>
-				(term === '' ? options : options.filter((v) => v.text.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10),
-			),
-		);
-	};
+    return merge(debouncedText$, inputFocus$, clicksWithClosedPopup$).pipe(
+      map((term) =>
+        (term === '' ? options : options.filter((v) => v.text.toLowerCase().indexOf(term.toLowerCase()) > -1)).slice(0, 10),
+      ),
+    );
+  };
 
   subItemFormatter = (x: any) => `${x.text} - ${x.value}`;
 
@@ -582,27 +630,27 @@ export class AddOrderComponent implements OnInit {
     }
   }
 
-  
+
   itemChangeSze(categoryIndex: any, product: any, size: any, price: any) {
     const menuCategoryList = this.menu[categoryIndex];
-    
+
     const ind = _.findIndex(menuCategoryList, { name: product.name });
     if (ind >= 0) {
       _.assign(this.menu[categoryIndex][ind], { size, price });
     }
   }
-  
+
   createMeridianTimeArrayWithAMPMFrom6AMTo6PM() {
     // Create an empty array to store the meridian time
     const meridianTimeArrayWithAMPM = [];
-  
+
     // Loop through all hours from 6 to 18
     for (let hour = 6; hour < 19; hour++) {
       // Loop through all minutes, incrementing by 30 each time
       for (let minute = 0; minute < 60; minute += 30) {
         // Get the 12-hour hour
         let twelveHourHour = hour % 12;
-  
+
         // Determine the AM or PM
         let ampm = "AM";
         if (twelveHourHour === 0) {
@@ -611,12 +659,12 @@ export class AddOrderComponent implements OnInit {
         if (hour >= 12) {
           ampm = "PM";
         }
-  
+
         // Add the meridian time to the array
         meridianTimeArrayWithAMPM.push(`${twelveHourHour}:${minute === 0 ? '00' : minute} ${ampm}`);
       }
     }
-  
+
     // Return the array of meridian time
     return meridianTimeArrayWithAMPM;
   }
@@ -650,6 +698,10 @@ export class AddOrderComponent implements OnInit {
     this.addCustomItem = evt.target.checked;
   }
 
+  toggleGroupOrdering(evt: any) {
+    this.groupOrdering = evt.target.checked;
+  }
+
   updateCustomItemList() {
     this.customItemList.push(this.customItem);
 
@@ -660,4 +712,8 @@ export class AddOrderComponent implements OnInit {
       price: ''
     };
   }
+
+
+
+
 }

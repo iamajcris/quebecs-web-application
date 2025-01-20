@@ -23,16 +23,21 @@ export class TemplateService {
 		template +=	`\nContact Number: ${customer.mobileNumber}`;
 		template +=	`\nOrders:`;
 		
-		_.forEach(order.items, (item) => {
-			template += this.formatOrderItems(item);
-		});
-
-		template +=	`\nSub total: ${formatToCurrency(order.subTotal)}`;
-
+		if(order.groupItems){
+			_.forEach(order.groupItems, (groupItem) => {
+				template += "\n"+ groupItem.text + " ₱" + groupItem.price;
+			});
+		}
+		if(!order.groupItems || order.groupItems.length == ''){
+			_.forEach(order.items, (item) => {
+				template += this.formatOrderItems(item);
+			});
+	
+			template +=	`\nSub total: ${formatToCurrency(order.subTotal)}`;
+		}
 		_.forEach(order.subItems, (subItem) => {
 			template += this.formatSubItems(subItem);
-		});
-
+		}); 
 		template +=	`\nTotal: ${formatToCurrency(order.total)}`;
 
 		if ((order.paymentAmount || 0) > 0) {
