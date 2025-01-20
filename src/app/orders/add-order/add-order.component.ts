@@ -380,18 +380,21 @@ export class AddOrderComponent implements OnInit {
     console.log('this.items', this.items.value);
   }
 
-  reduceOrder(name: any, size: any) {
+  reduceOrder(name: string, size: string) {
     const id = _.kebabCase(`${name} ${size}`);
-
-    const existingItem = this.items.value.find((i: any) => i.id === id);
-
-    if (!_.isEmpty(existingItem)) {
-      const index = this.items.value.findIndex((i: any) => i.id === id);
-
+    const { value: items } = this.items;
+  
+    const existingItemIndex = items.findIndex(
+      (item: any) => item.id === id && item.customerId === this.selectedCustomerId
+    );
+  
+    if (existingItemIndex !== -1) {
+      const existingItem = items[existingItemIndex];
+  
       if (existingItem.quantity > 1) {
-        this.updateQuantity(index, -1);
+        this.updateQuantity(existingItemIndex, -1);
       } else {
-        this.deleteItem(index);
+        this.deleteItem(existingItemIndex);
       }
     }
   }
