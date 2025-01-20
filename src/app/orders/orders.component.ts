@@ -16,11 +16,12 @@ import { TemplateService } from 'src/services/template.service';
 import { ToastService } from 'src/services/toast.service';
 import { CustomerService } from 'src/services/customer.service';
 import settings from 'app.config.json';
+import { Item } from 'firebase/analytics';
 
 @Component({
-  selector: 'app-orders',
-  templateUrl: './orders.component.html',
-  styleUrls: ['./orders.component.scss']
+	selector: 'app-orders',
+	templateUrl: './orders.component.html',
+	styleUrls: ['./orders.component.scss']
 })
 export class OrdersComponent implements OnInit {
 	orderList: any[];
@@ -29,7 +30,7 @@ export class OrdersComponent implements OnInit {
 	page = 1;
 	pageSize = 4;
 	collectionSize = 0;
-	
+
 	hoveredDate: NgbDate | null = null;
 
 	filterGroup: FormGroup;
@@ -132,7 +133,7 @@ export class OrdersComponent implements OnInit {
 				endDate,
 			] = this.calculateDateRange(frequency, value);
 
-			_.assign(opt.ext, {startDate, endDate});
+			_.assign(opt.ext, { startDate, endDate });
 			return opt;
 		});
 
@@ -178,14 +179,14 @@ export class OrdersComponent implements OnInit {
 			toDate.valueChanges
 		]).subscribe((val: any) => {
 			console.log(val)
-			this.loadOrders();	
+			this.loadOrders();
 		})
 	}
 
 	loadRecentOrders() {
 		this.isLoading = true;
 		this.orderService.listOrders().subscribe((res) => {
-			
+
 			this.orderList = res;
 			this.isLoading = false;
 		});
@@ -206,8 +207,10 @@ export class OrdersComponent implements OnInit {
 			this.isLoading = false;
 		});
 		// store customer list in session storage
-		this.customerService.getCustomerList(false).subscribe((res) => {});
+		this.customerService.getCustomerList(false).subscribe((res) => { });
 	}
+
+
 
 	openOrder(order: any = null) {
 		const modalRef = this.modalService.open(AddOrderComponent, { fullscreen: true, scrollable: true });
@@ -223,11 +226,10 @@ export class OrdersComponent implements OnInit {
 	print(order: any) {
 		this.receiptService.openPrintWindow(order);
 	}
-
 	copy(order: any) {
 		const orderFormTemplate = this.templateService.generateOrderForm(order);
 		navigator.clipboard.writeText(orderFormTemplate);
-		this.toastService.show('The order form has been copied to the clipboard', { classname: 'bg-primary text-light', delay: 10000});
+		this.toastService.show('The order form has been copied to the clipboard', { classname: 'bg-primary text-light', delay: 10000 });
 	}
 
 	onDateSelection(date: NgbDate) {
@@ -270,7 +272,7 @@ export class OrdersComponent implements OnInit {
 	calculateDateRange(frequency: string, val: number) {
 		// Get the current date
 		const today = new Date();
-	
+
 		// Calculate the start and end dates of the range
 		let startDate, endDate;
 		switch (frequency) {
@@ -289,7 +291,7 @@ export class OrdersComponent implements OnInit {
 			default:
 				break;
 		}
-	
+
 		// Return the start and end dates of the range
 		return [startDate, endDate];
 	}
@@ -299,10 +301,103 @@ export class OrdersComponent implements OnInit {
 	}
 
 	get fromDate() {
-    return this.filterGroup.controls['fromDate'] as any;
-  }
+		return this.filterGroup.controls['fromDate'] as any;
+	}
 
-  get toDate() {
-    return this.filterGroup.controls['toDate'] as any;
-  }
+	get toDate() {
+		return this.filterGroup.controls['toDate'] as any;
+	}
+
+	async tallyOrder() {
+
+		let createdOrders: any[] = [];
+		let tallyOrder: any[] = [];
+		var promises: any[] = [];
+		var orderListClone: any[] = _.cloneDeep(this.orderList);
+
+		orderListClone.forEach((order) => {
+			if (order.statusType == "created") {
+				createdOrders.push(order);
+			}
+		})
+
+		createdOrders.forEach(async (order) => {
+			
+			promises.push(this.orderService.saveOrUpdateOrder({statusType:"Tallied"}, order.id).toPromise());
+			order.items.forEach((items: Item) => {
+				tallyOrder.push(items)
+			})
+		})
+
+		await Promise.all(promises);
+
+		let combinedOrders: Item[] = tallyOrder.reduce((accumulator: Item[], currentOrder: Item) => {
+			// Check if there is already an order with the same id in the accumulator
+			let existingOrder = accumulator.find(item => item.id === currentOrder.id);
+
+			if (existingOrder) {
+				// If the order already exists, update its quantity
+				existingOrder.quantity ??= 0;
+				existingOrder.quantity += currentOrder.quantity || 0;
+			} else {
+				// If the order doesn't exist, add it to the accumulator
+				accumulator.push(currentOrder);
+			}
+
+			return accumulator;
+		},
+			[]);
+
+		this.receiptService.openTallyPrintWindow(combinedOrders);
+		this.loadRecentOrders(); 
+	}
+
+	async massDelivery() {
+
+		let massDeliveryList: any[] = []; 
+		let printMassDelivery = ""; 
+		var orderListClone: any[] = _.cloneDeep(this.orderList);
+
+		orderListClone.forEach((order) => { 
+			for(let subItem of order.subItems){ 
+				if(subItem.text == "Mass Delivery"){
+					massDeliveryList.push(order);
+				}
+			} 
+		})
+
+		
+		var massDeliveryTotal = 0;
+		var cashPayments = 0;
+		var deliveryDeduction = massDeliveryList.length * 5;
+
+		for(var i = 0; massDeliveryList.length > i; i++){
+
+			var massDelivery = massDeliveryList[i];
+			printMassDelivery = printMassDelivery + "<br>" + (i+1)+". " + massDelivery.customer.firstName;
+			console.log((i+1)+". " + massDelivery.customer.firstName);
+			if(massDelivery.modeOfPayment == "COD"){
+				printMassDelivery = printMassDelivery +" - " + (massDelivery.total + massDelivery.paymentChange);
+				console.log(" - " + (massDelivery.total + massDelivery.paymentChange));
+				cashPayments = cashPayments + (massDelivery.total + massDelivery.paymentChange);
+			}
+			for(let subItem of massDelivery.subItems){ 
+				if(subItem.text == "Mass Delivery"){
+					massDeliveryTotal = massDeliveryTotal + subItem.price;
+				}
+			} 
+			
+		} 
+		console.log(printMassDelivery);
+		printMassDelivery = printMassDelivery + "<br>" + "Cash Payments : " + cashPayments;
+		printMassDelivery = printMassDelivery + "<br>" + "Delivery fee: " + massDeliveryTotal;
+		printMassDelivery = printMassDelivery + "<br>" + "Deduction : " + deliveryDeduction;
+		printMassDelivery = printMassDelivery + "<br>" + "Delivery Amount:" + (massDeliveryTotal-deliveryDeduction);
+		
+		this.receiptService.OpenPrintMassDelivery(printMassDelivery);
+		this.loadRecentOrders(); 
+	}
+
+
+
 }

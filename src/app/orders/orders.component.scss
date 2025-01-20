@@ -22,3 +22,18 @@
 .custom-day.faded {
   background-color: rgba(2, 117, 216, 0.5);
 }
+.fade {
+  transition: opacity 0.5s ease; /* Adjust fade duration as needed */
+  opacity: 1;
+}
+
+/* Fade-out class to make the div invisible */
+.fade-out {
+  opacity: 0; /* Set opacity to 0 to make it invisible */
+  pointer-events: none; /* Prevent interaction when faded out */
+}
+
+/* Optional: make the div completely hidden when faded out */
+.fade-out.invisible {
+  display: none; /* Hides div completely */
+}

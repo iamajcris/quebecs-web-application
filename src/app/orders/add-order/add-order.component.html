@@ -15,7 +15,8 @@
         <span class="badge bg-primary rounded-pill">{{itemsCount}}</span>
       </h4>
       <ul class="list-group mb-3">
-        <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let item of items.controls; index as i" [formGroup]="item">
+        <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let item of items.controls; index as i"
+          [formGroup]="item">
           <div>
             <h6 class="my-0">{{item.value.name}}</h6>
             <small class="text-muted">{{item.value.quantity}}x {{item.value.size}}</small>
@@ -31,7 +32,8 @@
           <span>Sub Total</span>
           <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
         </li>
-        <li class="list-group-item d-flex justify-content-between lh-sm bg-light" *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
+        <li class="list-group-item d-flex justify-content-between lh-sm bg-light"
+          *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
           <div>
             <h6 class="my-0">{{subItem.value.text}}</h6>
           </div>
@@ -49,13 +51,14 @@
       </ul>
       <form class="card p-2 mb-3" (submit)="addSubItem($event)">
         <div class="input-group">
-          <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem" #subItemInstance="ngbTypeahead"
-            (focus)="focus$.next($any($event).target.value)"
+          <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem"
+            #subItemInstance="ngbTypeahead" (focus)="focus$.next($any($event).target.value)"
             (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
             [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
             (selectItem)="subItemSelected($event)">
           <span class="input-group-text">₱</span>
-          <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value" [ngModelOptions]="{standalone: true}">
+          <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value"
+            [ngModelOptions]="{standalone: true}">
           <button type="submit" class="btn btn-secondary">Add</button>
         </div>
       </form>
@@ -73,16 +76,9 @@
         <div class="row g-3" *ngIf="!orderForm.get('isManualEntry')?.disabled">
           <label for="customerSearch" class="form-label">Customer</label>
           <div class="input-group mt-0">
-            <input
-              id="typeahead-template"
-              type="text"
-              class="form-control col"
-              formControlName="customerSearch"
-              #customerSearchInstance="ngbTypeahead"
-              [ngbTypeahead]="searchCustomer"
-              [inputFormatter]="formatter"
-              [resultFormatter]="formatter"
-            />
+            <input id="typeahead-template" type="text" class="form-control col" formControlName="customerSearch"
+              #customerSearchInstance="ngbTypeahead" [ngbTypeahead]="searchCustomer" [inputFormatter]="formatter"
+              [resultFormatter]="formatter" />
             <div class="input-group-text">
               <input id="multiple-entry" class="form-check-input mt-0" type="checkbox" formControlName="isMultipleEntry" (click)="toggleMultipleEntry($event)">
               <label for="multiple-entry" class="ps-1">Multiple Entry</label>
@@ -93,7 +89,8 @@
             </div>
           </div>
         </div>
-        <div class="row g-3" formGroupName="customer" *ngIf="orderForm.get('isManualEntry')?.value || orderForm.get('isManualEntry')?.disabled">
+        <div class="row g-3" formGroupName="customer"
+          *ngIf="orderForm.get('isManualEntry')?.value || orderForm.get('isManualEntry')?.disabled">
           <div class="col-sm-6">
             <label for="firstName" class="form-label">First name</label>
             <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="">
@@ -123,14 +120,8 @@
           <div class="col-md-4">
             <label for="country" class="form-label">Order Date</label>
             <div class="input-group input-group-md">
-              <input
-                class="form-control"
-                placeholder="yyyy-mm-dd"
-                name="dp"
-                formControlName="orderDateStruct"
-                ngbDatepicker
-                #d="ngbDatepicker"
-              />
+              <input class="form-control" placeholder="yyyy-mm-dd" name="dp" formControlName="orderDateStruct"
+                ngbDatepicker #d="ngbDatepicker" />
               <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
             </div>
           </div>
@@ -202,12 +193,16 @@
                             (click)="addOrder(product.name, product.price, product.size)">
                             {{product.size}} - {{product.price}}
                           </button>
-                          <button  type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+                          <button type="button"
+                            class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top"
+                            data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
                             <span class="visually-hidden">Toggle Dropdown</span>
                           </button>
                           <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
                             <li *ngFor="let pricing of product.pricing">
-                              <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}} - {{pricing.price}}</a>
+                              <a class="dropdown-item"
+                                (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}}
+                                - {{pricing.price}}</a>
                             </li>
                           </ul>
                         </div>
@@ -226,7 +221,8 @@
                 <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let product of category.value; let i = index">
                   <div class="d-flex">
                     <div class="input-group" role="group" aria-label="Basic mixed styles example">
-                      <button type="button" class="btn btn-outline-secondary" (click)="addOrder(product.name, product.price, product.size)">
+                      <button type="button" class="btn btn-outline-secondary"
+                        (click)="addOrder(product.name, product.price, product.size)">
                         <i class="bi bi-plus-lg"></i>
                       </button>
                       <span class="input-group-text border border-secondary">{{orderForm.value.isMultipleEntry ? groupedItemQuantity(product.name) : itemQuantity(product.name)}}</span>
@@ -238,12 +234,14 @@
                       <h6 class="my-0 text-nowrap">{{product.name}}</h6>
                       <!-- <small class="text-muted">1x {{item.pricing[0].size}}</small> -->
                       <div class="btn-group">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                          data-bs-toggle="dropdown" aria-expanded="false">
                           {{product.size}}
                         </button>
                         <ul class="dropdown-menu">
                           <li *ngFor="let pricing of product.pricing">
-                            <a class="dropdown-item" (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">
+                            <a class="dropdown-item"
+                              (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">
                               {{pricing.size}} - {{pricing.price}}
                             </a>
                           </li>
@@ -258,7 +256,8 @@
               </ul>
             </ng-container>
             <ul class="list-group mb-3" *ngIf="customItemList.length">
-              <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let customItem of customItemList; index as i">
+              <li class="list-group-item d-flex justify-content-between lh-sm"
+                *ngFor="let customItem of customItemList; index as i">
                 <div>
                   <h6 class="my-0">{{customItem.name}}</h6>
                   <small class="text-muted">{{customItem.quantity}}x {{customItem.size}}</small>
@@ -268,7 +267,7 @@
                 </div>
               </li>
             </ul>
-            <hr class="mt-4 mb-2">
+            <hr class="mt-4 mb-2 ">
             <div class="form-check form-switch" style="font-size: 17px;">
               <input type="checkbox" id="add-custom-tem" class="form-check-input" (click)="toggleCheckbox($event)">
               <label class="form-check-label" for="add-custom-tem">Add custom item</label>
@@ -281,23 +280,30 @@
                   </li>
                 </ul>
                 <div class="input-group">
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false" style="min-width: 100px;">
                     {{customItem.size}}
                   </button>
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 50px;">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false" style="min-width: 50px;">
                     {{customItem.quantity}}
                   </button>
                   <ul class="dropdown-menu">
                     <li *ngFor="let number of [1,2,3,4,5,6,7,8,9,10]">
                       <a class="dropdown-item" [routerLink]="" (click)="customItem.quantity = number">{{number}}</a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <hr class="dropdown-divider">
+                    </li>
                     <li><a class="dropdown-item" href="#">Custom - Coming soon..</a></li>
                   </ul>
-                  <input type="text" class="form-control" [(ngModel)]="customItem.name" [ngModelOptions]="{standalone: true}">
+                  <input type="text" class="form-control" [(ngModel)]="customItem.name"
+                    [ngModelOptions]="{standalone: true}">
                   <span class="input-group-text">₱</span>
-                  <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price" [ngModelOptions]="{standalone: true}">
-                  <button class="btn btn-secondary" type="button" (click)="addOrder(customItem.name, customItem.price, customItem.size, customItem.quantity); updateCustomItemList()">Add</button>
+                  <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price"
+                    [ngModelOptions]="{standalone: true}">
+                  <button class="btn btn-secondary" type="button"
+                    (click)="addOrder(customItem.name, customItem.price, customItem.size, customItem.quantity); updateCustomItemList()">Add</button>
                 </div>
               </div>
             </form>
@@ -347,7 +353,8 @@
                 <span>Sub Total</span>
                 <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
               </li>
-              <li class="list-group-item d-flex justify-content-between lh-sm bg-light" *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
+              <li class="list-group-item d-flex justify-content-between lh-sm bg-light"
+                *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
                 <div>
                   <h6 class="my-0">{{subItem.value.text}}</h6>
                 </div>
@@ -367,13 +374,14 @@
         </ng-container>
         <form class="card p-2 mb-3" (submit)="addSubItem($event)">
           <div class="input-group">
-            <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem" #subItemInstance="ngbTypeahead"
-              (focus)="focus$.next($any($event).target.value)"
+            <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem"
+              #subItemInstance="ngbTypeahead" (focus)="focus$.next($any($event).target.value)"
               (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
               [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
               (selectItem)="subItemSelected($event)">
             <span class="input-group-text">₱</span>
-            <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value" [ngModelOptions]="{standalone: true}">
+            <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value"
+              [ngModelOptions]="{standalone: true}">
             <button type="submit" class="btn btn-secondary">Add</button>
           </div>
         </form>
@@ -382,12 +390,14 @@
         <ul class="list-group mb-3">
           <li class="list-group-item d-flex">
             <div class="input-group">
-              <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+              <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false" style="min-width: 100px;">
                 {{ orderForm.controls['modeOfPayment'].value }}
               </button>
               <ul class="dropdown-menu">
                 <li *ngFor="let opt of paymentOptions">
-                  <a class="dropdown-item" [routerLink]="" (click)="orderForm.controls['modeOfPayment'].patchValue(opt)">{{opt}}</a>
+                  <a class="dropdown-item" [routerLink]=""
+                    (click)="orderForm.controls['modeOfPayment'].patchValue(opt)">{{opt}}</a>
                 </li>
               </ul>
               <span class="input-group-text">₱</span>
@@ -402,7 +412,8 @@
         <hr class="my-4">
         <div class="col-12">
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="print-receipt" [(ngModel)]="printReceipt" [ngModelOptions]="{standalone: true}">
+            <input type="checkbox" class="form-check-input" id="print-receipt" [(ngModel)]="printReceipt"
+              [ngModelOptions]="{standalone: true}">
             <label class="form-check-label" for="print-receipt">Print receipt</label>
           </div>
         </div>

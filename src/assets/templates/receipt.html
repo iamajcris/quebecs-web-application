@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -73,7 +74,8 @@
             text-align: right;
         }
 
-        .price, .name {
+        .price,
+        .name {
             color: var(--primary);
             font-size: 20px;
         }
@@ -95,7 +97,8 @@
             width: 70%;
         }
 
-        .col_price, .col_qty {
+        .col_price,
+        .col_qty {
             width: 25%;
             text-align: center;
         }
@@ -188,20 +191,21 @@
         .fw-light {
             font-weight: 100;
         }
-        
+
         .d-flex {
             display: flex;
         }
-        
+
         .justify-content-between {
             justify-content: space-between;
         }
-        
+
         .align-items-center {
             align-items: center;
         }
     </style>
 </head>
+
 <body>
     <div class="wrapper">
         <div class="invoice_wrapper">
@@ -210,16 +214,18 @@
                     <div class="logo_sec align-items-center">
                         <div class="title_wrap">
                             {{#if (eq orderType 'turo-turo')}}
-                                <p class="title fw-bolder">Imus Online Turo-turo</p>
+                            <p class="title fw-bolder">Imus Online Turo-turo</p>
                             {{/if}}
                             {{#if (eq orderType 'quebecs')}}
-                                <p class="title fw-bolder">Quebec's</p>
-                                <p class="sub_title">Filipino Cuisine</p>
+                            <p class="title fw-bolder">Quebec's</p>
+                            <p class="sub_title">Filipino Cuisine</p>
                             {{/if}}
-                            <p class="sub_title">016 Betterlife Subd, Tanzang Luma III, <br>Imus City, Cavite4103, Philippines</p>
+                            <!-- <p class="sub_title">016 Betterlife Subd, Tanzang Luma III, <br>Imus City, Cavite4103,
+                                Philippines</p> -->
                         </div>
                     </div>
                 </div>
+                {{#unless groupedItems}}
                 <div class="bill_total_wrap d-flex justify-content-between">
                     <div class="bill_sec">
                         <p>ORDER NO: {{orderId}}</p>
@@ -230,20 +236,20 @@
             </div>
             <div class="body">
                 <div class="table_body">
-                  {{#each items}}
+                    {{#each items}}
                     <div class="row">
-                      <div class="col col_des">
-                          <p>{{name}} - {{size}}</p>
-                          {{#if notes}}
-                              <p>{{notes}}</p>
-                          {{/if}}
-                          <p>{{quantity}} x {{formatToCurrency menuPrice}}</p>
-                      </div>
-                      <div class="col col_total">
-                          <p>{{formatToCurrency price}}</p>
-                      </div>
+                        <div class="col col_des">
+                            <p>{{name}} - {{size}}</p>
+                            {{#if notes}}
+                            <p>{{notes}}</p>
+                            {{/if}}
+                            <p>{{quantity}} x {{formatToCurrency menuPrice}}</p>
+                        </div>
+                        <div class="col col_total">
+                            <p>{{formatToCurrency price}}</p>
+                        </div>
                     </div>
-                  {{/each}}
+                    {{/each}}
                 </div>
                 <div class="paymethod_grandtotal_wrap d-flex justify-content-end">
                     <div class="grandtotal_sec">
@@ -252,61 +258,92 @@
                             <span>{{formatToCurrency subTotal}}</span>
                         </div>
                         {{#each subItems}}
-                            <div class="grandtotal_entry d-flex justify-content-between">
-                                <span>{{text}}</span>
-                                <span>{{formatToCurrency price}}</span>
-                            </div>
+                        <div class="grandtotal_entry d-flex justify-content-between">
+                            <span>{{text}}</span>
+                            <span>{{formatToCurrency price}}</span>
+                        </div>
                         {{/each}}
                         <div class="grandtotal_entry total_price fw-bolder d-flex justify-content-between">
                             <span>Total</span>
                             <span>{{formatToCurrency total}}</span>
                         </div>
                         {{#if (gt paymentAmount 0)}}
-                            <div class="grandtotal_entry mt-15 d-flex justify-content-between">
-                                <span>{{modeOfPayment}}</span>
-                                <span>{{formatToCurrency paymentAmount}}</span>
-                            </div>
-                            <div class="grandtotal_entry d-flex justify-content-between">
-                                <span>Change</span>
-                                <span>{{formatToCurrency paymentChange}}</span>
-                            </div>
+                        <div class="grandtotal_entry mt-15 d-flex justify-content-between">
+                            <span>{{modeOfPayment}}</span>
+                            <span>{{formatToCurrency paymentAmount}}</span>
+                        </div>
+                        <div class="grandtotal_entry d-flex justify-content-between">
+                            <span>Change</span>
+                            <span>{{formatToCurrency paymentChange}}</span>
+                        </div>
                         {{/if}}
                     </div>
                 </div>
+            </div>
+            {{/unless}}
+            {{#each groupedItems}}
+            <div class="body">
+                <p><b>{{customerName}}</b></p>
+                <div class="table_body">
+                    {{#each items}}
+                    <div class="row">
+                        <div class="col col_des">
+                            <p>{{name}} - {{size}}</p>
+                            <p>{{quantity}} x {{formatToCurrency menuPrice}}</p>
+                        </div>
+                        <div class="col col_total">
+                            <p>{{formatToCurrency price}}</p>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                <p align="right"><b>{{formatToCurrency total}}</b></p>
+            </div>
+            {{/each}}
+            {{#if groupedItems}}
+            <div class="paymethod_grandtotal_wrap d-flex justify-content-end">
+                <div class="grandtotal_sec">
+                    <div class="grandtotal_entry d-flex justify-content-between">
+                        <span>SUB TOTAL</span>
+                        <span>{{formatToCurrency subTotal}}</span>
+                    </div>
+                    {{#each subItems}}
+                    <div class="grandtotal_entry d-flex justify-content-between">
+                        <span>{{text}}</span>
+                        <span>{{formatToCurrency price}}</span>
+                    </div>
+                    {{/each}}
+                    <div class="grandtotal_entry total_price fw-bolder d-flex justify-content-between">
+                        <span>Total</span>
+                        <span>{{formatToCurrency total}}</span>
+                    </div>
+                    {{#if (gt paymentAmount 0)}}
+                    <div class="grandtotal_entry mt-15 d-flex justify-content-between">
+                        <span>{{modeOfPayment}}</span>
+                        <span>{{formatToCurrency paymentAmount}}</span>
+                    </div>
+                    <div class="grandtotal_entry d-flex justify-content-between">
+                        <span>Change</span>
+                        <span>{{formatToCurrency paymentChange}}</span>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
+            <div class="terms">
+                <br>
+                <br>
+                <h3 class="fw-bolder">{{customer.firstName}} {{customer.lastName}}</h3>
+                <p class="fw-bolder">{{customer.address}}</p>
+                <p class="fw-bolder">{{customer.mobileNumber}}</p>
             </div>
             <div class="footer">
                 <div class="terms">
                     <p class="tc fw-bolder">THANK YOU FOR YOUR ORDER!</p>
                 </div>
             </div>
-            <div class="customer">
-                <p class="fw-bolder">{{customer.firstName}} {{customer.lastName}}</p>
-                <p class="fw-bolder">{{customer.address}}</p>
-                <p class="fw-bolder">{{customer.mobileNumber}}</p>
-            </div>
-            {{#each groupedItems}}
-                <div class="body">
-                    <p>{{customerName}}</p>
-                    <div class="table_body">
-                        {{#each items}}
-                            <div class="row">
-                                <div class="col col_des">
-                                    <p>{{name}} - {{size}}</p>
-                                    <p>{{quantity}} x {{formatToCurrency menuPrice}}</p>
-                                </div>
-                                <div class="col col_total">
-                                    <p>{{formatToCurrency price}}</p>
-                                </div>
-                            </div>
-                        {{/each}}
-                        <div class="grandtotal_entry d-flex justify-content-between">
-                            <span>Total</span>
-                            <span>{{formatToCurrency total}}</span>
-                        </div>
-                    </div>
-                </div>
-            {{/each}}
         </div>
     </div>
 </body>
+
 </html>
