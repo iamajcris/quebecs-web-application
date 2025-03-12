@@ -352,6 +352,52 @@ export class OrdersComponent implements OnInit {
 		this.loadRecentOrders(); 
 	}
 
+	async massDelivery() {
+
+		let massDeliveryList: any[] = []; 
+		let printMassDelivery = ""; 
+		var orderListClone: any[] = _.cloneDeep(this.orderList);
+
+		orderListClone.forEach((order) => { 
+			for(let subItem of order.subItems){ 
+				if(subItem.text == "Mass Delivery"){
+					massDeliveryList.push(order);
+				}
+			} 
+		})
+
+		
+		var massDeliveryTotal = 0;
+		var cashPayments = 0;
+		var deliveryDeduction = massDeliveryList.length * 5;
+
+		for(var i = 0; massDeliveryList.length > i; i++){
+
+			var massDelivery = massDeliveryList[i];
+			printMassDelivery = printMassDelivery + "<br>" + (i+1)+". " + massDelivery.customer.firstName;
+			console.log((i+1)+". " + massDelivery.customer.firstName);
+			if(massDelivery.modeOfPayment == "COD"){
+				printMassDelivery = printMassDelivery +" - " + (massDelivery.total + massDelivery.paymentChange);
+				console.log(" - " + (massDelivery.total + massDelivery.paymentChange));
+				cashPayments = cashPayments + (massDelivery.total + massDelivery.paymentChange);
+			}
+			for(let subItem of massDelivery.subItems){ 
+				if(subItem.text == "Mass Delivery"){
+					massDeliveryTotal = massDeliveryTotal + subItem.price;
+				}
+			} 
+			
+		} 
+		console.log(printMassDelivery);
+		printMassDelivery = printMassDelivery + "<br>" + "Cash Payments : " + cashPayments;
+		printMassDelivery = printMassDelivery + "<br>" + "Delivery fee: " + massDeliveryTotal;
+		printMassDelivery = printMassDelivery + "<br>" + "Deduction : " + deliveryDeduction;
+		printMassDelivery = printMassDelivery + "<br>" + "Delivery Amount:" + (massDeliveryTotal-deliveryDeduction);
+		
+		this.receiptService.OpenPrintMassDelivery(printMassDelivery);
+		this.loadRecentOrders(); 
+	}
+
 
 
 }

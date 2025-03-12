@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{orderId}} Order receipt</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;400;900&display=swap');
+
+        :root {
+            --primary: #0000ff;
+            --secondary: #3d3d3d;
+            --white: #fff;
+            --font-family: 'Lato', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        body {
+            background: var(--secondary);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .wrapper {
+            background: var(--white);
+            padding: 10px;
+        }
+
+        .invoice_wrapper {
+            width: 200px;
+            max-width: 100%;
+        }
+
+        .logo_invoice_wrap {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .bill_total_wrap {
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #000;
+        }
+
+        .logo_sec {
+            text-align: center;
+        }
+
+        .title_wrap {
+            margin-left: 5px;
+        }
+
+        .title {
+            text-transform: uppercase;
+            font-size: 20px;
+        }
+
+        .sub_title {
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .total_wrap {
+            text-align: right;
+        }
+
+        .price,
+        .name {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .row {
+            display: flex;
+            padding: 5px 0px;
+        }
+
+        .col {
+            padding: 0;
+        }
+
+        .col_no {
+            width: 10%;
+        }
+
+        .col_des {
+            width: 70%;
+        }
+
+        .col_price,
+        .col_qty {
+            width: 25%;
+            text-align: center;
+        }
+
+        .col_total {
+            width: 30%;
+            text-align: right;
+        }
+
+        .paymethod_grandtotal_wrap {
+            padding: 10px 0;
+            align-items: flex-end;
+            border-bottom: 1px dashed #000;
+        }
+
+        .paymethod_sec {
+            padding-left: 30px;
+        }
+
+        .grandtotal_sec {
+            width: 100%;
+        }
+
+        .grandtotal_entry {
+            justify-content: space-between;
+        }
+
+        .grandtotal_sec p {
+            display: flex;
+            width: 100%;
+            padding-bottom: 5px;
+        }
+
+        .grandtotal_sec p span {
+            padding: 0 10px;
+        }
+
+        .grandtotal_sec p span:first-child {
+            width: 60%;
+        }
+
+        .grandtotal_sec p span:last-child {
+            width: 40%;
+            text-align: right;
+        }
+
+        .footer {
+            padding: 30px;
+            border-bottom: 1px dashed #000;
+        }
+
+        .footer>p {
+            color: var(--primary);
+            text-decoration: underline;
+            font-size: 18px;
+            padding-bottom: 5px;
+        }
+
+        .terms .tc {
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .customer {
+            font-size: 13px;
+            padding: 20px 0;
+            line-height: 20px;
+            text-transform: uppercase;
+        }
+
+        .mt-15 {
+            margin-top: 20px;
+        }
+
+        .total_price {
+            font-size: 16px;
+            padding-top: 10px;
+        }
+
+        .table_body {
+            border-bottom: 1px dashed #000;
+            padding: 5px 0px;
+        }
+
+        /* Utility classes */
+        .fw-bolder {
+            font-weight: 900;
+        }
+
+        .fw-light {
+            font-weight: 100;
+        }
+
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="invoice_wrapper">
+            <div class="header">
+                <div class="logo_invoice_wrap d-flex justify-content-center">
+                    <div class="logo_sec align-items-center">
+                        <div class="title_wrap">
+                            {{#if (eq orderType 'turo-turo')}}
+                            <p class="title fw-bolder">Imus Online Turo-turo</p>
+                            {{/if}}
+                            {{#if (eq orderType 'quebecs')}}
+                            <p class="title fw-bolder">Quebec's</p>
+                            <p class="sub_title">Filipino Cuisine</p>
+                            {{/if}}
+                            <!-- <p class="sub_title">016 Betterlife Subd, Tanzang Luma III, <br>Imus City, Cavite4103,
+                                Philippines</p> -->
+                        </div>
+                    </div>
+                </div>
+                {{#unless groupedItems}}
+                <div class="bill_total_wrap d-flex justify-content-between">
+                    <div class="bill_sec">
+                        <p>ORDER NO: {{orderId}}</p>
+                        <p>DELIVERY: {{formatDateTime orderDate}}</p>
+                    </div>
+                    <div class="total_wrap"></div>
+                </div>
+            </div>
+            <div class="body">
+                <div class="table_body">
+                    {{#each items}}
+                    <div class="row">
+                        <div class="col col_des">
+                            <p>{{name}} - {{size}}</p>
+                            {{#if notes}}
+                            <p>{{notes}}</p>
+                            {{/if}}
+                            <p>{{quantity}} x {{formatToCurrency menuPrice}}</p>
+                        </div>
+                        <div class="col col_total">
+                            <p>{{formatToCurrency price}}</p>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                <div class="paymethod_grandtotal_wrap d-flex justify-content-end">
+                    <div class="grandtotal_sec">
+                        <div class="grandtotal_entry d-flex justify-content-between">
+                            <span>SUB TOTAL</span>
+                            <span>{{formatToCurrency subTotal}}</span>
+                        </div>
+                        {{#each subItems}}
+                        <div class="grandtotal_entry d-flex justify-content-between">
+                            <span>{{text}}</span>
+                            <span>{{formatToCurrency price}}</span>
+                        </div>
+                        {{/each}}
+                        <div class="grandtotal_entry total_price fw-bolder d-flex justify-content-between">
+                            <span>Total</span>
+                            <span>{{formatToCurrency total}}</span>
+                        </div>
+                        {{#if (gt paymentAmount 0)}}
+                        <div class="grandtotal_entry mt-15 d-flex justify-content-between">
+                            <span>{{modeOfPayment}}</span>
+                            <span>{{formatToCurrency paymentAmount}}</span>
+                        </div>
+                        <div class="grandtotal_entry d-flex justify-content-between">
+                            <span>Change</span>
+                            <span>{{formatToCurrency paymentChange}}</span>
+                        </div>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+            {{/unless}}
+            {{#each groupedItems}}
+            <div class="body">
+                <p><b>{{customerName}}</b></p>
+                <div class="table_body">
+                    {{#each items}}
+                    <div class="row">
+                        <div class="col col_des">
+                            <p>{{name}} - {{size}}</p>
+                            <p>{{quantity}} x {{formatToCurrency menuPrice}}</p>
+                        </div>
+                        <div class="col col_total">
+                            <p>{{formatToCurrency price}}</p>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                <p align="right"><b>{{formatToCurrency total}}</b></p>
+            </div>
+            {{/each}}
+            {{#if groupedItems}}
+            <div class="paymethod_grandtotal_wrap d-flex justify-content-end">
+                <div class="grandtotal_sec">
+                    <div class="grandtotal_entry d-flex justify-content-between">
+                        <span>SUB TOTAL</span>
+                        <span>{{formatToCurrency subTotal}}</span>
+                    </div>
+                    {{#each subItems}}
+                    <div class="grandtotal_entry d-flex justify-content-between">
+                        <span>{{text}}</span>
+                        <span>{{formatToCurrency price}}</span>
+                    </div>
+                    {{/each}}
+                    <div class="grandtotal_entry total_price fw-bolder d-flex justify-content-between">
+                        <span>Total</span>
+                        <span>{{formatToCurrency total}}</span>
+                    </div>
+                    {{#if (gt paymentAmount 0)}}
+                    <div class="grandtotal_entry mt-15 d-flex justify-content-between">
+                        <span>{{modeOfPayment}}</span>
+                        <span>{{formatToCurrency paymentAmount}}</span>
+                    </div>
+                    <div class="grandtotal_entry d-flex justify-content-between">
+                        <span>Change</span>
+                        <span>{{formatToCurrency paymentChange}}</span>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
+            <div class="terms">
+                <br>
+                <br>
+                <h3 class="fw-bolder">{{customer.firstName}} {{customer.lastName}}</h3>
+                <p class="fw-bolder">{{customer.address}}</p>
+                <p class="fw-bolder">{{customer.mobileNumber}}</p>
+            </div>
+            <div class="footer">
+                <div class="terms">
+                    <p class="tc fw-bolder">THANK YOU FOR YOUR ORDER!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

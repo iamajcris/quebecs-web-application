@@ -4,12 +4,17 @@ import { DateTime } from "luxon";
 import { formatDateTime, formatToCurrency } from "src/helpers/util";
 import * as _ from 'lodash';
 import { ToastService } from './toast.service';
+import { OrderService } from 'src/services/order.service';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root'
 })
 export class TemplateService {
-  constructor(private toastService: ToastService) {}
+	constructor(
+		private toastService: ToastService,
+		private orderService: OrderService
+	) { }
+
 
 	generateOrderForm(order: any) {
 		const {
@@ -18,34 +23,44 @@ export class TemplateService {
 		} = order
 
 		let template = `${formatDateTime(orderDate)}`
-		template +=	`\nName: ${customer.firstName} ${customer.lastName}`;
-		template +=	`\nAddress: ${customer.address}`;
-		template +=	`\nContact Number: ${customer.mobileNumber}`;
-		template +=	`\nOrders:`;
-		
-		if(order.groupItems){
-			_.forEach(order.groupItems, (groupItem) => {
-				template += "\n"+ groupItem.text + " ₱" + groupItem.price;
-			});
-		}
-		if(!order.groupItems || order.groupItems.length == ''){
+		template += `\nName: ${customer.firstName} ${customer.lastName}`;
+		template += `\nAddress: ${customer.address}`;
+		template += `\nContact Number: ${customer.mobileNumber}`;
+		template += `\nOrders:`;
+
+		let mapGroupItems = this.orderService.mapGroupedItemsByCustomer(order);
+		if (!mapGroupItems.length) {
 			_.forEach(order.items, (item) => {
 				template += this.formatOrderItems(item);
 			});
-	
-			template +=	`\nSub total: ${formatToCurrency(order.subTotal)}`;
+		} else {
+			_.forEach(mapGroupItems, (groupItem) => {
+				template += `\n` + groupItem?.customerName;
+				let total = 0;
+				_.forEach(groupItem?.items, (item) => {
+					template += `\n` + item.quantity + " " + item.name + " - " + item.price;
+					total = total + item.price;
+				});
+				console.log("Total :"  + total);
+				template += `\nTotal : ${formatToCurrency(total)}`;
+			});
 		}
+
+		template += `\nSub total: ${formatToCurrency(order.subTotal)}`;
+
 		_.forEach(order.subItems, (subItem) => {
 			template += this.formatSubItems(subItem);
-		}); 
-		template +=	`\nTotal: ${formatToCurrency(order.total)}`;
+		});
+
+		template += `\nTotal: ${formatToCurrency(order.total)}`;
 
 		if ((order.paymentAmount || 0) > 0) {
-			template +=	'\n';
-			template +=	`\n${order.modeOfPayment}: ${formatToCurrency(order.paymentAmount)}`;
-			template +=	`\nChange: ${formatToCurrency(order.paymentChange)}`;
+			template += '\n';
+			template += `\n${order.modeOfPayment}: ${formatToCurrency(order.paymentAmount)}`;
+			template += `\nChange: ${formatToCurrency(order.paymentChange)}`;
 		}
-
+		
+		template += `\n\n Maraming salamat po ${customer.firstName}!`;
 		return template;
 	}
 
