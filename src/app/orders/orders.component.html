@@ -1,10 +1,10 @@
-<main class="container mt-5">
-	<div class="my-3 bg-body rounded-5 shadow-lg p-4">
+<main class="container mt-5 pb-5">
+	<div class="my-3 bg-body rounded-5 shadow-lg p-4 ">
 		<div class="p-3 border-bottom">
 			<div class=" mb-0 small  lh-sm w-100">
 				<div class="d-flex justify-content-between">
 					<h4 class="text-wrap">Online Turo-turo</h4>
-					<form class="w-100">
+					<form>
 						<div class="d-flex justify-content-end" [formGroup]="filterGroup">
 							<div class="col-3">
 								<input type="search" class="form-control" placeholder="Search by customer..."
@@ -58,7 +58,7 @@
 			</div>
 		</div>
 		<div class="table-responsive">
-			<table class="table table-striped table-sm pb-1">
+			<table class="table table-striped table-sm ">
 				<thead>
 					<tr class="bg-primary">
 						<th class="text-center py-4" scope="col"></th>
@@ -99,15 +99,17 @@
 							</a>
 						</p>
 					</td>
-					<td *ngIf="order.statusType === 'Tallied'" class="text-center"><button type="button" class="btn btn-outline-success " disabled>Tallied</button></td>
-					<td *ngIf="order.statusType === 'created'" class="text-center"><button type="button" class="btn btn-outline-warning" disabled>Created</button></td>
+					<td *ngIf="order.statusType === 'Tallied'" class="text-center"><button type="button"
+							class="btn btn-outline-success " disabled>Tallied</button></td>
+					<td *ngIf="order.statusType === 'created'" class="text-center"><button type="button"
+							class="btn btn-outline-warning" disabled>Created</button></td>
 				</tr>
 			</table>
 			<!-- <table>
-		<tr *ngFor="let order of orderList">
-			<td *ngFor="let subItem of order.subItems">{{ subItem.text == 'Mass Delivery' }}</td>   
-			</tr>
-	  </table> -->
+				<tr *ngFor="let order of orderList">
+					<td *ngFor="let subItem of order.subItems">{{ subItem.text == 'Mass Delivery' }}</td>
+				</tr>
+			</table> -->
 		</div>
 		<div class="position-fixed bottom-0 p-1 start-50 translate-middle bg-dark rounded-5 shadow-lg">
 			<button type="button" class="btn outline btn-lg m-1 shadow-none text-light" (click)="tallyOrder()">
@@ -118,6 +120,11 @@
 				<i class="bi bi-plus"></i>
 				Add order
 			</button>
+		</div>
+		<div class="position-fixed bottom-0 end-0 p-1 translate-middle bg-danger rounded-5 shadow-lg">
+			<button type="button" class="btn outline btn-lg m-1 shadow-none text-light" (click)="massDelivery()">
+				<i class="bi bi-bicycle h3"></i> 
+			</button> 
 		</div>
 	</div>
 </main>
