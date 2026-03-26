@@ -27,11 +27,11 @@ export class ReceiptService {
 					...order,
 				};
 
-				if (order.customers.length >= 1) { 
+				if (order.customers.length >= 1) {
 					data.groupedItems = this.orderService.mapGroupedItemsByCustomer(order);
 				}
 
-				 
+
 				//console.log('data', data);
 				const result = template(data)
 				return result;
@@ -39,15 +39,16 @@ export class ReceiptService {
 		);
 	}
 
+
 	openPrintWindow(order: any) {
 		this.printOrderReceipt(order)
 			.subscribe((receipt) => {
 				const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=750,toolbar=0,scrollbars=0,status=0');
-				WindowPrt.document.write(receipt); 
+				WindowPrt.document.write(receipt);
 				WindowPrt.document.close();
 				setTimeout(() => {
-					 WindowPrt.print();
-					 WindowPrt.close();
+					WindowPrt.print();
+					WindowPrt.close();
 					return;
 				}, 300);
 			});
@@ -73,7 +74,7 @@ export class ReceiptService {
 
 	openTallyPrintWindow(order: any) {
 		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=350,toolbar=0,scrollbars=0,status=0');
-		const receipt = this.printTally(order); 
+		const receipt = this.printTally(order);
 		WindowPrt.document.write(receipt);
 		WindowPrt.document.close();
 		setTimeout(() => {
@@ -101,7 +102,7 @@ export class ReceiptService {
 
 	OpenPrintMassDelivery(list: any) {
 		const WindowPrt: any = window.open('', '', 'left=0,top=0,width=700,height=350,toolbar=0,scrollbars=0,status=0');
-		const receipt = this.printMassDelivery(list); 
+		const receipt = this.printMassDelivery(list);
 		WindowPrt.document.write(receipt);
 		WindowPrt.document.close();
 		setTimeout(() => {
@@ -111,8 +112,8 @@ export class ReceiptService {
 		}, 300);
 	}
 
-	printMassDelivery(list: any){
-		
+	printMassDelivery(list: any) {
+
 		return `<html>
 					<body>
 						<div class="row">
@@ -122,5 +123,24 @@ export class ReceiptService {
 						</div>
 					</body>
 				</html>`;
+	}
+
+	private printGroupItems(groupItems: [any]) {
+		const template = _.map(groupItems, (groupItem) => {
+			return `<div class="row">
+					<p>${groupItem.text}</p>
+				<br>				
+			</div>
+			<div class="row">
+					<p><br>
+					{formatToCurrency(groupItem.price)}</p>
+			</div>`;
+		});
+
+		return _.join(template, '');
+	}
+
+	private calculateGroupItemsTotal(groupItems: [any]) {
+		return _.sum(_.map(groupItems, 'price'));
 	}
 }

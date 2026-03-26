@@ -88,6 +88,11 @@ export class AddOrderComponent implements OnInit {
     price: ''
   };
 
+  groupItem = {
+    text: '',
+    price: 0,
+  }
+
   customSubItem = {
     text: '',
     value: 0,
