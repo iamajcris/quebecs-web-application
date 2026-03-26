@@ -19,14 +19,14 @@ export class TypesService {
   constructor(
     public httpClient: HttpClient,
   ) {
-    this.apiBase = environment.apiBase;
+    this.apiBase = `${environment.apiBase}/types`;
 
     // TODO: auth
     // httpOptions.headers = httpOptions.headers.set('Authorization', this.oauthService.authorizationHeader());
   }
 
   createTypes(data: any) {
-    return this.httpClient.post(`${this.apiBase}/types`, data);
+    return this.httpClient.post(this.apiBase, data);
   }
 
   getTypesList(name: string, applySessionStorage = true): Observable<any> {
@@ -36,7 +36,7 @@ export class TypesService {
         observer.complete();
       });
     } else {
-      return this.httpClient.get<any[]>(`${environment.api.types}/list/${name}`);
+      return this.httpClient.get<any[]>(`${this.apiBase}/${name}`);
     }
   }
 }
