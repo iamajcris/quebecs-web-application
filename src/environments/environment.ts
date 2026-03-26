@@ -8,9 +8,5 @@ export const environment = {
     appId: "1:971975771640:web:55ff644b4033d7e7b6820d",
     measurementId: "G-G139SSH94D"
   },
-  apiBase: "https://us-central1-quebecs-system.cloudfunctions.net/app",
-  api: {
-    types: "https://us-central1-quebecs-system.cloudfunctions.net/app/types",
-  },
-  templateBaseUrl: "https://us-central1-quebecs-system.cloudfunctions.net/app"
+  apiBase: "https://us-central1-quebecs-system.cloudfunctions.net/app"
 };
