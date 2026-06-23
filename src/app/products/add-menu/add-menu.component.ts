@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { Menu, MenuService } from 'src/services/menu.service';
@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-add-menu',
     templateUrl: './add-menu.component.html',
     styleUrls: ['./add-menu.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, ReactiveFormsModule, NgbInputDatepicker, RouterLink]
 })
 export class AddMenuComponent implements OnInit {

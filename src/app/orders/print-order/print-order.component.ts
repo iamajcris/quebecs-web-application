@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -6,6 +6,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     selector: 'app-print-order',
     templateUrl: './print-order.component.html',
     styleUrls: ['./print-order.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: true
 })
 export class PrintOrderComponent implements OnInit {

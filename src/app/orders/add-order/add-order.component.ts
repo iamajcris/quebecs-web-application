@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, empty, filter, firstValueFrom, map, merge, startWith, take } from 'rxjs';
@@ -35,6 +35,7 @@ const options = [
     selector: 'app-add-order',
     templateUrl: './add-order.component.html',
     styleUrls: ['./add-order.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, ReactiveFormsModule, NgbTypeahead, NgClass, NgbInputDatepicker, RouterLink, AsyncPipe, KeyValuePipe]
 })
 export class AddOrderComponent implements OnInit {

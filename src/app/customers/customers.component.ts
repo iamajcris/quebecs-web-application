@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Form, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Customer } from 'src/models/customer';
@@ -11,6 +11,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
     selector: 'app-customers',
     templateUrl: './customers.component.html',
     styleUrls: ['./customers.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, ReactiveFormsModule]
 })
 export class CustomersComponent implements OnInit {

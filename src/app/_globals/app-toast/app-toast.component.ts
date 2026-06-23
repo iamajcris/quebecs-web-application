@@ -1,4 +1,4 @@
-import { Component, TemplateRef } from '@angular/core';
+import { Component, TemplateRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { NgTemplateOutlet } from '@angular/common';
 import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
@@ -23,6 +23,7 @@ import { ToastService } from 'src/services/toast.service';
 		  </ngb-toast>
 		}
 		`,
+    changeDetection: ChangeDetectionStrategy.Eager,
     host: { class: 'toast-container position-fixed top-0 end-0 p-3', style: 'z-index: 1200' }
 })
 export class ToastsContainer {

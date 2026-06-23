@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { NgbCalendar, NgbDate, NgbDateParserFormatter, NgbModal, NgbPaginationModule, NgbTypeaheadModule, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { AddOrderComponent } from './add-order/add-order.component';
 import { OrderService } from 'src/services/order.service';
@@ -23,6 +23,7 @@ import { DatePipe } from '@angular/common';
     selector: 'app-orders',
     templateUrl: './orders.component.html',
     styleUrls: ['./orders.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, ReactiveFormsModule, NgbInputDatepicker, DatePipe]
 })
 export class OrdersComponent implements OnInit {

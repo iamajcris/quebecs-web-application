@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Customer } from 'src/models/customer';
@@ -9,6 +9,7 @@ import { CustomerService } from 'src/services/customer.service';
     selector: 'app-add-customer',
     templateUrl: './add-customer.component.html',
     styleUrls: ['./add-customer.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FormsModule, ReactiveFormsModule]
 })
 export class AddCustomerComponent implements OnInit {

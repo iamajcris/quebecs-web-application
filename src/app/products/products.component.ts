@@ -1,4 +1,4 @@
-import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AddMenuComponent } from './add-menu/add-menu.component';
 import { Menu, MenuService } from 'src/services/menu.service';
@@ -8,6 +8,7 @@ import { Menu, MenuService } from 'src/services/menu.service';
     selector: 'app-products',
     templateUrl: './products.component.html',
     styleUrls: ['./products.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: []
 })
 export class ProductsComponent implements OnInit {
