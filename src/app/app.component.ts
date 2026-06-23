@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
@@ -6,12 +6,16 @@ import { environment } from './../environments/environment';
 import { LoaderService } from 'src/services/loader.service';
 import { ToastService } from 'src/services/toast.service';
 import { MenuService } from 'src/services/menu.service';
-const { version } = require('package.json');
+import packageJson from 'package.json';
+import { RouterLinkActive, RouterLink, RouterOutlet } from '@angular/router';
+import { ToastsContainer } from './_globals/app-toast/app-toast.component';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RouterLinkActive, RouterLink, ToastsContainer, RouterOutlet]
 })
 export class AppComponent implements OnInit, AfterViewInit {
   public appVersion: string;
@@ -29,7 +33,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const app = initializeApp(environment.firebaseConfig);
     const analytics = getAnalytics(app);
 
-    this.appVersion = version;
+    this.appVersion = packageJson.version;
 
     this.menuService.getMenuList(false).subscribe((res) => {});
   }

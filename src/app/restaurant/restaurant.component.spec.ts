@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { RestaurantComponent } from './restaurant.component';
 
@@ -8,8 +9,8 @@ describe('RestaurantComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RestaurantComponent]
-    });
+    imports: [RestaurantComponent]
+});
     fixture = TestBed.createComponent(RestaurantComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

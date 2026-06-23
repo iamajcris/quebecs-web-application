@@ -34,26 +34,32 @@
             <th scope="col">Mobile #</th>
           </tr>
         </thead>
-        <tr *ngIf="isLoading">
-          <td colspan="6">
-            <div class="d-flex justify-content-center">
-              <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
-            </div>
-          </td>
-        </tr>
-        <tbody *ngIf="customers">
-          <tr *ngFor="let customer of filteredCustomers">
-            <th scope="row">
-              <a class="text-decoration-none pointer" (click)="openCustomerModal(customer)">
-                {{ customer.customerId }}
-              </a>
-            </th>
-            <td> {{ customer.firstName }}</td>
-            <td>{{ customer.lastName }}</td>
-            <td class="text-nowrap">{{ customer.address }}</td>
-            <td>{{ customer.mobileNumber }}</td>
+        @if (isLoading) {
+          <tr>
+            <td colspan="6">
+              <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+              </div>
+            </td>
           </tr>
-        </tbody>
+        }
+        @if (customers) {
+          <tbody>
+            @for (customer of filteredCustomers; track customer) {
+              <tr>
+                <th scope="row">
+                  <a class="text-decoration-none pointer" (click)="openCustomerModal(customer)">
+                    {{ customer.customerId }}
+                  </a>
+                </th>
+                <td> {{ customer.firstName }}</td>
+                <td>{{ customer.lastName }}</td>
+                <td class="text-nowrap">{{ customer.address }}</td>
+                <td>{{ customer.mobileNumber }}</td>
+              </tr>
+            }
+          </tbody>
+        }
       </table>
     </div>
   </div>

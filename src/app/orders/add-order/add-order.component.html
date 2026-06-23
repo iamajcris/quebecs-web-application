@@ -4,374 +4,60 @@
 </div>
 <div class="modal-body bg-light">
   <div class="row">
-    <div *ngIf="orderType === 'quebecs'" class="col-md-5 col-lg-4 order-md-last">
-      <h4 class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex">
-          <span class="text-primary">Your cart</span>
-          <div class="form-check form-switch ms-1">
-            <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" (click)="toggleEditItems()">
-          </div>
-        </div>
-        <span class="badge bg-primary rounded-pill">{{itemsCount}}</span>
-      </h4>
-      <ul class="list-group mb-3">
-        <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let item of items.controls; index as i"
-          [formGroup]="item">
-          <div>
-            <h6 class="my-0">{{item.value.name}}</h6>
-            <small class="text-muted">{{item.value.quantity}}x {{item.value.size}}</small>
-          </div>
-          <div>
-            <span class="text-muted">₱{{item.value.price}}</span>
-            <a class="text-decoration-none text-danger pointer" *ngIf="editItems" (click)="deleteItem(i)">
-              <i class="bi bi-x-lg"></i>
-            </a>
-          </div>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-          <span>Sub Total</span>
-          <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
-        </li>
-        <li class="list-group-item d-flex justify-content-between lh-sm bg-light"
-          *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
-          <div>
-            <h6 class="my-0">{{subItem.value.text}}</h6>
-          </div>
-          <div>
-            <span class="text-muted">P{{subItem.value.price}}</span>
-            <a class="text-decoration-none text-danger pointer" *ngIf="editItems" (click)="deleteSubItem(i)">
-              <i class="bi bi-x-lg"></i>
-            </a>
-          </div>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-          <span>Total</span>
-          <strong>₱{{ orderForm.controls['total'].value }}</strong>
-        </li>
-      </ul>
-      <form class="card p-2 mb-3" (submit)="addSubItem($event)">
-        <div class="input-group">
-          <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem"
-            #subItemInstance="ngbTypeahead" (focus)="focus$.next($any($event).target.value)"
-            (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
-            [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
-            (selectItem)="subItemSelected($event)">
-          <span class="input-group-text">₱</span>
-          <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value"
-            [ngModelOptions]="{standalone: true}">
-          <button type="submit" class="btn btn-secondary">Add</button>
-        </div>
-      </form>
-      <form class="p-2">
-        <button class="w-100 btn btn-primary btn-lg" (click)="save()" [disabled]="this.isSaving">
-          Book Order
-          <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
-        </button>
-      </form>
-    </div>
-    <div [ngClass]="{'col-md-7 col-lg-8': orderType === 'quebecs',
-                     'col-md-12': orderType === 'turo-turo'}">
-      <h4 class="mb-3">Billing address</h4>
-      <form class="needs-validation" novalidate [formGroup]="orderForm">
-        <div class="row g-3" *ngIf="!orderForm.get('isManualEntry')?.disabled">
-          <label for="customerSearch" class="form-label">Customer</label>
-          <div class="input-group mt-0">
-            <input id="typeahead-template" type="text" class="form-control col" formControlName="customerSearch"
-              #customerSearchInstance="ngbTypeahead" [ngbTypeahead]="searchCustomer" [inputFormatter]="formatter"
-              [resultFormatter]="formatter" />
-            <div class="input-group-text">
-              <input id="multiple-entry" class="form-check-input mt-0" type="checkbox" formControlName="isMultipleEntry" (click)="toggleMultipleEntry($event)">
-              <label for="multiple-entry" class="ps-1">Multiple Entry</label>
-            </div>
-            <div class="input-group-text">
-              <input id="manual-entry" class="form-check-input mt-0" type="checkbox" formControlName="isManualEntry">
-              <label for="manual-entry" class="ps-1">Manual Entry</label>
-            </div>
-          </div>
-        </div>
-        <div class="row g-3" formGroupName="customer"
-          *ngIf="orderForm.get('isManualEntry')?.value || orderForm.get('isManualEntry')?.disabled">
-          <div class="col-sm-6">
-            <label for="firstName" class="form-label">First name</label>
-            <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="">
-          </div>
-          <div class="col-sm-6">
-            <label for="lastName" class="form-label">Last name</label>
-            <input type="text" class="form-control" id="lastName" formControlName="lastName" placeholder="">
-          </div>
-          <div class="col-12">
-            <label for="address" class="form-label">Address</label>
-            <input type="text" class="form-control" id="address" formControlName="address">
-          </div>
-          <div class="col-12">
-            <label for="mobileNumber" class="form-label">Mobile number</label>
-            <input type="tel" class="form-control" id="mobileNumber" formControlName="mobileNumber" placeholder="+63">
-          </div>
-          <div class="col-12" *ngIf="!this.orderForm.get('customer')?.get('saveCustomer')?.disabled">
-            <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="save-customer" formControlName="saveCustomer">
-              <label class="form-check-label" for="save-customer">Save customer information?</label>
-            </div>
-          </div>
-          <hr class="my-4">
-        </div>
-
-        <div class="row g-3 mt-1">
-          <div class="col-md-4">
-            <label for="country" class="form-label">Order Date</label>
-            <div class="input-group input-group-md">
-              <input class="form-control" placeholder="yyyy-mm-dd" name="dp" formControlName="orderDateStruct"
-                ngbDatepicker #d="ngbDatepicker" />
-              <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <label for="state" class="form-label">Time</label>
-            <div class="input-group input-group-md">
-              <select class="form-select" formControlName="orderTime">
-                <option selected>{{orderForm.controls['orderTime'].value}}</option>
-                <option *ngFor="let time of meridianTimeList">
-                  {{time}}
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-5">
-            <div class="form-floating">
-              <textarea class="form-control" id="floatingTextarea" style="height: 70px;"></textarea>
-              <label for="floatingTextarea">Notes</label>
-            </div>
-          </div>
-        </div>
-
-        <hr class="mt-4 mb-2">
-
-        <ng-container *ngIf="orderForm.value.isMultipleEntry">
+    @if (orderType === 'quebecs') {
+      <div class="col-md-5 col-lg-4 order-md-last">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
           <div class="d-flex">
-            <label>Customer List</label>
-          </div>
-          <div class="d-flex">
-            <div class="btn-group me-3" role="group" *ngFor="let customer of customers.value; let i = index">
-              <button type="button" class="btn btn-outline-secondary"
-                [ngClass]="selectedCustomerId === customer.customerId ? 'text-bg-warning' : 'text-bg-light'"
-                (click)="setSelectedCustomer(customer.customerId)">
-                {{customer.firstName}} {{customer.lastName}}
-              </button>
-              <button type="button" class="btn btn-outline-secondary" (click)="removeCustomer(i)">x</button>
+            <span class="text-primary">Your cart</span>
+            <div class="form-check form-switch ms-1">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" (click)="toggleEditItems()">
             </div>
           </div>
-        </ng-container>
-
-
-        <ng-container *ngIf="orderType === 'quebecs'">
-          <div class="row g-3 mb-3">
-            <div class="col">
-              <ng-container *ngFor="let type of filters | keyvalue">
-                <button class="btn btn-outline-primary me-2" (click)="filterMenu(type)">{{type.value}}</button>
-              </ng-container>
-              <button class="btn btn-outline-primary me-2" (click)="removeFilter()">
-                <i class="bi bi-arrow-clockwise"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="row g-3 mb-3">
-            <ng-container *ngIf="filteredMenu$ | async as menu">
-              <div *ngFor="let category of menu | keyvalue">
-                <div class="border-bottom mb-3">
-                  <h5>{{category.value[0].category}}</h5>
-                </div>
-                <div class="row">
-                  <div class="col-4 col-xl-3 pb-3" *ngFor="let product of category.value; let i = index">
-                    <div class="card shadow-sm text-dark bg-light pointer">
-                      <div class="card-body p-0 text-center">
-                        <div class="title" (click)="addOrder(product.name, product.price, product.size)">
-                          <label class="card-title mt-2 pointer">{{product.name}}</label>
-                        </div>
-                        <div class="btn-group w-100">
-                          <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0 item-sp"
-                            (click)="addOrder(product.name, product.price, product.size)">
-                            {{product.size}} - {{product.price}}
-                          </button>
-                          <button type="button"
-                            class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top"
-                            data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
-                            <span class="visually-hidden">Toggle Dropdown</span>
-                          </button>
-                          <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
-                            <li *ngFor="let pricing of product.pricing">
-                              <a class="dropdown-item"
-                                (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}}
-                                - {{pricing.price}}</a>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <span class="badge bg-primary rounded-pill">{{itemsCount}}</span>
+        </h4>
+        <ul class="list-group mb-3">
+          @for (item of items.controls; track item; let i = $index) {
+            <li class="list-group-item d-flex justify-content-between lh-sm"
+              [formGroup]="item">
+              <div>
+                <h6 class="my-0">{{item.value.name}}</h6>
+                <small class="text-muted">{{item.value.quantity}}x {{item.value.size}}</small>
               </div>
-            </ng-container>
-          </div>
-        </ng-container>
-        <ng-container *ngIf="orderType === 'turo-turo'">
-          <ng-container *ngIf="filteredMenu$ | async as menu">
-            <ng-container *ngFor="let category of menu | keyvalue">
-              <ul class="list-group mb-3 mt-4">
-                <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let product of category.value; let i = index">
-                  <div class="d-flex">
-                    <div class="input-group" role="group" aria-label="Basic mixed styles example">
-                      <button type="button" class="btn btn-outline-secondary"
-                        (click)="addOrder(product.name, product.price, product.size)">
-                        <i class="bi bi-plus-lg"></i>
-                      </button>
-                      <span class="input-group-text border border-secondary">{{orderForm.value.isMultipleEntry ? groupedItemQuantity(product.name) : itemQuantity(product.name)}}</span>
-                      <button type="button" class="btn btn-outline-secondary" (click)="reduceOrder(product.name, product.size)">
-                        <i class="bi bi-dash-lg"></i>
-                      </button>
-                    </div>
-                    <div class="ms-2">
-                      <h6 class="my-0 text-nowrap">{{product.name}}</h6>
-                      <!-- <small class="text-muted">1x {{item.pricing[0].size}}</small> -->
-                      <div class="btn-group">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                          data-bs-toggle="dropdown" aria-expanded="false">
-                          {{product.size}}
-                        </button>
-                        <ul class="dropdown-menu">
-                          <li *ngFor="let pricing of product.pricing">
-                            <a class="dropdown-item"
-                              (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">
-                              {{pricing.size}} - {{pricing.price}}
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <span class="text-muted">₱{{product.price}}</span>
-                  </div>
-                </li>
-              </ul>
-            </ng-container>
-            <ul class="list-group mb-3" *ngIf="customItemList.length">
-              <li class="list-group-item d-flex justify-content-between lh-sm"
-                *ngFor="let customItem of customItemList; index as i">
-                <div>
-                  <h6 class="my-0">{{customItem.name}}</h6>
-                  <small class="text-muted">{{customItem.quantity}}x {{customItem.size}}</small>
-                </div>
-                <div>
-                  <span class="text-muted">₱{{customItem.price}}</span>
-                </div>
-              </li>
-            </ul>
-            <hr class="mt-4 mb-2 ">
-            <div class="form-check form-switch" style="font-size: 17px;">
-              <input type="checkbox" id="add-custom-tem" class="form-check-input" (click)="toggleCheckbox($event)">
-              <label class="form-check-label" for="add-custom-tem">Add custom item</label>
-            </div>
-            <form class="row g-3 mb-3 px-2" *ngIf="addCustomItem">
-              <div class="card p-2">
-                <ul class="dropdown-menu">
-                  <li *ngFor="let type of priceType">
-                    <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
-                  </li>
-                </ul>
-                <div class="input-group">
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false" style="min-width: 100px;">
-                    {{customItem.size}}
-                  </button>
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false" style="min-width: 50px;">
-                    {{customItem.quantity}}
-                  </button>
-                  <ul class="dropdown-menu">
-                    <li *ngFor="let number of [1,2,3,4,5,6,7,8,9,10]">
-                      <a class="dropdown-item" [routerLink]="" (click)="customItem.quantity = number">{{number}}</a>
-                    </li>
-                    <li>
-                      <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="#">Custom - Coming soon..</a></li>
-                  </ul>
-                  <input type="text" class="form-control" [(ngModel)]="customItem.name"
-                    [ngModelOptions]="{standalone: true}">
-                  <span class="input-group-text">₱</span>
-                  <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price"
-                    [ngModelOptions]="{standalone: true}">
-                  <button class="btn btn-secondary" type="button"
-                    (click)="addOrder(customItem.name, customItem.price, customItem.size, customItem.quantity); updateCustomItemList()">Add</button>
-                </div>
-              </div>
-            </form>
-            <div class="accordion my-3" id="accordionExample">
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    <strong>Summary</strong>
-                  </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                  <div class="accordion-body">
-                    <div class="row">
-                      <div class="col-md-4 col-lg-4" *ngFor="let groupItem of groupedItems">
-                        <ul class="list-group mb-3">
-                          <li class="list-group-item d-flex justify-content-between lh-sm">
-                            <div class="d-flex">
-                              <i class="bi bi-p-square-fill" *ngIf="orderForm.value.customer.customerId === groupItem.customerId"></i>
-                              <h6 class="ms-1 my-0">{{groupItem.customerName}}</h6>
-                            </div>
-                            <div>
-                              <span class="badge bg-primary rounded-pill">{{groupItem.totalQuantity}}</span>
-                            </div>
-                          </li>
-                          <li class="list-group-item d-flex justify-content-between lh-sm" *ngFor="let item of groupItem.items; index as i">
-                            <div>
-                              <h6 class="my-0">{{item.name}}</h6>
-                              <small class="text-muted">{{item.quantity}}x {{item.size}}</small>
-                            </div>
-                            <div>
-                              <span class="text-muted">₱{{item.price}}</span>
-                            </div>
-                          </li>
-                          <li class="list-group-item d-flex justify-content-between">
-                            <span>Total</span>
-                            <strong>₱{{groupItem.total}}</strong>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ul class="list-group mb-3">
-              <li class="list-group-item d-flex justify-content-between">
-                <span>Sub Total</span>
-                <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
-              </li>
-              <li class="list-group-item d-flex justify-content-between lh-sm bg-light"
-                *ngFor="let subItem of subItems.controls; index as i" [formGroup]="subItem">
-                <div>
-                  <h6 class="my-0">{{subItem.value.text}}</h6>
-                </div>
-                <div>
-                  <span class="text-muted">P{{subItem.value.price}}</span>
-                  <a class="text-decoration-none text-danger pointer" *ngIf="editItems" (click)="deleteSubItem(i)">
+              <div>
+                <span class="text-muted">₱{{item.value.price}}</span>
+                @if (editItems) {
+                  <a class="text-decoration-none text-danger pointer" (click)="deleteItem(i)">
                     <i class="bi bi-x-lg"></i>
                   </a>
-                </div>
-              </li>
-              <li class="list-group-item d-flex justify-content-between">
-                <span>Total</span>
-                <strong>₱{{ orderForm.controls['total'].value }}</strong>
-              </li>
-            </ul>
-          </ng-container>
-        </ng-container>
+                }
+              </div>
+            </li>
+          }
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Sub Total</span>
+            <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
+          </li>
+          @for (subItem of subItems.controls; track subItem; let i = $index) {
+            <li class="list-group-item d-flex justify-content-between lh-sm bg-light"
+              [formGroup]="subItem">
+              <div>
+                <h6 class="my-0">{{subItem.value.text}}</h6>
+              </div>
+              <div>
+                <span class="text-muted">P{{subItem.value.price}}</span>
+                @if (editItems) {
+                  <a class="text-decoration-none text-danger pointer" (click)="deleteSubItem(i)">
+                    <i class="bi bi-x-lg"></i>
+                  </a>
+                }
+              </div>
+            </li>
+          }
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Total</span>
+            <strong>₱{{ orderForm.controls['total'].value }}</strong>
+          </li>
+        </ul>
         <form class="card p-2 mb-3" (submit)="addSubItem($event)">
           <div class="input-group">
             <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem"
@@ -379,51 +65,416 @@
               (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
               [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
               (selectItem)="subItemSelected($event)">
-            <span class="input-group-text">₱</span>
-            <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value"
-              [ngModelOptions]="{standalone: true}">
-            <button type="submit" class="btn btn-secondary">Add</button>
-          </div>
-        </form>
-        <hr class="my-4">
-        <h4 class="mb-3">Payment</h4>
-        <ul class="list-group mb-3">
-          <li class="list-group-item d-flex">
-            <div class="input-group">
-              <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                aria-expanded="false" style="min-width: 100px;">
-                {{ orderForm.controls['modeOfPayment'].value }}
-              </button>
-              <ul class="dropdown-menu">
-                <li *ngFor="let opt of paymentOptions">
-                  <a class="dropdown-item" [routerLink]=""
-                    (click)="orderForm.controls['modeOfPayment'].patchValue(opt)">{{opt}}</a>
-                </li>
-              </ul>
               <span class="input-group-text">₱</span>
-              <input type="number" class="form-control text-end" formControlName="paymentAmount" placeholder="Amount">
-            </div>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>Change</span>
-            <strong>₱{{ orderForm.controls['paymentChange'].value }}</strong>
-          </li>
-        </ul>
-        <hr class="my-4">
-        <div class="col-12">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="print-receipt" [(ngModel)]="printReceipt"
-              [ngModelOptions]="{standalone: true}">
-            <label class="form-check-label" for="print-receipt">Print receipt</label>
+              <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value"
+                [ngModelOptions]="{standalone: true}">
+                <button type="submit" class="btn btn-secondary">Add</button>
+              </div>
+            </form>
+            <form class="p-2">
+              <button class="w-100 btn btn-primary btn-lg" (click)="save()" [disabled]="this.isSaving">
+                Book Order
+                <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
+              </button>
+            </form>
           </div>
-        </div>
-        <form class="p-2">
-          <button class="w-100 btn btn-primary btn-lg" (click)="save()" [disabled]="this.isSaving">
-            {{ order ? 'Update' : 'Book'}} Order
-            <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
-          </button>
-        </form>
-      </form>
-    </div>
-  </div>
-</div>
+        }
+    <div [ngClass]="{'col-md-7 col-lg-8': orderType === 'quebecs',
+                     'col-md-12': orderType === 'turo-turo'}">
+          <h4 class="mb-3">Billing address</h4>
+          <form class="needs-validation" novalidate [formGroup]="orderForm">
+            @if (!orderForm.get('isManualEntry')?.disabled) {
+              <div class="row g-3">
+                <label for="customerSearch" class="form-label">Customer</label>
+                <div class="input-group mt-0">
+                  <input id="typeahead-template" type="text" class="form-control col" formControlName="customerSearch"
+                    #customerSearchInstance="ngbTypeahead" [ngbTypeahead]="searchCustomer" [inputFormatter]="formatter"
+                    [resultFormatter]="formatter" />
+                    <div class="input-group-text">
+                      <input id="multiple-entry" class="form-check-input mt-0" type="checkbox" formControlName="isMultipleEntry" (click)="toggleMultipleEntry($event)">
+                      <label for="multiple-entry" class="ps-1">Multiple Entry</label>
+                    </div>
+                    <div class="input-group-text">
+                      <input id="manual-entry" class="form-check-input mt-0" type="checkbox" formControlName="isManualEntry">
+                      <label for="manual-entry" class="ps-1">Manual Entry</label>
+                    </div>
+                  </div>
+                </div>
+              }
+              @if (orderForm.get('isManualEntry')?.value || orderForm.get('isManualEntry')?.disabled) {
+                <div class="row g-3" formGroupName="customer"
+                  >
+                  <div class="col-sm-6">
+                    <label for="firstName" class="form-label">First name</label>
+                    <input type="text" class="form-control" id="firstName" formControlName="firstName" placeholder="">
+                  </div>
+                  <div class="col-sm-6">
+                    <label for="lastName" class="form-label">Last name</label>
+                    <input type="text" class="form-control" id="lastName" formControlName="lastName" placeholder="">
+                  </div>
+                  <div class="col-12">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" class="form-control" id="address" formControlName="address">
+                  </div>
+                  <div class="col-12">
+                    <label for="mobileNumber" class="form-label">Mobile number</label>
+                    <input type="tel" class="form-control" id="mobileNumber" formControlName="mobileNumber" placeholder="+63">
+                  </div>
+                  @if (!this.orderForm.get('customer')?.get('saveCustomer')?.disabled) {
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="save-customer" formControlName="saveCustomer">
+                        <label class="form-check-label" for="save-customer">Save customer information?</label>
+                      </div>
+                    </div>
+                  }
+                  <hr class="my-4">
+                </div>
+              }
+
+              <div class="row g-3 mt-1">
+                <div class="col-md-4">
+                  <label for="country" class="form-label">Order Date</label>
+                  <div class="input-group input-group-md">
+                    <input class="form-control" placeholder="yyyy-mm-dd" name="dp" formControlName="orderDateStruct"
+                      ngbDatepicker #d="ngbDatepicker" />
+                      <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="state" class="form-label">Time</label>
+                    <div class="input-group input-group-md">
+                      <select class="form-select" formControlName="orderTime">
+                        <option selected>{{orderForm.controls['orderTime'].value}}</option>
+                        @for (time of meridianTimeList; track time) {
+                          <option>
+                            {{time}}
+                          </option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-5">
+                    <div class="form-floating">
+                      <textarea class="form-control" id="floatingTextarea" style="height: 70px;"></textarea>
+                      <label for="floatingTextarea">Notes</label>
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="mt-4 mb-2">
+
+                @if (orderForm.value.isMultipleEntry) {
+                  <div class="d-flex">
+                    <label>Customer List</label>
+                  </div>
+                  <div class="d-flex">
+                    @for (customer of customers.value; track customer; let i = $index) {
+                      <div class="btn-group me-3" role="group">
+                        <button type="button" class="btn btn-outline-secondary"
+                          [ngClass]="selectedCustomerId === customer.customerId ? 'text-bg-warning' : 'text-bg-light'"
+                          (click)="setSelectedCustomer(customer.customerId)">
+                          {{customer.firstName}} {{customer.lastName}}
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" (click)="removeCustomer(i)">x</button>
+                      </div>
+                    }
+                  </div>
+                }
+
+
+                @if (orderType === 'quebecs') {
+                  <div class="row g-3 mb-3">
+                    <div class="col">
+                      @for (type of filters | keyvalue; track type) {
+                        <button class="btn btn-outline-primary me-2" (click)="filterMenu(type)">{{type.value}}</button>
+                      }
+                      <button class="btn btn-outline-primary me-2" (click)="removeFilter()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="row g-3 mb-3">
+                    @if (filteredMenu$ | async; as menu) {
+                      @for (category of menu | keyvalue; track category) {
+                        <div>
+                          <div class="border-bottom mb-3">
+                            <h5>{{category.value[0].category}}</h5>
+                          </div>
+                          <div class="row">
+                            @for (product of category.value; track product; let i = $index) {
+                              <div class="col-4 col-xl-3 pb-3">
+                                <div class="card shadow-sm text-dark bg-light pointer">
+                                  <div class="card-body p-0 text-center">
+                                    <div class="title" (click)="addOrder(product.name, product.price, product.size)">
+                                      <label class="card-title mt-2 pointer">{{product.name}}</label>
+                                    </div>
+                                    <div class="btn-group w-100">
+                                      <button type="button" class="btn btn-warning no-border-radius-top text-end pe-0 item-sp"
+                                        (click)="addOrder(product.name, product.price, product.size)">
+                                        {{product.size}} - {{product.price}}
+                                      </button>
+                                      <button type="button"
+                                        class="btn btn-warning dropdown-toggle dropdown-toggle-split no-border-radius-top"
+                                        data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                      </button>
+                                      <ul class="dropdown-menu" aria-labelledby="defaultDropdown">
+                                        @for (pricing of product.pricing; track pricing) {
+                                          <li>
+                                            <a class="dropdown-item"
+                                              (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">{{pricing.size}}
+                                            - {{pricing.price}}</a>
+                                          </li>
+                                        }
+                                      </ul>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                }
+                @if (orderType === 'turo-turo') {
+                  @if (filteredMenu$ | async; as menu) {
+                    @for (category of menu | keyvalue; track category) {
+                      <ul class="list-group mb-3 mt-4">
+                        @for (product of category.value; track product; let i = $index) {
+                          <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div class="d-flex">
+                              <div class="input-group" role="group" aria-label="Basic mixed styles example">
+                                <button type="button" class="btn btn-outline-secondary"
+                                  (click)="addOrder(product.name, product.price, product.size)">
+                                  <i class="bi bi-plus-lg"></i>
+                                </button>
+                                <span class="input-group-text border border-secondary">{{orderForm.value.isMultipleEntry ? groupedItemQuantity(product.name) : itemQuantity(product.name)}}</span>
+                                <button type="button" class="btn btn-outline-secondary" (click)="reduceOrder(product.name, product.size)">
+                                  <i class="bi bi-dash-lg"></i>
+                                </button>
+                              </div>
+                              <div class="ms-2">
+                                <h6 class="my-0 text-nowrap">{{product.name}}</h6>
+                                <!-- <small class="text-muted">1x {{item.pricing[0].size}}</small> -->
+                                <div class="btn-group">
+                                  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{product.size}}
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    @for (pricing of product.pricing; track pricing) {
+                                      <li>
+                                        <a class="dropdown-item"
+                                          (click)="itemChangeSze(category.key, product, pricing.size, pricing.price)">
+                                          {{pricing.size}} - {{pricing.price}}
+                                        </a>
+                                      </li>
+                                    }
+                                  </ul>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <span class="text-muted">₱{{product.price}}</span>
+                            </div>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    @if (customItemList.length) {
+                      <ul class="list-group mb-3">
+                        @for (customItem of customItemList; track customItem; let i = $index) {
+                          <li class="list-group-item d-flex justify-content-between lh-sm"
+                            >
+                            <div>
+                              <h6 class="my-0">{{customItem.name}}</h6>
+                              <small class="text-muted">{{customItem.quantity}}x {{customItem.size}}</small>
+                            </div>
+                            <div>
+                              <span class="text-muted">₱{{customItem.price}}</span>
+                            </div>
+                          </li>
+                        }
+                      </ul>
+                    }
+                    <hr class="mt-4 mb-2 ">
+                    <div class="form-check form-switch" style="font-size: 17px;">
+                      <input type="checkbox" id="add-custom-tem" class="form-check-input" (click)="toggleCheckbox($event)">
+                      <label class="form-check-label" for="add-custom-tem">Add custom item</label>
+                    </div>
+                    @if (addCustomItem) {
+                      <form class="row g-3 mb-3 px-2">
+                        <div class="card p-2">
+                          <ul class="dropdown-menu">
+                            @for (type of priceType; track type) {
+                              <li>
+                                <a class="dropdown-item" [routerLink]="" (click)="customItem.size = type">{{type}}</a>
+                              </li>
+                            }
+                          </ul>
+                          <div class="input-group">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                              aria-expanded="false" style="min-width: 100px;">
+                              {{customItem.size}}
+                            </button>
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                              aria-expanded="false" style="min-width: 50px;">
+                              {{customItem.quantity}}
+                            </button>
+                            <ul class="dropdown-menu">
+                              @for (number of [1,2,3,4,5,6,7,8,9,10]; track number) {
+                                <li>
+                                  <a class="dropdown-item" [routerLink]="" (click)="customItem.quantity = number">{{number}}</a>
+                                </li>
+                              }
+                              <li>
+                                <hr class="dropdown-divider">
+                              </li>
+                              <li><a class="dropdown-item" href="#">Custom - Coming soon..</a></li>
+                            </ul>
+                            <input type="text" class="form-control" [(ngModel)]="customItem.name"
+                              [ngModelOptions]="{standalone: true}">
+                              <span class="input-group-text">₱</span>
+                              <input type="number" placeholder="Price" class="form-control" [(ngModel)]="customItem.price"
+                                [ngModelOptions]="{standalone: true}">
+                                <button class="btn btn-secondary" type="button"
+                                (click)="addOrder(customItem.name, customItem.price, customItem.size, customItem.quantity); updateCustomItemList()">Add</button>
+                              </div>
+                            </div>
+                          </form>
+                        }
+                        <div class="accordion my-3" id="accordionExample">
+                          <div class="accordion-item">
+                            <h2 class="accordion-header">
+                              <button class="accordion-button px-3 py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <strong>Summary</strong>
+                              </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                              <div class="accordion-body">
+                                <div class="row">
+                                  @for (groupItem of groupedItems; track groupItem) {
+                                    <div class="col-md-4 col-lg-4">
+                                      <ul class="list-group mb-3">
+                                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                                          <div class="d-flex">
+                                            @if (orderForm.value.customer.customerId === groupItem.customerId) {
+                                              <i class="bi bi-p-square-fill"></i>
+                                            }
+                                            <h6 class="ms-1 my-0">{{groupItem.customerName}}</h6>
+                                          </div>
+                                          <div>
+                                            <span class="badge bg-primary rounded-pill">{{groupItem.totalQuantity}}</span>
+                                          </div>
+                                        </li>
+                                        @for (item of groupItem.items; track item; let i = $index) {
+                                          <li class="list-group-item d-flex justify-content-between lh-sm">
+                                            <div>
+                                              <h6 class="my-0">{{item.name}}</h6>
+                                              <small class="text-muted">{{item.quantity}}x {{item.size}}</small>
+                                            </div>
+                                            <div>
+                                              <span class="text-muted">₱{{item.price}}</span>
+                                            </div>
+                                          </li>
+                                        }
+                                        <li class="list-group-item d-flex justify-content-between">
+                                          <span>Total</span>
+                                          <strong>₱{{groupItem.total}}</strong>
+                                        </li>
+                                      </ul>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <ul class="list-group mb-3">
+                          <li class="list-group-item d-flex justify-content-between">
+                            <span>Sub Total</span>
+                            <strong>₱{{ orderForm.controls['subTotal'].value }}</strong>
+                          </li>
+                          @for (subItem of subItems.controls; track subItem; let i = $index) {
+                            <li class="list-group-item d-flex justify-content-between lh-sm bg-light"
+                              [formGroup]="subItem">
+                              <div>
+                                <h6 class="my-0">{{subItem.value.text}}</h6>
+                              </div>
+                              <div>
+                                <span class="text-muted">P{{subItem.value.price}}</span>
+                                @if (editItems) {
+                                  <a class="text-decoration-none text-danger pointer" (click)="deleteSubItem(i)">
+                                    <i class="bi bi-x-lg"></i>
+                                  </a>
+                                }
+                              </div>
+                            </li>
+                          }
+                          <li class="list-group-item d-flex justify-content-between">
+                            <span>Total</span>
+                            <strong>₱{{ orderForm.controls['total'].value }}</strong>
+                          </li>
+                        </ul>
+                      }
+                    }
+                    <form class="card p-2 mb-3" (submit)="addSubItem($event)">
+                      <div class="input-group">
+                        <input type="text" id="subItem-text" class="form-control w-25" [ngbTypeahead]="searchSubItem"
+                          #subItemInstance="ngbTypeahead" (focus)="focus$.next($any($event).target.value)"
+                          (click)="click$.next($any($event).target.value); subItemSelected($any($event).target.value)"
+                          [resultFormatter]="subItemFormatter" [inputFormatter]="subItemInputFormatter"
+                          (selectItem)="subItemSelected($event)">
+                          <span class="input-group-text">₱</span>
+                          <input type="number" class="form-control text-end" id="subItem-value" [(ngModel)]="customSubItem.value"
+                            [ngModelOptions]="{standalone: true}">
+                            <button type="submit" class="btn btn-secondary">Add</button>
+                          </div>
+                        </form>
+                        <hr class="my-4">
+                        <h4 class="mb-3">Payment</h4>
+                        <ul class="list-group mb-3">
+                          <li class="list-group-item d-flex">
+                            <div class="input-group">
+                              <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false" style="min-width: 100px;">
+                                {{ orderForm.controls['modeOfPayment'].value }}
+                              </button>
+                              <ul class="dropdown-menu">
+                                @for (opt of paymentOptions; track opt) {
+                                  <li>
+                                    <a class="dropdown-item" [routerLink]=""
+                                    (click)="orderForm.controls['modeOfPayment'].patchValue(opt)">{{opt}}</a>
+                                  </li>
+                                }
+                              </ul>
+                              <span class="input-group-text">₱</span>
+                              <input type="number" class="form-control text-end" formControlName="paymentAmount" placeholder="Amount">
+                            </div>
+                          </li>
+                          <li class="list-group-item d-flex justify-content-between">
+                            <span>Change</span>
+                            <strong>₱{{ orderForm.controls['paymentChange'].value }}</strong>
+                          </li>
+                        </ul>
+                        <hr class="my-4">
+                        <div class="col-12">
+                          <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="print-receipt" [(ngModel)]="printReceipt"
+                              [ngModelOptions]="{standalone: true}">
+                              <label class="form-check-label" for="print-receipt">Print receipt</label>
+                            </div>
+                          </div>
+                          <form class="p-2">
+                            <button class="w-100 btn btn-primary btn-lg" (click)="save()" [disabled]="this.isSaving">
+                              {{ order ? 'Update' : 'Book'}} Order
+                              <span class="spinner-border spinner-border-sm" role="status" [hidden]="!this.isSaving"></span>
+                            </button>
+                          </form>
+                        </form>
+                      </div>
+                    </div>
+                  </div>

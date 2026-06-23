@@ -6,7 +6,6 @@
     "esModuleInterop": true,
     "outDir": "./out-tsc/app",
     "types": [
-      "@angular/localize",
       "node"
     ]
   },
@@ -15,5 +14,13 @@
   ],
   "include": [
     "src/**/*.d.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core';
-import { Form, FormBuilder, FormGroup } from '@angular/forms';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Form, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Customer } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
 import { AddCustomerComponent } from './add-customer/add-customer.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
+
 @Component({
-  selector: 'app-customers',
-  templateUrl: './customers.component.html',
-  styleUrls: ['./customers.component.scss']
+    selector: 'app-customers',
+    templateUrl: './customers.component.html',
+    styleUrls: ['./customers.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [FormsModule, ReactiveFormsModule]
 })
 export class CustomersComponent implements OnInit {
   isLoading: boolean = false;

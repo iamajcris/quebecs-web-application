@@ -9,29 +9,31 @@
         <div class="col">
           <h5> Select store: </h5>
           <select class="form-select mb-2" formControlName="store">
-            <option *ngFor="let types of storeTypes">
-              {{types}}
-            </option>
+            @for (types of storeTypes; track types) {
+              <option>
+                {{types}}
+              </option>
+            }
           </select>
           <!-- <div class="form-check">
-            <input class="form-check-input" type="checkbox" formControlName="isActive" id="flexCheckDefault">
-            <label class="form-check-label" for="flexCheckDefault">
-              set to active?
-            </label>
-          </div> -->
-        </div>
+          <input class="form-check-input" type="checkbox" formControlName="isActive" id="flexCheckDefault">
+          <label class="form-check-label" for="flexCheckDefault">
+            set to active?
+          </label>
+        </div> -->
       </div>
-      <div class="row">
-        <div class="col">
-          <label for="country" class="form-label">Schedule Date</label>
-          <div class="input-group input-group-md">
-            <input
-              class="form-control"
-              placeholder="mm-dd-yyyy"
-              name="dp"
-              formControlName="scheduleDate"
-              ngbDatepicker
-              #d="ngbDatepicker"
+    </div>
+    <div class="row">
+      <div class="col">
+        <label for="country" class="form-label">Schedule Date</label>
+        <div class="input-group input-group-md">
+          <input
+            class="form-control"
+            placeholder="mm-dd-yyyy"
+            name="dp"
+            formControlName="scheduleDate"
+            ngbDatepicker
+            #d="ngbDatepicker"
             />
             <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
           </div>
@@ -42,31 +44,41 @@
       </div>
       <span class="border-bottom"></span>
       <ng-container formArrayName="menuItems">
-        <ng-container *ngFor="let item of menuItems.controls; index as i">
+        @for (item of menuItems.controls; track item; let i = $index) {
           <div class="row mb-3" [formGroup]="item">
             <div class="row">
               <div class="col-8">
                 <input type="text" class="form-control" formControlName="name" placeholder="Meal">
-                <ng-container *ngIf="item.controls.name.invalid && (item.controls.name.dirty || item.controls.name.touched)">
-                  <label class="text-danger" *ngIf="item.controls.name.errors?.['required']">
-                    Name is required.
-                  </label>
-                  <label class="text-danger" *ngIf="item.controls.name.errors?.['minlength']">
-                    Name must be at least 4 characters long.
-                  </label>
-                </ng-container>
+                @if (item.controls.name.invalid && (item.controls.name.dirty || item.controls.name.touched)) {
+                  @if (item.controls.name.errors?.['required']) {
+                    <label class="text-danger">
+                      Name is required.
+                    </label>
+                  }
+                  @if (item.controls.name.errors?.['minlength']) {
+                    <label class="text-danger">
+                      Name must be at least 4 characters long.
+                    </label>
+                  }
+                }
               </div>
               <div class="col-3">
                 <select class="form-select" formControlName="category">
                   <option selected>{{item.controls.category.value}}</option>
-                  <option *ngFor="let category of categoryList">
-                    {{category}}
-                  </option>
+                  @for (category of categoryList; track category) {
+                    <option>
+                      {{category}}
+                    </option>
+                  }
                 </select>
               </div>
               <div class="col-1">
-                <button *ngIf="i == 0" type="button" class="btn btn-primary" (click)="addMenuItem()"><i class="bi bi-plus-lg"></i></button>
-                <button *ngIf="i > 0" type="button" class="btn btn-danger" (click)="deleteItem(i)"><i class="bi bi-trash"></i></button>
+                @if (i == 0) {
+                  <button type="button" class="btn btn-primary" (click)="addMenuItem()"><i class="bi bi-plus-lg"></i></button>
+                }
+                @if (i > 0) {
+                  <button type="button" class="btn btn-danger" (click)="deleteItem(i)"><i class="bi bi-trash"></i></button>
+                }
               </div>
             </div>
             <div class="d-flex" style="cursor: pointer;">
@@ -75,28 +87,32 @@
               </a>
             </div>
             <ng-container formArrayName="pricing">
-              <div class="row mt-1" *ngFor="let pricing of itemPricing(i).controls; index as p">
-                <div class="col-lg-8 col-md-12" [formGroup]="pricing">
-                  <div class="input-group">
-                    <button class="btn btn-outline-secondary dropdown-toggle w-25" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
-                      {{pricing.value.size}}
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li *ngFor="let type of priceType">
-                        <a class="dropdown-item" [routerLink]="" (click)="patchValue(type, pricing.get('size'))">{{type}}</a>
-                      </li>
-                    </ul>
-                    <input type="number" class="form-control" formControlName="price">
-                    <!-- <button *ngIf="p == 0" class="btn btn-success" type="button" (click)="addPricing(i)">Add</button> -->
-                    <button class="btn btn-secondary" type="button" (click)="deletePricing(i, p)">
-                      <i class="bi bi-dash"></i>
-                    </button>
+              @for (pricing of itemPricing(i).controls; track pricing; let p = $index) {
+                <div class="row mt-1">
+                  <div class="col-lg-8 col-md-12" [formGroup]="pricing">
+                    <div class="input-group">
+                      <button class="btn btn-outline-secondary dropdown-toggle w-25" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="min-width: 100px;">
+                        {{pricing.value.size}}
+                      </button>
+                      <ul class="dropdown-menu">
+                        @for (type of priceType; track type) {
+                          <li>
+                            <a class="dropdown-item" [routerLink]="" (click)="patchValue(type, pricing.get('size'))">{{type}}</a>
+                          </li>
+                        }
+                      </ul>
+                      <input type="number" class="form-control" formControlName="price">
+                      <!-- <button *ngIf="p == 0" class="btn btn-success" type="button" (click)="addPricing(i)">Add</button> -->
+                      <button class="btn btn-secondary" type="button" (click)="deletePricing(i, p)">
+                        <i class="bi bi-dash"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              }
             </ng-container>
           </div>
-        </ng-container>
+        }
       </ng-container>
     </div>
   </form>
