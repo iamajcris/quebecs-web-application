@@ -9,7 +9,6 @@ import { NgIf } from '@angular/common';
     selector: 'app-add-customer',
     templateUrl: './add-customer.component.html',
     styleUrls: ['./add-customer.component.scss'],
-    standalone: true,
     imports: [FormsModule, ReactiveFormsModule, NgIf]
 })
 export class AddCustomerComponent implements OnInit {

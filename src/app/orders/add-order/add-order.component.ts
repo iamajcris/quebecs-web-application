@@ -35,7 +35,6 @@ const options = [
     selector: 'app-add-order',
     templateUrl: './add-order.component.html',
     styleUrls: ['./add-order.component.scss'],
-    standalone: true,
     imports: [NgIf, NgFor, FormsModule, ReactiveFormsModule, NgbTypeahead, NgClass, NgbInputDatepicker, RouterLink, AsyncPipe, KeyValuePipe]
 })
 export class AddOrderComponent implements OnInit {

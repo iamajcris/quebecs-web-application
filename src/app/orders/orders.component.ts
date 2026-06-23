@@ -23,7 +23,6 @@ import { NgFor, NgIf, DatePipe } from '@angular/common';
     selector: 'app-orders',
     templateUrl: './orders.component.html',
     styleUrls: ['./orders.component.scss'],
-    standalone: true,
     imports: [FormsModule, ReactiveFormsModule, NgFor, NgbInputDatepicker, NgIf, DatePipe]
 })
 export class OrdersComponent implements OnInit {

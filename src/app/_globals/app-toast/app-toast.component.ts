@@ -5,10 +5,9 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from 'src/services/toast.service';
 
 @Component({
-	selector: 'app-toasts',
-	standalone: true,
-	imports: [NgbToastModule, NgIf, NgTemplateOutlet, NgFor],
-	template: `
+    selector: 'app-toasts',
+    imports: [NgbToastModule, NgIf, NgTemplateOutlet, NgFor],
+    template: `
 		<ngb-toast
 			*ngFor="let toast of toastService.toasts"
 			[class]="toast.classname"
@@ -23,7 +22,7 @@ import { ToastService } from 'src/services/toast.service';
 			<ng-template #text>{{ toast.textOrTpl }}</ng-template>
 		</ngb-toast>
 	`,
-	host: { class: 'toast-container position-fixed top-0 end-0 p-3', style: 'z-index: 1200' },
+    host: { class: 'toast-container position-fixed top-0 end-0 p-3', style: 'z-index: 1200' }
 })
 export class ToastsContainer {
 	constructor(public toastService: ToastService) {}

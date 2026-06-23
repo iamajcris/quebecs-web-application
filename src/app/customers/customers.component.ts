@@ -11,7 +11,6 @@ import { NgIf, NgFor } from '@angular/common';
     selector: 'app-customers',
     templateUrl: './customers.component.html',
     styleUrls: ['./customers.component.scss'],
-    standalone: true,
     imports: [FormsModule, ReactiveFormsModule, NgIf, NgFor]
 })
 export class CustomersComponent implements OnInit {

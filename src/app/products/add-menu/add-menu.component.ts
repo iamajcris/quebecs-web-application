@@ -12,7 +12,6 @@ import { NgFor, NgIf } from '@angular/common';
     selector: 'app-add-menu',
     templateUrl: './add-menu.component.html',
     styleUrls: ['./add-menu.component.scss'],
-    standalone: true,
     imports: [FormsModule, ReactiveFormsModule, NgFor, NgbInputDatepicker, NgIf, RouterLink]
 })
 export class AddMenuComponent implements OnInit {

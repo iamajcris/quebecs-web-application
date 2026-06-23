@@ -8,7 +8,6 @@ import { NgFor } from '@angular/common';
     selector: 'app-products',
     templateUrl: './products.component.html',
     styleUrls: ['./products.component.scss'],
-    standalone: true,
     imports: [NgFor]
 })
 export class ProductsComponent implements OnInit {
