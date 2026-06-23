@@ -12,15 +12,14 @@ import { AsyncPipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddOrderComponent } from './orders/add-order/add-order.component';
 import { AddMenuComponent } from './products/add-menu/add-menu.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { PrintOrderComponent } from './orders/print-order/print-order.component';
 import { AddCustomerComponent } from './customers/add-customer/add-customer.component';
 import { ToastsContainer } from './_globals/app-toast/app-toast.component';
 
-@NgModule({
-    declarations: [AppComponent],
-    imports: [
-        BrowserModule,
+@NgModule({ declarations: [AppComponent],
+    bootstrap: [AppComponent],
+    schemas: [], imports: [BrowserModule,
         AppRoutingModule,
         NgbModule,
         NgFor,
@@ -34,7 +33,6 @@ import { ToastsContainer } from './_globals/app-toast/app-toast.component';
         NgbModalModule,
         NgbDatepicker,
         ReactiveFormsModule,
-        HttpClientModule,
         NgbTypeaheadModule,
         NgbTooltipModule,
         ToastsContainer,
@@ -46,12 +44,8 @@ import { ToastsContainer } from './_globals/app-toast/app-toast.component';
         AddCustomerComponent,
         AddOrderComponent,
         AddMenuComponent,
-        PrintOrderComponent
-    ],
-    providers: [
+        PrintOrderComponent], providers: [
         DecimalPipe,
-    ],
-    bootstrap: [AppComponent],
-    schemas: []
-})
+        provideHttpClient(withInterceptorsFromDi()),
+    ] })
 export class AppModule { }
