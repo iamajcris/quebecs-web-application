@@ -2,11 +2,14 @@ import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AddMenuComponent } from './add-menu/add-menu.component';
 import { Menu, MenuService } from 'src/services/menu.service';
+import { NgFor } from '@angular/common';
 
 @Component({
-  selector: 'app-products',
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss']
+    selector: 'app-products',
+    templateUrl: './products.component.html',
+    styleUrls: ['./products.component.scss'],
+    standalone: true,
+    imports: [NgFor]
 })
 export class ProductsComponent implements OnInit {
   menuList: Menu[];

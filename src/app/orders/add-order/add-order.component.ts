@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead } from '@ng-bootstrap/ng-bootstrap';
+import { FormArray, FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbTypeahead, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, Observable, OperatorFunction, Subject, combineLatest, debounceTime, distinctUntilChanged, empty, filter, firstValueFrom, map, merge, startWith, take } from 'rxjs';
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
@@ -13,7 +13,8 @@ import { ORDER_TYPES } from '../../contants/order-type.constant';
 import { TemplateService } from 'src/services/template.service';
 import { ToastService } from 'src/services/toast.service';
 import { ReceiptService } from 'src/services/receipt.service';
-import { Location } from '@angular/common';
+import { Location, NgIf, NgFor, NgClass, AsyncPipe, KeyValuePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 const options = [
   {
@@ -31,9 +32,11 @@ const options = [
 ];
 
 @Component({
-  selector: 'app-add-order',
-  templateUrl: './add-order.component.html',
-  styleUrls: ['./add-order.component.scss']
+    selector: 'app-add-order',
+    templateUrl: './add-order.component.html',
+    styleUrls: ['./add-order.component.scss'],
+    standalone: true,
+    imports: [NgIf, NgFor, FormsModule, ReactiveFormsModule, NgbTypeahead, NgClass, NgbInputDatepicker, RouterLink, AsyncPipe, KeyValuePipe]
 })
 export class AddOrderComponent implements OnInit {
   @Input() public order: any;

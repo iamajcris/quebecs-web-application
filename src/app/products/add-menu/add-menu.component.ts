@@ -1,15 +1,19 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Form, FormArray, FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbDateParserFormatter, NgbDateStruct, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { Menu, MenuService } from 'src/services/menu.service';
 import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
 import { convertToDateStruct } from 'src/helpers/util';
+import { RouterLink } from '@angular/router';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
-  selector: 'app-add-menu',
-  templateUrl: './add-menu.component.html',
-  styleUrls: ['./add-menu.component.scss']
+    selector: 'app-add-menu',
+    templateUrl: './add-menu.component.html',
+    styleUrls: ['./add-menu.component.scss'],
+    standalone: true,
+    imports: [FormsModule, ReactiveFormsModule, NgFor, NgbInputDatepicker, NgIf, RouterLink]
 })
 export class AddMenuComponent implements OnInit {
   form: FormGroup;

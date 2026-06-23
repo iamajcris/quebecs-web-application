@@ -18,42 +18,40 @@ import { AddCustomerComponent } from './customers/add-customer/add-customer.comp
 import { ToastsContainer } from './_globals/app-toast/app-toast.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    OrdersComponent,
-    RestaurantComponent,
-    HomeComponent,
-    ProductsComponent,
-    CustomersComponent,
-    AddCustomerComponent,
-    AddOrderComponent,
-    AddMenuComponent,
-    PrintOrderComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    NgbModule,
-		NgFor,
-		DecimalPipe,
-		FormsModule,
-		AsyncPipe,
-		NgbTypeaheadModule,
-		NgbPaginationModule,
-		NgIf,
-    NgbModule,
-    NgbModalModule,
-    NgbDatepicker,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbTypeaheadModule,
-    NgbTooltipModule,
-    ToastsContainer
-  ],
-  providers: [
-    DecimalPipe,
-  ],
-  bootstrap: [AppComponent],
-  schemas: []
+    declarations: [AppComponent],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        NgbModule,
+        NgFor,
+        DecimalPipe,
+        FormsModule,
+        AsyncPipe,
+        NgbTypeaheadModule,
+        NgbPaginationModule,
+        NgIf,
+        NgbModule,
+        NgbModalModule,
+        NgbDatepicker,
+        ReactiveFormsModule,
+        HttpClientModule,
+        NgbTypeaheadModule,
+        NgbTooltipModule,
+        ToastsContainer,
+        OrdersComponent,
+        RestaurantComponent,
+        HomeComponent,
+        ProductsComponent,
+        CustomersComponent,
+        AddCustomerComponent,
+        AddOrderComponent,
+        AddMenuComponent,
+        PrintOrderComponent
+    ],
+    providers: [
+        DecimalPipe,
+    ],
+    bootstrap: [AppComponent],
+    schemas: []
 })
 export class AppModule { }

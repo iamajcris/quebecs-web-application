@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbCalendar, NgbDate, NgbDateParserFormatter, NgbModal, NgbPaginationModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCalendar, NgbDate, NgbDateParserFormatter, NgbModal, NgbPaginationModule, NgbTypeaheadModule, NgbInputDatepicker } from '@ng-bootstrap/ng-bootstrap';
 import { AddOrderComponent } from './add-order/add-order.component';
 import { OrderService } from 'src/services/order.service';
 import { PrintOrderComponent } from './print-order/print-order.component';
@@ -7,7 +7,7 @@ import { ReceiptService } from 'src/services/receipt.service';
 import { DateTime } from "luxon";
 import * as _ from 'lodash';
 import { Types } from 'src/services/types.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { convertToDateStruct } from 'src/helpers/util';
 import { combineLatest, forkJoin, merge } from 'rxjs';
 import { ORDER_TYPES } from '../contants/order-type.constant';
@@ -17,11 +17,14 @@ import { ToastService } from 'src/services/toast.service';
 import { CustomerService } from 'src/services/customer.service';
 import settings from 'app.config.json';
 import { Item } from 'firebase/analytics';
+import { NgFor, NgIf, DatePipe } from '@angular/common';
 
 @Component({
-	selector: 'app-orders',
-	templateUrl: './orders.component.html',
-	styleUrls: ['./orders.component.scss']
+    selector: 'app-orders',
+    templateUrl: './orders.component.html',
+    styleUrls: ['./orders.component.scss'],
+    standalone: true,
+    imports: [FormsModule, ReactiveFormsModule, NgFor, NgbInputDatepicker, NgIf, DatePipe]
 })
 export class OrdersComponent implements OnInit {
 	orderList: any[];
