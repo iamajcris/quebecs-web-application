@@ -6,13 +6,13 @@ import * as _ from 'lodash';
 import settings from '../../../../app.config.json';
 import { convertToDateStruct } from 'src/helpers/util';
 import { RouterLink } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+
 
 @Component({
     selector: 'app-add-menu',
     templateUrl: './add-menu.component.html',
     styleUrls: ['./add-menu.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, NgFor, NgbInputDatepicker, NgIf, RouterLink]
+    imports: [FormsModule, ReactiveFormsModule, NgbInputDatepicker, RouterLink]
 })
 export class AddMenuComponent implements OnInit {
   form: FormGroup;

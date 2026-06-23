@@ -38,18 +38,20 @@
               Please enter mobile number.
             </div>
           </div>
-          
+
         </div>
       </form>
     </div>
-  </div>  
+  </div>
 </div>
 <div class="modal-footer justify-content-between">
   <div>
-    <button type="button" class="btn btn-secondary" *ngIf="customer" (click)="delete(customer.id)">
-      <i class="bi bi-trash"></i>
-      Delete
-    </button>
+    @if (customer) {
+      <button type="button" class="btn btn-secondary" (click)="delete(customer.id)">
+        <i class="bi bi-trash"></i>
+        Delete
+      </button>
+    }
   </div>
   <div>
     <button type="button" class="btn btn-primary me-2" (click)="save()" [disabled]="this.isSaving">

@@ -3,13 +3,13 @@ import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule }
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Customer } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
-import { NgIf } from '@angular/common';
+
 
 @Component({
     selector: 'app-add-customer',
     templateUrl: './add-customer.component.html',
     styleUrls: ['./add-customer.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, NgIf]
+    imports: [FormsModule, ReactiveFormsModule]
 })
 export class AddCustomerComponent implements OnInit {
   isSaving: boolean = false;

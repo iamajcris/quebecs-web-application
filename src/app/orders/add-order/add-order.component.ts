@@ -13,7 +13,7 @@ import { ORDER_TYPES } from '../../contants/order-type.constant';
 import { TemplateService } from 'src/services/template.service';
 import { ToastService } from 'src/services/toast.service';
 import { ReceiptService } from 'src/services/receipt.service';
-import { Location, NgIf, NgFor, NgClass, AsyncPipe, KeyValuePipe } from '@angular/common';
+import { Location, NgClass, AsyncPipe, KeyValuePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 const options = [
@@ -35,7 +35,7 @@ const options = [
     selector: 'app-add-order',
     templateUrl: './add-order.component.html',
     styleUrls: ['./add-order.component.scss'],
-    imports: [NgIf, NgFor, FormsModule, ReactiveFormsModule, NgbTypeahead, NgClass, NgbInputDatepicker, RouterLink, AsyncPipe, KeyValuePipe]
+    imports: [FormsModule, ReactiveFormsModule, NgbTypeahead, NgClass, NgbInputDatepicker, RouterLink, AsyncPipe, KeyValuePipe]
 })
 export class AddOrderComponent implements OnInit {
   @Input() public order: any;

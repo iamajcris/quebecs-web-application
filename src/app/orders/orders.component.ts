@@ -17,13 +17,13 @@ import { ToastService } from 'src/services/toast.service';
 import { CustomerService } from 'src/services/customer.service';
 import settings from 'app.config.json';
 import { Item } from 'firebase/analytics';
-import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-orders',
     templateUrl: './orders.component.html',
     styleUrls: ['./orders.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, NgFor, NgbInputDatepicker, NgIf, DatePipe]
+    imports: [FormsModule, ReactiveFormsModule, NgbInputDatepicker, DatePipe]
 })
 export class OrdersComponent implements OnInit {
 	orderList: any[];

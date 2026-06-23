@@ -5,13 +5,13 @@ import { Customer } from 'src/models/customer';
 import { CustomerService } from 'src/services/customer.service';
 import { AddCustomerComponent } from './add-customer/add-customer.component';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { NgIf, NgFor } from '@angular/common';
+
 
 @Component({
     selector: 'app-customers',
     templateUrl: './customers.component.html',
     styleUrls: ['./customers.component.scss'],
-    imports: [FormsModule, ReactiveFormsModule, NgIf, NgFor]
+    imports: [FormsModule, ReactiveFormsModule]
 })
 export class CustomersComponent implements OnInit {
   isLoading: boolean = false;
