@@ -6,7 +6,7 @@ import { environment } from './../environments/environment';
 import { LoaderService } from 'src/services/loader.service';
 import { ToastService } from 'src/services/toast.service';
 import { MenuService } from 'src/services/menu.service';
-const { version } = require('package.json');
+import packageJson from 'package.json';
 
 @Component({
     selector: 'app-root',
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     const app = initializeApp(environment.firebaseConfig);
     const analytics = getAnalytics(app);
 
-    this.appVersion = version;
+    this.appVersion = packageJson.version;
 
     this.menuService.getMenuList(false).subscribe((res) => {});
   }

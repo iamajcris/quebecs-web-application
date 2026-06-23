@@ -6,7 +6,6 @@
     "esModuleInterop": true,
     "outDir": "./out-tsc/app",
     "types": [
-      "@angular/localize",
       "node"
     ]
   },
