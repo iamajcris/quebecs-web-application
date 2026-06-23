@@ -78,10 +78,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "quebecs-web-application:build:production"
+              "buildTarget": "quebecs-web-application:build:production"
             },
             "development": {
-              "browserTarget": "quebecs-web-application:build:development"
+              "buildTarget": "quebecs-web-application:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +89,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "quebecs-web-application:build"
+            "buildTarget": "quebecs-web-application:build"
           }
         },
         "test": {
