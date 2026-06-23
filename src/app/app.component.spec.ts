@@ -6,8 +6,7 @@ import { ToastsContainer } from './_globals/app-toast/app-toast.component';
 
 describe('AppComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({
-    imports: [RouterTestingModule, ToastsContainer],
-    declarations: [AppComponent]
+    imports: [RouterTestingModule, ToastsContainer, AppComponent]
 }));
 
   it('should create the app', () => {

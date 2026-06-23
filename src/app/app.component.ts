@@ -7,13 +7,15 @@ import { LoaderService } from 'src/services/loader.service';
 import { ToastService } from 'src/services/toast.service';
 import { MenuService } from 'src/services/menu.service';
 import packageJson from 'package.json';
+import { RouterLinkActive, RouterLink, RouterOutlet } from '@angular/router';
+import { ToastsContainer } from './_globals/app-toast/app-toast.component';
 
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    imports: [RouterLinkActive, RouterLink, ToastsContainer, RouterOutlet]
 })
 export class AppComponent implements OnInit, AfterViewInit {
   public appVersion: string;
